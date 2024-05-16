@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Harri.SchoolDemoAPI.BlazorWASM", "src\Harri.SchoolDemoAPI.BlazorWASM\Harri.SchoolDemoAPI.BlazorWASM.csproj", "{45F0B7F8-8151-46A6-89E4-5415ADD79AA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit", "src\Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit\Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.csproj", "{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit", "src\Tests\Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit\Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.csproj", "{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1324DE23-5840-4A27-8841-7DF095E8EEE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A} = {1324DE23-5840-4A27-8841-7DF095E8EEE2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D97C6899-17CD-45B7-8AB1-0A52FE540DD2}

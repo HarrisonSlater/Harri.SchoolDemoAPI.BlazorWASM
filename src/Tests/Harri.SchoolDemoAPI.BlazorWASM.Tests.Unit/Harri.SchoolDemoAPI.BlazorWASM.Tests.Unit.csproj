@@ -32,7 +32,7 @@
 
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Harri.SchoolDemoAPI.BlazorWASM\Harri.SchoolDemoAPI.BlazorWASM.csproj" />
+	  <ProjectReference Include="..\..\Harri.SchoolDemoAPI.BlazorWASM\Harri.SchoolDemoAPI.BlazorWASM.csproj" />
 	</ItemGroup>
 
 
