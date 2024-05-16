@@ -1,0 +1,129 @@
+﻿@page "/student/{StudentId:int}"
+@page "/student/new"
+@inject NavigationManager NavigationManager
+@inject IStudentApiClient _studentClient
+
+<PageTitle>@DisplayText</PageTitle>
+
+<EditForm @ref=EditForm Model="@Student" OnValidSubmit="HandleValidSubmit" >
+    <DataAnnotationsValidator />
+    <MudContainer MaxWidth=MaxWidth.Small>
+        @if (ShowError)
+        {
+            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorText</MudAlert>
+        }
+
+        <MudText Typo="Typo.h3" GutterBottom="true">@DisplayText</MudText>
+
+        <MudCard>
+            <MudCardContent>
+                @if (Loading)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                }
+                else
+                {
+
+                    <MudTextField id="student-name" Label="Name" @bind-Value="Student.Name" For="@(() => Student.Name)" />
+                    <MudNumericField id="student-gpa" Label="GPA" @bind-Value="Student.GPA" For="@(() => Student.GPA)" />
+                }
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading || IsFormUnModified()) Class="ml-auto ma-4">Save</MudButton>
+                @*<MudButton OnClick="Cancel" Variant="Variant.Filled" Color="Color.Error" Class="ml-4 ma-4">Cancel</MudButton>*@
+            </MudCardActions>
+        </MudCard>
+    </MudContainer>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int? StudentId { get; set; }
+
+    internal NewStudentDto Student { get; set; } = new();
+
+    internal StudentDto? ExistingStudent { get; set; }
+
+    internal EditForm? EditForm { get; set; }
+
+    internal string DisplayText => StudentId.HasValue ? "Edit Student" : "Create Student";
+
+    internal bool DisableSubmit { get; set; }
+    internal bool Loading { get; set; }
+    internal bool IsFormUnModified()
+    {
+        if (ExistingStudent is null)
+        {
+            return string.IsNullOrEmpty(Student.Name) && Student.GPA is null;
+        }
+        else
+        {
+            return Student.Name == ExistingStudent.Name && Student.GPA == ExistingStudent.GPA;
+        }
+    }
+
+    internal bool ShowError { get; set; }
+    internal string ErrorText => StudentId.HasValue ? "Failed to update student. Please try again" : "Failed to create new student. Please try again";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (StudentId is not null)
+        {
+            Loading = true;
+            //await Task.Delay(1000); // Simulate server delay
+            ExistingStudent = await _studentClient.GetStudent(StudentId.Value); //TODO differentiate between 404 and 500
+            if (ExistingStudent is not null)
+            {
+                Student = new NewStudentDto()
+                {
+                    Name = ExistingStudent.Name,
+                    GPA = ExistingStudent.GPA
+                };
+            }
+            else
+            {
+                //Invalid StudentId provided, redirect to create new
+                NavigationManager.NavigateTo("/students/new");
+            }
+            Loading = false;
+        }
+    }
+
+    internal async Task HandleValidSubmit()
+    {
+        DisableSubmit = true;
+        ShowError = false;
+
+        if (StudentId is null)
+        {
+            var id = await _studentClient.AddStudent(Student);
+            if (id is null)
+            {
+                // show error
+                DisableSubmit = false;
+                ShowError = true;
+                return;
+            }
+        }
+        else
+        {
+            var existingStudent = new UpdateStudentDto()
+            {
+                Name = Student.Name,
+                GPA = Student.GPA
+            };
+            var response = await _studentClient.UpdateStudent(StudentId.Value, existingStudent);
+
+            if (response is null or false)
+            {
+                // show error
+                DisableSubmit = false;
+                ShowError = true;
+                return;
+            }
+        }
+        //TODO add 'student added/edited' popup
+        NavigationManager.NavigateTo("/students");
+    }
+}

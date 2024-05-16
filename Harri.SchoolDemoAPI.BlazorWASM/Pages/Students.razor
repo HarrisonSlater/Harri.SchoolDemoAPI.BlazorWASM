@@ -1,0 +1,98 @@
+﻿@page "/students"
+@page "/students/page/{PageNumber:int}"
+@inject NavigationManager NavigationManager
+@inject IStudentApiClient _studentClient
+
+<PageTitle>Students</PageTitle>
+
+
+<MudContainer MaxWidth=MaxWidth.Medium>
+    <MudText Typo="Typo.h3" GutterBottom="true">Students</MudText>
+
+    @*<MudTable Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=20 CurrentPage=@PageNumber>
+        <HeaderContent>
+            <MudTh>SId</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>GPA</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="SId">@context.SId</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="GPA">@context.GPA</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager @ref=@Pager PageSizeOptions="new int[] { 10, 20, 50, 100 }"/>
+        </PagerContent>
+    </MudTable>
+        *@
+    @*CurrentPage=@(PageNumber!.Value - 1)*@
+    @*@if (AllStudents is not null) {*@
+    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=@(CurrentPage) Breakpoint=Breakpoint.None>
+        <Columns>
+            <PropertyColumn Property="x => x.SId" />
+            <PropertyColumn Property="x => x.Name" />
+            <PropertyColumn Property="x => x.GPA" />
+            <TemplateColumn CellClass="d-flex justify-end mr-2">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudButton OnClick="@(() => GoToEditStudent(context.Item.SId))" Size=Size.Small Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" Class="" DisableElevation >Edit</MudButton>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T=StudentDto PageSizeOptions="new int[] { 10, 15, 50, 100 }" />
+        </PagerContent>
+    </MudDataGrid>
+    
+</MudContainer>
+
+@code {
+    List<StudentDto>? AllStudents { get; set; }
+
+    [Parameter]
+    public int? PageNumber { get; set; }
+    //private int PageIndex => PageNumber - 1;
+    public int CurrentPage { get; set; }
+
+    private MudDataGrid<StudentDto>? DataGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var studentsResponse = await _studentClient.GetStudentsRestResponse();
+
+        if (studentsResponse.Data != null)
+        {
+            AllStudents = studentsResponse.Data;
+        }
+    }
+    protected override void OnParametersSet()
+    {
+        PageNumber = PageNumber ?? 1;
+        CurrentPage = PageNumber.Value - 1;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
+
+        }
+    }
+
+    private void GoToEditStudent(int? sid)
+    {
+        NavigationManager.NavigateTo($"/student/{sid}", replace: true);
+    }
+
+    private void PagerStateChanged() 
+    {
+        if (DataGrid is not null) {
+            //Set the URL to include page number which updates when the page is changed in the MudDataGridPager
+            var pageNumber = DataGrid!.CurrentPage + 1;
+            NavigationManager.NavigateTo($"/students/page/{pageNumber}", replace: true);
+        }
+    }
+}
