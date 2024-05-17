@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Harri.SchoolDemoAPI.BlazorW
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1324DE23-5840-4A27-8841-7DF095E8EEE2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E", "src\Tests\Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E\Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj", "{799EB361-D7FF-4404-8399-924182AC1DDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +25,17 @@ Global
 		{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{799EB361-D7FF-4404-8399-924182AC1DDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{799EB361-D7FF-4404-8399-924182AC1DDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{799EB361-D7FF-4404-8399-924182AC1DDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{799EB361-D7FF-4404-8399-924182AC1DDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B51F76C2-A1B7-4B91-ADEB-4DE55A976C6A} = {1324DE23-5840-4A27-8841-7DF095E8EEE2}
+		{799EB361-D7FF-4404-8399-924182AC1DDA} = {1324DE23-5840-4A27-8841-7DF095E8EEE2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D97C6899-17CD-45B7-8AB1-0A52FE540DD2}
