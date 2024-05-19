@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Playwright;
+using SpecFlow.Actions.Playwright;
 using System.Text.RegularExpressions;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
@@ -7,7 +8,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     public class StudentsPage
     {
         private readonly IPage _page;
-        private readonly string _baseUrl;
+        public IPage Page => _page;
+        private readonly string _baseUrl = SchoolDemoAdminUrl;
+        private const string SchoolDemoAdminUrl = "https://localhost:7144";
 
         public ILocator RowsDisplayedLocator => _page.Locator(".mud-table-pagination-select");
         public ILocator IdDataCellsLocator => _page.Locator("td[data-label=\"SId\"]");
@@ -16,10 +19,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
 
         public PaginationActions Pagination { get; set; }
-        public StudentsPage(IPage page, string baseUrl)
+        //public StudentsPage(IPage page)
+        //{
+        //    _page = page;
+        //    Pagination = new PaginationActions(_page);
+        //}
+
+        // Constructor for specflow
+        public StudentsPage(BrowserDriver browserDriver)
         {
-            _page = page;
-            _baseUrl = baseUrl;
+            var browserTask = browserDriver.Current;
+            browserTask.Wait();
+            var pageTask = browserTask.Result.NewPageAsync();
+            pageTask.Wait();
+            _page = pageTask.Result;
             Pagination = new PaginationActions(_page);
         }
 
@@ -40,6 +53,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             pageCellData.Should().AllSatisfy(x => x.Should().NotBeEmpty());
 
             return pageCellData;
+        }
+
+        public async Task GoToHome()
+        {
+            await _page.GotoAsync(_baseUrl);
         }
 
         public async Task GoTo()
