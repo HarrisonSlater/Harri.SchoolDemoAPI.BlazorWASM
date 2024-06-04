@@ -55,6 +55,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return pageCellData;
         }
 
+        public async Task<IReadOnlyList<string>> GetCellData(ILocator locator)
+        {
+            var pageCellData = await locator.AllTextContentsAsync();
+            pageCellData.Should().AllSatisfy(x => x.Should().NotBeEmpty());
+
+            return pageCellData;
+        }
+
         public async Task GoToHome()
         {
             await _page.GotoAsync(_baseUrl);
