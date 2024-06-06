@@ -5,7 +5,7 @@
 
 <PageTitle>@DisplayText</PageTitle>
 
-<EditForm @ref=EditForm Model="@Student" OnValidSubmit="HandleValidSubmit" >
+<EditForm @ref=EditForm Model="@Student" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <MudContainer MaxWidth=MaxWidth.Small>
         @if (ShowError)
@@ -29,7 +29,7 @@
                 }
             </MudCardContent>
             <MudCardActions>
-                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading || IsFormUnModified()) Class="ml-auto ma-4">Save</MudButton>
+                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading) Class="ml-auto ma-4">Save</MudButton>
                 @*<MudButton OnClick="Cancel" Variant="Variant.Filled" Color="Color.Error" Class="ml-4 ma-4">Cancel</MudButton>*@
             </MudCardActions>
         </MudCard>
@@ -41,27 +41,19 @@
     [Parameter]
     public int? StudentId { get; set; }
 
-    internal NewStudentDto Student { get; set; } = new();
+    public NewStudentDto Student { get; set; } = new();
 
-    internal StudentDto? ExistingStudent { get; set; }
+    public StudentDto? ExistingStudent { get; set; }
 
-    internal EditForm? EditForm { get; set; }
+    public EditForm? EditForm { get; set; }
 
     internal string DisplayText => StudentId.HasValue ? "Edit Student" : "Create Student";
 
     internal bool DisableSubmit { get; set; }
     internal bool Loading { get; set; }
-    internal bool IsFormUnModified()
-    {
-        if (ExistingStudent is null)
-        {
-            return string.IsNullOrEmpty(Student.Name) && Student.GPA is null;
-        }
-        else
-        {
-            return Student.Name == ExistingStudent.Name && Student.GPA == ExistingStudent.GPA;
-        }
-    }
+
+    internal bool? IsFormUnModified => !EditForm?.EditContext?.IsModified();
+
 
     internal bool ShowError { get; set; }
     internal string ErrorText => StudentId.HasValue ? "Failed to update student. Please try again" : "Failed to create new student. Please try again";

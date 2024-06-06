@@ -181,7 +181,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             var button = editStudentPage.Find(SubmitButtonSelector);
 
             // Assert
-            button.IsDisabled().Should().BeTrue();
+            button.IsDisabled().Should().BeFalse();
             _mockStudentApiClient.Verify(x => x.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()), Times.Never);
         }
 
