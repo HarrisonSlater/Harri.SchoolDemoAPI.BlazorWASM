@@ -9,6 +9,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
     public class StudentsPageSteps
     {
         private readonly StudentsPage _studentsPage;
+
         private IReadOnlyList<string> _page1Names;
 
         public StudentsPageSteps(StudentsPage studentsPage)
@@ -16,24 +17,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             _studentsPage = studentsPage;
         }
 
-        [Given("I am on the home page")]
-        public async Task GivenIAmOnTheHomePage()
+        [Then("I should be redirected back to the students page")]
+        [Then("I should be on the students page")]
+        public async Task IShouldBeOnTheStudentsPage()
         {
-            await _studentsPage.GoToHome();
-            //Todo assert home page visible
-        }
-
-        [Given("I am on the students page")]
-        public async Task GivenIAmOnTheStudentsPage()
-        {
-            await _studentsPage.GoTo();
-            //Todo students page visible
-        }
-
-        [When("I navigate to the students page")]
-        public async Task INavigateToTheStudentsPage()
-        {
-            await _studentsPage.NavigateTo();
+            await _studentsPage.Navigation.AssertStudentsPageUrlIsCorrect();
+            await AssertFullTableAndGetNames();
         }
 
         [Given("I see a table full of students")]
@@ -41,7 +30,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see a table full of students on page 1")]
         public async Task IShouldSeeATableFullOfStudents()
         {
-
             _page1Names = await AssertFullTableAndGetNames();
 
             await Assertions.Expect(_studentsPage.Pagination.GoToFirstPageButton).ToBeDisabledAsync();
@@ -57,17 +45,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see a table with at least one student")]
         public async Task IShouldSeeATableWithAtLeastOneStudent()
         {
-            var sIds = (await _studentsPage.GetCellData(_studentsPage.IdDataCellsLocator));
+            var sIds = (await _studentsPage.GetCellData(_studentsPage.IdDataCells));
             sIds.Should().HaveCountGreaterThan(0);
 
-            var names = (await _studentsPage.GetCellData(_studentsPage.NameDataCellsLocator));
+            var names = (await _studentsPage.GetCellData(_studentsPage.NameDataCells));
             names.Should().HaveCountGreaterThan(0);
         }
 
         private async Task<IReadOnlyList<string>> AssertFullTableAndGetNames()
         {
-            var names = _studentsPage.NameDataCellsLocator;
-            var sIds = _studentsPage.IdDataCellsLocator;
+            var names = _studentsPage.NameDataCells;
+            var sIds = _studentsPage.IdDataCells;
             var rowsDisplayed = await _studentsPage.GetRowsDisplayed();
 
             var rows = _studentsPage.Page.GetByRole(AriaRole.Row);

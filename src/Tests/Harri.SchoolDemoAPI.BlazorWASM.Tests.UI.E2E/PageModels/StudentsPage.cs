@@ -1,44 +1,29 @@
 ﻿using FluentAssertions;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels.Actions;
 using Microsoft.Playwright;
 using SpecFlow.Actions.Playwright;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 {
-    public class StudentsPage
+    public class StudentsPage : BasePage
     {
-        private readonly IPage _page;
-        public IPage Page => _page;
-        private readonly string _baseUrl = SchoolDemoAdminUrl;
-        private const string SchoolDemoAdminUrl = "https://localhost:7144";
-
-        public ILocator RowsDisplayedLocator => _page.Locator(".mud-table-pagination-select");
-        public ILocator IdDataCellsLocator => _page.Locator("td[data-label=\"SId\"]");
-        public ILocator NameDataCellsLocator => _page.Locator("td[data-label=\"Name\"]");
-        public ILocator GPADataCellsLocator => _page.Locator("td[data-label=\"GPA\"]");
-
+        public ILocator RowsDisplayed => _page.Locator(".mud-table-pagination-select");
+        public ILocator IdDataCells => _page.Locator("td[data-label=\"SId\"]");
+        public ILocator NameDataCells => _page.Locator("td[data-label=\"Name\"]");
+        public ILocator GPADataCells => _page.Locator("td[data-label=\"GPA\"]");
 
         public PaginationActions Pagination { get; set; }
-        //public StudentsPage(IPage page)
-        //{
-        //    _page = page;
-        //    Pagination = new PaginationActions(_page);
-        //}
 
-        // Constructor for specflow
-        public StudentsPage(BrowserDriver browserDriver)
+        public StudentsPage(IPage page) : base(page)
         {
-            var browserTask = browserDriver.Current;
-            browserTask.Wait();
-            var pageTask = browserTask.Result.NewPageAsync();
-            pageTask.Wait();
-            _page = pageTask.Result;
             Pagination = new PaginationActions(_page);
         }
 
         public async Task<int> GetRowsDisplayed()
         { 
-            var rowsDisplayed = await RowsDisplayedLocator.TextContentAsync();
+            var rowsDisplayed = await RowsDisplayed.TextContentAsync();
 
             rowsDisplayed.Should().NotBeNull();
 
@@ -62,41 +47,5 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
             return pageCellData;
         }
-
-        public async Task GoToHome()
-        {
-            await _page.GotoAsync(_baseUrl);
-        }
-
-        public async Task GoTo()
-        {
-            await _page.GotoAsync(_baseUrl + "/students");
-        }
-
-        public async Task NavigateTo()
-        {
-            var studentsNavLink = _page.GetByRole(AriaRole.Link, new() { Name = "Students" });
-
-            await studentsNavLink.ClickAsync();
-
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/1"));
-        }
-    }
-
-    public class PaginationActions
-    {
-        private readonly IPage _page;
-
-        public PaginationActions(IPage page)
-        {
-            _page = page;
-        }
-
-        public ILocator PaginationActionsLocator => _page.Locator(".mud-table-pagination-actions");
-
-        public ILocator GoToFirstPageButton => PaginationActionsLocator.Locator("button").Nth(0);
-        public ILocator PreviousPageButton => PaginationActionsLocator.Locator("button").Nth(1);
-        public ILocator NextPageButton => PaginationActionsLocator.Locator("button").Nth(2);
-        public ILocator GoToLastPageButton => PaginationActionsLocator.Locator("button").Nth(3);
     }
 }
