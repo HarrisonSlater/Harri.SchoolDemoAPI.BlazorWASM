@@ -97,6 +97,9 @@
                 ShowError = true;
                 return;
             }
+
+            NavigationManager.NavigateTo($"/students/page/1?successId={id}");
+            return;
         }
         else
         {

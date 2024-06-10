@@ -8,7 +8,11 @@
 
 <MudContainer MaxWidth=MaxWidth.Medium>
     <MudText Typo="Typo.h3" GutterBottom="true">Students</MudText>
-
+    @if (ShowSuccessMessage)
+    {
+        <MudAlert id="student-success-alert" Class="mb-4" Severity="Severity.Success" Variant="Variant.Filled" data-student-id="SuccessfulStudentId"
+            ShowCloseIcon CloseIconClicked="CloseSuccessAlert">@SuccessMessage</MudAlert>
+    }
     @*<MudTable Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=20 CurrentPage=@PageNumber>
         <HeaderContent>
             <MudTh>SId</MudTh>
@@ -27,7 +31,14 @@
         *@
     @*CurrentPage=@(PageNumber!.Value - 1)*@
     @*@if (AllStudents is not null) {*@
-    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=@(CurrentPage) Breakpoint=Breakpoint.None>
+    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=@(CurrentPage) Breakpoint=Breakpoint.None
+        QuickFilter=@_quickFilter>
+        <ToolBarContent>
+            @*<MudText Typo="Typo.h6">Periodic Elements</MudText>*@
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <Columns>
             <PropertyColumn Property="x => x.SId" />
             <PropertyColumn Property="x => x.Name" />
@@ -53,32 +64,74 @@
     [Parameter]
     public int? PageNumber { get; set; }
     //private int PageIndex => PageNumber - 1;
+
+    // This would be better as a strongly typed int however Blazor will 
+    // throw an System.InvalidOperationException that will error out the whole page
+    // when in fact we want to be able to easily recover from a bad value
+    [Parameter, SupplyParameterFromQuery(Name = "successId")]
+    public string? SuccessfulStudentId { get; set; }
+
     public int CurrentPage { get; set; }
+    //internal bool ParametersSet { get; set; }
+
+    internal bool ShowSuccessMessage => SuccessfulStudentId is not null;
+
+    internal string SuccessMessage => $"A student with ID '{SuccessfulStudentId}' was created successfully";
+
+    internal bool AddSuccessIdToHistory { get; set; }
+
+    internal string SearchString { get; set; }
 
     private MudDataGrid<StudentDto>? DataGrid;
 
+    private Func<StudentDto, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+
+        if (x.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.SId.ToString().Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.GPA.ToString().Contains(SearchString))
+            return true;
+
+        return false;
+    };
+
+    private bool Initialized { get; set; }
     protected override async Task OnInitializedAsync()
     {
-
         var studentsResponse = await _studentClient.GetStudentsRestResponse();
 
         if (studentsResponse.Data != null)
         {
             AllStudents = studentsResponse.Data;
         }
+        //DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
+        Initialized = true;
     }
+    private bool PageNumberNullInUrl { get; set; }
+    private bool ParametersSet { get; set; }
     protected override void OnParametersSet()
     {
+        if (PageNumber is null) PageNumberNullInUrl = true;
+
         PageNumber = PageNumber ?? 1;
-        CurrentPage = PageNumber.Value - 1;
+        CurrentPage = (PageNumber ?? 1) - 1;
+        ParametersSet = true;
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
+            CurrentPage = (PageNumber ?? 1) - 1;
 
+            DataGrid.CurrentPage = CurrentPage;
+            DataGrid.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
     }
 
@@ -89,10 +142,25 @@
 
     private void PagerStateChanged() 
     {
-        if (DataGrid is not null) {
+        if (DataGrid is not null && Initialized && ParametersSet)
+        {
             //Set the URL to include page number which updates when the page is changed in the MudDataGridPager
             var pageNumber = DataGrid!.CurrentPage + 1;
-            NavigationManager.NavigateTo($"/students/page/{pageNumber}", replace: true);
+            //TODO add case for /page without /1
+            if (pageNumber != PageNumber || AddSuccessIdToHistory || PageNumberNullInUrl) // Check if the page has actually changed before navigating
+            {
+                var queryString = SuccessfulStudentId is not null ? $"?successId={SuccessfulStudentId}" : "";
+                NavigationManager.NavigateTo($"/students/page/{pageNumber}{queryString}", replace: false);//!AddSuccessIdToHistory);
+
+                AddSuccessIdToHistory = false;
+                PageNumberNullInUrl = false;
+            }
         }
+    }
+
+    private void CloseSuccessAlert()
+    {
+        SuccessfulStudentId = null;
+        AddSuccessIdToHistory = true;
     }
 }

@@ -35,6 +35,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         {
             var mockExistingStudent = new StudentDto()
             {
+                SId = 1,
                 Name = "Test Existing Student",
                 GPA = 2.99m
             };

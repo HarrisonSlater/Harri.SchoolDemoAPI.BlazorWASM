@@ -2,7 +2,7 @@
 <RunSettings>
  <RunConfiguration> 
    <EnvironmentVariables>
-     <PWDEBUG>1</PWDEBUG> 
+     <PWDEBUG>0</PWDEBUG> 
    </EnvironmentVariables> 
  </RunConfiguration> 
 </RunSettings>
