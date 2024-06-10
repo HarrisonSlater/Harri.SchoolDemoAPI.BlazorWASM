@@ -20,18 +20,9 @@ using System;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 {
-    /// <summary>
-    /// These tests are written entirely in C#.
-    /// Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating-basic-tests-in-cs-files
-    /// </summary>
     [TestFixture]
     public class ViewStudentsTests : BunitTestContext
     {
-        //private const string NameInputSelector = "#student-name";
-        //private const string GpaInputSelector = "#student-gpa";
-        //private const string SubmitButtonSelector = "#submit-button";
-
-        //private const string ErrorAlertSelector = "#student-error-alert";
         private const string SuccessAlertSelector = "#student-success-alert";
         public const string IdDataCellsSelector = "td[data-label=\"SId\"]";
         public const string NameDataCellsSelector = "td[data-label=\"Name\"]";
@@ -53,19 +44,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             Services.AddSingleton(_mockStudentApiClient.Object);
             Services.AddMudServices();
-            //Services.AddSingleton<MudPopoverProvider>();
-            //Services.AddSingleton<MudDialogProvider>();
-            //Services.AddSingleton<MudSnackbarProvider>();
-            //Services.AddSingleton<MudThemingProvider>();
-            //Services.AddSingleton<IKeyInterceptorFactory, KeyInterceptorFactory>();
-
-            //Services.AddSingleton<MudRTLProvider>();
-
 
             JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
             JSInterop.SetupVoid("mudPopover.connect", _ => true);
             JSInterop.SetupVoid("mudPopover.initialize", _ => true);
-
         }
 
         private List<StudentDto>? SetUpMockExistingStudents()
