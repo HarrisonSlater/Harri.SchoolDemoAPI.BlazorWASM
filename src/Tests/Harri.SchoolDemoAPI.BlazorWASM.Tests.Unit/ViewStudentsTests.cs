@@ -14,6 +14,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AngleSharp.Text;
+using NUnit.Framework.Constraints;
+using System;
 
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
@@ -34,9 +36,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         public const string IdDataCellsSelector = "td[data-label=\"SId\"]";
         public const string NameDataCellsSelector = "td[data-label=\"Name\"]";
         public const string GPADataCellsSelector = "td[data-label=\"GPA\"]";
+        public const string SearchFieldSelector = "#student-search";
 
 
         private Mock<IStudentApiClient> _mockStudentApiClient;
+        private List<StudentDto> _mockExistingStudents;
 
         private List<string?> _expectedSIds = [];
         private List<string?> _expectedNames = [];
@@ -66,7 +70,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
         private List<StudentDto>? SetUpMockExistingStudents()
         {
-            var mockExistingStudents = new List<StudentDto>() { 
+            _mockExistingStudents = new List<StudentDto>() { 
                 new StudentDto()
                 {
                     SId = 1,
@@ -88,13 +92,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse())
                 .Returns(Task.FromResult(new RestSharp.RestResponse<List<StudentDto>>(new RestSharp.RestRequest()) {
-                    Data = mockExistingStudents
+                    Data = _mockExistingStudents
                 }));
-            _expectedSIds = mockExistingStudents.Select(x => x.SId.ToString()).ToList();
-            _expectedNames = mockExistingStudents.Select(x => x.Name).ToList();
-            _expectedGpas = mockExistingStudents.Select(x => x.GPA.ToString()).ToList();
+            _expectedSIds = _mockExistingStudents.Select(x => x.SId.ToString()).ToList();
+            _expectedNames = _mockExistingStudents.Select(x => x.Name).ToList();
+            _expectedGpas = _mockExistingStudents.Select(x => x.GPA.ToString()).ToList();
 
-            return mockExistingStudents;
+            return _mockExistingStudents;
         }
 
         // View students
@@ -153,6 +157,107 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
             _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+        }
+
+        [TestCase("Test Existing Student")]
+        [TestCase("Student")]
+        [TestCase("  ")]
+        [TestCase("")]
+        public void ViewStudents_SearchFeatureShouldMatchAllStudents(string searchString)
+        {
+            // Arrange
+            SetUpMockExistingStudents();
+
+            var studentsPage = RenderComponent<Students>();
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            // Act
+            var searchField = studentsPage.Find(SearchFieldSelector);
+            searchField.Input(searchString);
+
+            // Assert
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+        }
+
+        [TestCase("1", 1)]
+        [TestCase("1.11", 1)]
+        [TestCase("Test Existing Student 1", 1)]
+        [TestCase("2", 2)]
+        [TestCase("2.22", 2)]
+        [TestCase("Test Existing Student 2", 2)]
+        [TestCase("3", 3)]
+        [TestCase("3.33", 3)]
+        [TestCase("Test Existing Student 3", 3)]
+        public void ViewStudents_SearchFeatureShouldFilterOneStudentCorrectly(string searchString, int expectedStudentId)
+        {
+            // Arrange
+            SetUpMockExistingStudents();
+
+            var studentsPage = RenderComponent<Students>();
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            // Act
+            var searchField = studentsPage.Find(SearchFieldSelector);
+            searchField.Input(searchString);
+
+            // Assert
+            ShouldSeeOnlyOneStudentInGrid(studentsPage, expectedStudentId);
+
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+        }
+
+        [TestCase("Test Existing Student 33")]
+        [TestCase("asdfasdf")]
+        public void ViewStudents_SearchFeatureShouldNotMatchAnyStudents(string searchString)
+        {
+            // Arrange
+            SetUpMockExistingStudents();
+
+            var studentsPage = RenderComponent<Students>();
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            // Act
+            var searchField = studentsPage.Find(SearchFieldSelector);
+            searchField.Input(searchString);
+
+            // Assert
+            ShouldSeeNoStudentsInGrid(studentsPage);
+
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+        }
+
+        private void ShouldSeeNoStudentsInGrid(IRenderedComponent<Students> studentsPage)
+        {
+            var sids = studentsPage.FindAll(IdDataCellsSelector).ToList();
+            var names = studentsPage.FindAll(NameDataCellsSelector).ToList();
+            var gpas = studentsPage.FindAll(GPADataCellsSelector).ToList();
+
+            sids.Should().HaveCount(0);
+            names.Should().HaveCount(0);
+            gpas.Should().HaveCount(0);
+        }
+        private void ShouldSeeOnlyOneStudentInGrid(IRenderedComponent<Students> studentsPage, int studentId)
+        {
+            var expectedStudent = _mockExistingStudents.Find(s => s.SId == studentId);
+            if (expectedStudent == null) throw new ArgumentException($"Invalid test studentId: {studentId}");
+
+            var sids = studentsPage.FindAll(IdDataCellsSelector).ToList();
+            var names = studentsPage.FindAll(NameDataCellsSelector).ToList();
+            var gpas = studentsPage.FindAll(GPADataCellsSelector).ToList();
+
+            sids.Should().HaveCount(1);
+            names.Should().HaveCount(1);
+            gpas.Should().HaveCount(1);
+
+            var actualSIds = sids.Select(x => x.GetInnerText()).ToList();
+            var actualNames = names.Select(x => x.GetInnerText()).ToList();
+            var actualGpas = gpas.Select(x => x.GetInnerText()).ToList();
+
+            actualSIds.Should().BeEquivalentTo([expectedStudent.SId.ToString()]);
+            actualNames.Should().BeEquivalentTo([expectedStudent.Name]);
+            actualGpas.Should().BeEquivalentTo([expectedStudent.GPA.ToString()]);
         }
 
         private void ShouldSeeExpectedStudentsInGrid(IRenderedComponent<Students> studentsPage)
