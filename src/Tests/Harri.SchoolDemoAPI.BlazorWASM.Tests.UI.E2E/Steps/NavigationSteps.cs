@@ -15,12 +15,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
     {
         private readonly IPage _page;
         private readonly EditStudentPage _editStudentPage;
+        private readonly StudentsPage _studentsPage;
         private readonly NavigationActions _navigationActions;
 
-        public NavigationSteps(IPage page, EditStudentPage editStudentPage)
+        public NavigationSteps(IPage page, EditStudentPage editStudentPage, StudentsPage studentsPage)
         {
             _page = page;
             _editStudentPage = editStudentPage;
+            _studentsPage = studentsPage;
             _navigationActions = new NavigationActions(page);
         }
 
@@ -42,7 +44,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _navigationActions.GoToCreateNewStudentPage();
         }
 
-        [When("I navigate to the students page")]
+        [When("(I )navigate to the students page")]
         public async Task INavigateToTheStudentsPage()
         {
             await _navigationActions.NavigateToStudentsPage();
@@ -52,6 +54,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         public async Task INavigateToTheCreateNewStudentPage()
         {
             await _navigationActions.NavigateToCreateNewStudentPage();
+        }
+
+        //TODO move to separate step file for combined steps?
+        private (string?, string?, string?) _studentRow;
+        [Given("I am on the edit page for a student")]
+        public async Task GivenIAmOnTheEditPageForAStudent()
+        {
+            await GivenIAmOnTheStudentsPage();
+
+            _studentRow = await _studentsPage.ClickEditOnTheFirstStudent();
+
+            await _editStudentPage.AssertCurrentPage();
         }
     }
 }

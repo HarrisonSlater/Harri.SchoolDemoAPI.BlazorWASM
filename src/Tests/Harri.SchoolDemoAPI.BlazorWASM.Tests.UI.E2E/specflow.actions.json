@@ -2,6 +2,6 @@
   "playwright": {
     "browser": "chromium",
     "defaultTimeout": 60,
-    "headless": false
+    "headless": true
   }
 }

@@ -4,15 +4,23 @@ using Microsoft.Playwright;
 using SpecFlow.Actions.Playwright;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 {
     public class StudentsPage : BasePage
     {
         public ILocator RowsDisplayed => _page.Locator(".mud-table-pagination-select");
+
+        public ILocator Rows => _page.Locator(".mud-table-body tr.mud-table-row");
+
         public ILocator IdDataCells => _page.Locator("td[data-label=\"SId\"]");
         public ILocator NameDataCells => _page.Locator("td[data-label=\"Name\"]");
         public ILocator GPADataCells => _page.Locator("td[data-label=\"GPA\"]");
+
+        public ILocator StudentSearch => _page.Locator("#student-search");
+        public ILocator StudentEditButton => _page.Locator(".student-edit-button");
+        public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
 
         public PaginationActions Pagination { get; set; }
 
@@ -46,6 +54,67 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             pageCellData.Should().AllSatisfy(x => x.Should().NotBeEmpty());
 
             return pageCellData;
+        }
+
+        public async Task<List<(string?, string?, string?)>> GetAllRowData()
+        {
+            var allRowData = new List<(string?, string?, string?)>();
+            
+            var allRows = await Rows.AllAsync();
+
+            foreach(var locator in allRows)
+            {
+                var rowData = await GetRowData(locator);
+                allRowData.Add(rowData);
+            }
+
+            return allRowData;
+        }
+
+        private async Task<(string?, string?, string?)> GetRowData(ILocator row)
+        {
+            var id = await row.Locator("td[data-label=\"SId\"]").TextContentAsync();
+            var name = await row.Locator("td[data-label=\"Name\"]").TextContentAsync();
+            var gpa = await row.Locator("td[data-label=\"GPA\"]").TextContentAsync();
+
+            if (gpa == string.Empty) gpa = null;
+
+            return (id, name, gpa);
+        }
+
+        public async Task AssertStudentPageIsVisible()
+        {
+            await Navigation.AssertStudentsPageUrlIsCorrect();
+            await AssertFullTableAndGetNames();
+        }
+
+        public async Task<IReadOnlyList<string>> AssertFullTableAndGetNames()
+        {
+            var names = NameDataCells;
+            var sIds = IdDataCells;
+            var rowsDisplayed = await GetRowsDisplayed();
+
+            var rows = Page.GetByRole(AriaRole.Row);
+            await Assertions.Expect(rows).ToHaveCountAsync(rowsDisplayed + 2); // + 2 includes header row and footer
+
+            await AssertRowsAndGetCellData(sIds);
+
+            return await AssertRowsAndGetCellData(names);
+        }
+
+        public async Task SearchForStudent(string searchString)
+        {
+            await StudentSearch.FillAsync(searchString);
+        }
+
+        public async Task<(string?, string?, string?)> ClickEditOnTheFirstStudent()
+        {
+            var firstStudent = StudentEditButton.First;
+            var firstRow = (await GetAllRowData()).First();
+
+            await firstStudent.ClickAsync();
+
+            return firstRow;
         }
     }
 }

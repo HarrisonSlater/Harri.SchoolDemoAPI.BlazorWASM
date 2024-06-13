@@ -1,4 +1,4 @@
-﻿@Students
+﻿@students
 Feature: View Students
 View all students and individual students
 
@@ -13,3 +13,4 @@ Scenario: View different pages of students
 	Then I see a table with at least one student
 	When I click first page
 	Then I see page 1 again
+

@@ -46,7 +46,7 @@
             <TemplateColumn CellClass="d-flex justify-end mr-2">
                 <CellTemplate>
                     <MudStack Row>
-                        <MudButton OnClick="@(() => GoToEditStudent(context.Item.SId))" Size=Size.Small Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" Class="" DisableElevation >Edit</MudButton>
+                        <MudButton Class="student-edit-button" OnClick="@(() => GoToEditStudent(context.Item.SId))" Size=Size.Small Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" DisableElevation>Edit</MudButton>
                     </MudStack>
                 </CellTemplate>
             </TemplateColumn>
@@ -63,7 +63,6 @@
 
     [Parameter]
     public int? PageNumber { get; set; }
-    //private int PageIndex => PageNumber - 1;
 
     // This would be better as a strongly typed int however Blazor will 
     // throw an System.InvalidOperationException that will error out the whole page
@@ -130,14 +129,14 @@
         {
             CurrentPage = (PageNumber ?? 1) - 1;
 
-            DataGrid.CurrentPage = CurrentPage;
+            DataGrid.CurrentPage = CurrentPage; //TODO change this
             DataGrid.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
     }
 
     private void GoToEditStudent(int? sid)
     {
-        NavigationManager.NavigateTo($"/student/{sid}", replace: true);
+        NavigationManager.NavigateTo($"/student/{sid}", replace: false);
     }
 
     private void PagerStateChanged() 
@@ -150,7 +149,8 @@
             if (pageNumber != PageNumber || AddSuccessIdToHistory || PageNumberNullInUrl) // Check if the page has actually changed before navigating
             {
                 var queryString = SuccessfulStudentId is not null ? $"?successId={SuccessfulStudentId}" : "";
-                NavigationManager.NavigateTo($"/students/page/{pageNumber}{queryString}", replace: false);//!AddSuccessIdToHistory);
+                var shouldReplaceUrlHistory = PageNumberNullInUrl;
+                NavigationManager.NavigateTo($"/students/page/{pageNumber}{queryString}", replace: shouldReplaceUrlHistory);//!AddSuccessIdToHistory);
 
                 AddSuccessIdToHistory = false;
                 PageNumberNullInUrl = false;

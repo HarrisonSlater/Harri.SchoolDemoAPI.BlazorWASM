@@ -21,14 +21,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Features
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("View Students")]
-    [NUnit.Framework.CategoryAttribute("Students")]
+    [NUnit.Framework.CategoryAttribute("students")]
     public partial class ViewStudentsFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private static string[] featureTags = new string[] {
-                "Students"};
+                "students"};
         
 #line 1 "ViewStudents.feature"
 #line hidden

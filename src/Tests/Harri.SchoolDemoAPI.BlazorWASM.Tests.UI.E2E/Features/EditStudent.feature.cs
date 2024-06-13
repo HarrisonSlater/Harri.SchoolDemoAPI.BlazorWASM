@@ -21,7 +21,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Features
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("Edit Student")]
-    [NUnit.Framework.CategoryAttribute("Students")]
+    [NUnit.Framework.CategoryAttribute("students")]
     [NUnit.Framework.CategoryAttribute("createNewStudent")]
     [NUnit.Framework.CategoryAttribute("cleanupNewStudent")]
     public partial class EditStudentFeature
@@ -30,7 +30,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Features
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private static string[] featureTags = new string[] {
-                "Students",
+                "students",
                 "createNewStudent",
                 "cleanupNewStudent"};
         

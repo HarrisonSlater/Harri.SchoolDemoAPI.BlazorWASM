@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
 using Microsoft.Playwright;
+using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
@@ -17,12 +18,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             _studentsPage = studentsPage;
         }
 
-        [Then("I should be redirected back to the students page")]
+        [Then("I should be redirected (back )to the students page")]
         [Then("I should be on the students page")]
         public async Task IShouldBeOnTheStudentsPage()
         {
-            await _studentsPage.Navigation.AssertStudentsPageUrlIsCorrect();
-            await AssertFullTableAndGetNames();
+            await _studentsPage.AssertStudentPageIsVisible();
         }
 
         [Given("I see a table full of students")]
@@ -30,7 +30,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see a table full of students on page 1")]
         public async Task IShouldSeeATableFullOfStudents()
         {
-            _page1Names = await AssertFullTableAndGetNames();
+            _page1Names = await _studentsPage.AssertFullTableAndGetNames();
 
             await Assertions.Expect(_studentsPage.Pagination.GoToFirstPageButton).ToBeDisabledAsync();
             await Assertions.Expect(_studentsPage.Pagination.PreviousPageButton).ToBeDisabledAsync();
@@ -39,7 +39,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see a table full of students on page 2")]
         public async Task IShouldSeeATableFullOfStudentsOnPage2()
         {
-            await AssertFullTableAndGetNames();
+            await _studentsPage.AssertFullTableAndGetNames();
         }
 
         [Then("I see a table with at least one student")]
@@ -52,24 +52,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             names.Should().HaveCountGreaterThan(0);
         }
 
-        private async Task<IReadOnlyList<string>> AssertFullTableAndGetNames()
+        [When("I click edit on the first student")]
+        public async Task IClickEditOnTheFirstStudent()
         {
-            var names = _studentsPage.NameDataCells;
-            var sIds = _studentsPage.IdDataCells;
-            var rowsDisplayed = await _studentsPage.GetRowsDisplayed();
-
-            var rows = _studentsPage.Page.GetByRole(AriaRole.Row);
-            await Assertions.Expect(rows).ToHaveCountAsync(rowsDisplayed + 2); // + 2 includes header row and footer
-
-            await _studentsPage.AssertRowsAndGetCellData(sIds);
-
-            return await _studentsPage.AssertRowsAndGetCellData(names);
+            await _studentsPage.StudentEditButton.First.ClickAsync();
         }
 
+        //TODO move to pagination steps
         [Then("I see page 1 again")]
         public async Task ISeePage1Again()
         {
-            var page1NamesAgain = await AssertFullTableAndGetNames();
+            var page1NamesAgain = await _studentsPage.AssertFullTableAndGetNames();
 
             page1NamesAgain.Should().BeEquivalentTo(_page1Names);
         }
@@ -95,11 +88,98 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
 
         }
 
+        private int? _lastPage;
         [When("I click last page")]
         public async Task IClickLast()
         {
             await _studentsPage.Pagination.GoToLastPageButton.ClickAsync();
+            //await _studentsPage.Page.WaitForURLAsync(new Regex(".*"));
 
+            _lastPage = _studentsPage.Pagination.GetPage();
+        }
+
+        [Then("I see page {int} in the url")]
+        public async Task ThenISeePageInTheUrl(int pageNumber)
+        {
+            await _studentsPage.Page.WaitForURLAsync(new Regex(".*"));
+            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(new Regex($".*/page/{pageNumber}"));
+        }
+
+        [When("I click back")]
+        public async Task WhenIClickBack()
+        {
+            await _studentsPage.Page.GoBackAsync();
+        }
+
+        [Then("I see the last page in the url")]
+        public async Task ThenISeePageTheLastPageInTheUrl()
+        {
+            if (_lastPage is null) throw new ArgumentException("_lastPage has not been set by a previous step");
+
+            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(new Regex($".*/page/{_lastPage}"));
+        }
+
+        [Then("I see the home url")]
+        public async Task ThenISeeTheHomeUrl()
+        {
+            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(NavigationActions.SchoolDemoAdminUrl);
+        }
+
+        private string? _successAlert;
+        private string? _successAlertExtractedId;
+        [Then("(I )see a success alert for a new student")]
+        public async Task ThenISeeASuccessAlertForANewStudent()
+        {
+            await Assertions.Expect(_studentsPage.StudentSuccessAlert).ToBeVisibleAsync();
+            _successAlert = await _studentsPage.StudentSuccessAlert.TextContentAsync();
+
+            var idMatch = Regex.Match(_successAlert, "'(\\d+)'");
+            _successAlertExtractedId = idMatch.Groups[1].Value;
+        }
+
+        [Then("(I )should not see a success alert")]
+        public async Task ThenIShouldNotSeeASuccessAlert()
+        {
+            await Assertions.Expect(_studentsPage.StudentSuccessAlert).Not.ToBeVisibleAsync();
+        }
+
+        [When("I search for student using the success alert id")]
+        public async Task WhenISearchForStudentTesterStudentEE()
+        {
+            await _studentsPage.SearchForStudent(_successAlertExtractedId);
+        }
+
+        [Then("I should see the correct student with name {string}")]
+        public async Task ThenIShouldSeeTheCorrectStudent(string studentName)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            var rowTuple = new Tuple<string?, string?, string?>(_successAlertExtractedId, studentName, null);
+
+            rowData.Should().ContainEquivalentOf(rowTuple);
+        }
+
+        [Then("I should see the correct student with name {string} and GPA {string}")]
+        public async Task ThenIShouldSeeTheCorrectStudentWithNameAndGPA(string studentName, string gpa)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            var rowTuple = new Tuple<string?, string?, string?>(_successAlertExtractedId, studentName, gpa);
+
+            rowData.Should().ContainEquivalentOf(rowTuple);
+        }
+
+        [Then("I should not see a student with name {string} and GPA {string}")]
+        public async Task ThenIShouldNotSeeAStudentWithNameAndGPA(string studentName, string gpa)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            var rowTuple = new Tuple<string?, string?, string?>(_successAlertExtractedId, studentName, gpa);
+
+            rowData.Should().NotContainEquivalentOf(rowTuple);
         }
     }
 }

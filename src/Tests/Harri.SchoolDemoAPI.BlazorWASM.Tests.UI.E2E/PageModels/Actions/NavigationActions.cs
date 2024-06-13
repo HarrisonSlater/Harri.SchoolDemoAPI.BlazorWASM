@@ -9,9 +9,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     public class NavigationActions
     {
         private readonly string _baseUrl = SchoolDemoAdminUrl;
-        private const string SchoolDemoAdminUrl = "https://localhost:7144"; //TODO pull from settings
+        public const string SchoolDemoAdminUrl = "https://localhost:7144/"; //TODO pull from settings
 
         private readonly IPage _page;
+
+        private ILocator PageHeader => _page.Locator("header.mud-appbar .mud-toolbar");
 
         public NavigationActions(IPage page)
         {
@@ -23,16 +25,25 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await _page.GotoAsync(_baseUrl);
         }
 
+        public async Task AssertPageLoaded()
+        {
+            await Assertions.Expect(PageHeader).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions() { Timeout = 60000}); //TODO Read app timeout from settings?
+        }
+
         public async Task GoToStudentsPage()
         {
-            await _page.GotoAsync(_baseUrl + "/students");
+            await _page.GotoAsync(_baseUrl + "students");
+
+            await AssertPageLoaded();
 
             await AssertStudentsPageUrlIsCorrect();
         }
 
         public async Task GoToCreateNewStudentPage()
         {
-            await _page.GotoAsync(_baseUrl + "/student/new");
+            await _page.GotoAsync(_baseUrl + "student/new");
+
+            await AssertPageLoaded();
 
             await AssertCreateNewStudentPageUrlIsCorrect();
         }

@@ -17,5 +17,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels.Actions
         public ILocator PreviousPageButton => PaginationActionsLocator.Locator("button").Nth(1);
         public ILocator NextPageButton => PaginationActionsLocator.Locator("button").Nth(2);
         public ILocator GoToLastPageButton => PaginationActionsLocator.Locator("button").Nth(3);
+
+        public int GetPage()
+        {
+            var uri = new Uri(_page.Url);
+
+            var pageString = uri.AbsolutePath.Split("/").Last();
+            var pageNum = int.Parse(pageString);
+            return pageNum;
+        }
     }
 }

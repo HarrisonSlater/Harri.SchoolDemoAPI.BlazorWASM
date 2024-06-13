@@ -1,4 +1,4 @@
-﻿@Students @createNewStudent @cleanupNewStudent
+﻿@students @createNewStudent @cleanupNewStudent
 Feature: Edit Student
 Edit individual students
 

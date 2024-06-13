@@ -18,6 +18,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks
         private IBrowserContext? _browserContext;
 
         private BrowserDriver? _browserDriver;
+
         public BrowserDriverHook(IObjectContainer objectContainer)
         {
             _objectContainer = objectContainer;
@@ -52,7 +53,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks
         [AfterScenario]
         public async Task AfterScenario()
         {
-            //await _page.CloseAsync();
             await _browserContext!.CloseAsync();
 
             var browser = await _browserDriver!.Current;
