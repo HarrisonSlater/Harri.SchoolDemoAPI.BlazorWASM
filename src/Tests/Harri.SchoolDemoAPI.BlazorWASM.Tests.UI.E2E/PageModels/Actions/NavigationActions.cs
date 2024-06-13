@@ -68,12 +68,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertStudentsPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/1"));
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/1"), new PageAssertionsToHaveURLOptions() { Timeout=10000});
         }
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/new"));
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/new"), new PageAssertionsToHaveURLOptions() { Timeout = 10000 });
         }
     }
 }

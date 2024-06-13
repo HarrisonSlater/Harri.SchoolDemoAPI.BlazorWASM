@@ -245,12 +245,12 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Enter an invalid student gpa creating a new student")]
-        public void EnterAnInvalidStudentGpaCreatingANewStudent()
+        [NUnit.Framework.DescriptionAttribute("Enter an invalid student GPA creating a new student")]
+        public void EnterAnInvalidStudentGPACreatingANewStudent()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Enter an invalid student gpa creating a new student", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Enter an invalid student GPA creating a new student", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 46
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -265,12 +265,15 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Given("I am on the create new student page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 48
- testRunner.When("I enter a student GPA \"1.111\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I enter a blank student name", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 49
- testRunner.And("click save", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.When("I enter a student GPA \"1.111\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 50
+ testRunner.And("click save", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 51
  testRunner.Then("I should see a validation message for the Name and GPA", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

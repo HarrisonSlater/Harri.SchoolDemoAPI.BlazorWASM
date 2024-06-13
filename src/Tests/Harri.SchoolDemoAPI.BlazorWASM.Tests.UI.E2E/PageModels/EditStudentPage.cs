@@ -19,6 +19,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator SaveButton => _page.Locator("#submit-button");
 
         public const string ErrorClass = "mud-input-error";
+        public ILocator InputContainersWithError => _page.Locator(".mud-input-control.mud-input-error");
         public ILocator ErrorText => _page.Locator(".mud-input-helper-text.mud-input-error");
 
         public EditStudentPage(IPage page) : base(page)
@@ -52,16 +53,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task ShouldHaveValidationErrorForName()
         {
+            var errorContainerName = InputContainersWithError.Filter(new LocatorFilterOptions() { Has = StudentNameInput });
+
             await Assertions.Expect(StudentNameLabel).ToHaveClassAsync(new Regex(ErrorClass));
-            await Assertions.Expect(ErrorText).ToBeVisibleAsync();
-            await Assertions.Expect(ErrorText).ToContainTextAsync(new Regex("Name"));
+            await Assertions.Expect(errorContainerName.Locator(ErrorText)).ToBeVisibleAsync();
+            await Assertions.Expect(errorContainerName.Locator(ErrorText)).ToContainTextAsync(new Regex("Name"));
         }
 
         public async Task ShouldHaveValidationErrorForGPA()
         {
+            var errorContainerGPA = InputContainersWithError.Filter(new LocatorFilterOptions() { Has = StudentGPAInput });
+
             await Assertions.Expect(StudentGPALabel).ToHaveClassAsync(new Regex(ErrorClass));
-            await Assertions.Expect(ErrorText).ToBeVisibleAsync();
-            await Assertions.Expect(ErrorText).ToContainTextAsync(new Regex("GPA"));
+            await Assertions.Expect(errorContainerGPA.Locator(ErrorText)).ToBeVisibleAsync();
+            await Assertions.Expect(errorContainerGPA.Locator(ErrorText)).ToContainTextAsync(new Regex("GPA"));
         }
 
         public async Task AssertCurrentPage()
