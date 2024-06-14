@@ -46,13 +46,6 @@ Scenario: Enter an invalid student name when creating a new student
 Scenario: Enter an invalid student GPA creating a new student
 	Given I am on the create new student page
 	When I enter a blank student name
-	When I enter a student GPA "1.111"
+	And I enter a student GPA "1.111"
 	And click save
 	Then I should see a validation message for the Name and GPA
-
-#Scenario: Enter all invalid student data when creating a new student
-#	Given I am on the create new student page
-#	When I remove the student's name
-#	And change the GPA to 
-#	And click save
-#	Then I should see a validation message for the Name and GPA

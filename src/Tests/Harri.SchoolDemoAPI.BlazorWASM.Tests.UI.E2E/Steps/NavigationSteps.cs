@@ -1,4 +1,5 @@
-﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
+﻿using FluentAssertions;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
 using Microsoft.Playwright;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TechTalk.SpecFlow;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
@@ -66,6 +68,84 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             _studentRow = await _studentsPage.ClickEditOnTheFirstStudent();
 
             await _editStudentPage.AssertCurrentPage();
+            await _editStudentPage.AssertFormNotEmpty();
+        }
+
+        private string _newStudentId;
+        [Given("I am on the edit page for a new student {string}")]
+
+        public async Task GivenIAmOnTheEditPageForANewStudent(string name)
+        {
+            await IAmOnTheEditPageForANewStudent(name);
+        }
+
+        [Given("I am on the edit page for a new student {string} with GPA {string}")]
+        public async Task GivenIAmOnTheEditPageForANewStudentWithGPA(string name, string gpa)
+        {
+            await IAmOnTheEditPageForANewStudent(name, gpa);
+        }
+
+        private async Task IAmOnTheEditPageForANewStudent(string name, string? gpa = null)
+        {
+            await _navigationActions.GoToCreateNewStudentPage();
+
+            await _editStudentPage.CreateNewStudent(name, gpa);
+
+            //TODO Use this id in cleanup tag
+            _newStudentId = await _studentsPage.GetSuccessAlertId();
+
+            await ISearchForTheNewStudent();
+
+            await IClickEditOnTheNewStudent();
+
+            await _editStudentPage.AssertCurrentPage();
+            await _editStudentPage.AssertNameNotEmpty();
+
+            if (gpa is null )
+            {
+                await _editStudentPage.AssertGPAEmpty();
+            }
+            else
+            {
+                await _editStudentPage.AssertGPANotEmpty();
+            }
+        }
+
+        [When("I click edit on the new/updated student")]
+        public async Task IClickEditOnTheNewStudent()
+        {
+            await _studentsPage.ClickEditOnStudent(_newStudentId);
+        }
+
+        [When("(I )search for the new/updated student")]
+        public async Task ISearchForTheNewStudent()
+        {
+            await _studentsPage.SearchForStudent(_newStudentId);
+        }
+
+        //TODO this is copy pasted from StudentPageSteps, refactor required
+        [Then("I should see the updated/same student with name {string}")]
+        public async Task ThenIShouldSeeTheUpdatedStudent(string studentName)
+        {
+            await _studentsPage.AssertAtLeastOneStudentRowExists();
+
+            var rowData = await _studentsPage.GetAllRowData();
+
+            var rowTuple = new Tuple<string?, string?, string?>(_newStudentId, studentName, null);
+
+            rowData.Should().ContainEquivalentOf(rowTuple);
+        }        
+        
+        [Then("I should see the updated/same student with name {string} and GPA {string}")]
+        public async Task ThenIShouldSeeTheUpdatedStudent(string studentName, string gpa)
+        {
+            await _studentsPage.AssertAtLeastOneStudentRowExists();
+
+            var rowData = await _studentsPage.GetAllRowData();
+
+            var rowTuple = new Tuple<string?, string?, string?>(_newStudentId, studentName, gpa);
+
+            rowData.Should().ContainEquivalentOf(rowTuple);
         }
     }
 }

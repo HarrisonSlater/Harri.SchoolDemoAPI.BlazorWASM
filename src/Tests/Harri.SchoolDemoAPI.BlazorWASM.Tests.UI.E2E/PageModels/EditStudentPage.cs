@@ -51,6 +51,16 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await SaveButton.ClickAsync();
         }
 
+        public async Task CreateNewStudent(string name, string? gpa = null)
+        {
+            await EnterStudentName(name);
+            if (gpa is not null)
+            {
+                await EnterStudentGPA(gpa);
+            }
+            await ClickSave();
+        }
+
         public async Task ShouldHaveValidationErrorForName()
         {
             var errorContainerName = InputContainersWithError.Filter(new LocatorFilterOptions() { Has = StudentNameInput });
@@ -71,10 +81,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertCurrentPage()
         {
-            //assert name and gpa input
             await Assertions.Expect(StudentNameInput).ToBeVisibleAsync();
             await Assertions.Expect(StudentNameLabel).Not.ToBeEmptyAsync();
-            //tobe visble also
 
             await Assertions.Expect(StudentGPAInput).ToBeVisibleAsync();
             await Assertions.Expect(StudentGPALabel).Not.ToBeEmptyAsync();
@@ -82,8 +90,34 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertFormEmpty()
         {
+            await AssertNameEmpty();
+            await AssertGPAEmpty();
+        }
+
+        public async Task AssertNameEmpty()
+        {
             await Assertions.Expect(StudentNameInput).ToBeEmptyAsync();
+        }
+
+        public async Task AssertGPAEmpty()
+        {
             await Assertions.Expect(StudentGPAInput).ToBeEmptyAsync();
+        }
+
+        public async Task AssertFormNotEmpty()
+        {
+            await AssertNameNotEmpty();
+            await AssertGPANotEmpty();
+        }
+
+        public async Task AssertNameNotEmpty()
+        {
+            await Assertions.Expect(StudentNameInput).Not.ToBeEmptyAsync();
+        }
+
+        public async Task AssertGPANotEmpty()
+        {
+            await Assertions.Expect(StudentGPAInput).Not.ToBeEmptyAsync();
         }
     }
 }

@@ -54,8 +54,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [When("(I )create a new student")]
         public async Task WhenICreateANewStudent()
         {
-            await IEnterAStudentName("Tester StudentE2E-2");
-            await IClickSave();
+            await _editStudentPage.CreateNewStudent("Tester StudentE2E-2");
         }
 
         [When("I remove the student's name")]

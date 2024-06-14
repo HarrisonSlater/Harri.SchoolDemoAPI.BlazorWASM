@@ -30,7 +30,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         }
 
         public async Task<int> GetRowsDisplayed()
-        { 
+        {
+            //await Assertions.Expect(RowsDisplayed).ToBeVisibleAsync();
             var rowsDisplayed = await RowsDisplayed.TextContentAsync();
 
             rowsDisplayed.Should().NotBeNull();
@@ -82,6 +83,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return (id, name, gpa);
         }
 
+        public async Task AssertAtLeastOneStudentRowExists()
+        {
+            var sIds = (await GetCellData(IdDataCells));
+            sIds.Should().HaveCountGreaterThan(0);
+
+            var names = (await GetCellData(NameDataCells));
+            names.Should().HaveCountGreaterThan(0);
+        }
+
         public async Task AssertStudentPageIsVisible()
         {
             await Navigation.AssertStudentsPageUrlIsCorrect();
@@ -115,6 +125,29 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await firstStudent.ClickAsync();
 
             return firstRow;
+        }
+
+        public async Task ClickEditOnStudent(string studentId)
+        {
+            var rows = await GetAllRowData();
+            var index = rows.FindIndex(0, x => x.Item1.Equals(studentId));
+
+            await StudentEditButton.Nth(index).ClickAsync();
+        }
+
+        public async Task<string?> GetSuccessAlert()
+        {
+            await Assertions.Expect(StudentSuccessAlert).ToBeVisibleAsync();
+            return await StudentSuccessAlert.TextContentAsync();
+        }
+
+        public async Task<string> GetSuccessAlertId()
+        {
+            var idMatch = Regex.Match(await GetSuccessAlert(), "'(\\d+)'");
+            var id = idMatch.Groups[1].Value;
+            id.Should().NotBeNull();
+
+            return id;
         }
     }
 }

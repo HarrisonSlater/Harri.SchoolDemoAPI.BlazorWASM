@@ -45,11 +45,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see a table with at least one student")]
         public async Task IShouldSeeATableWithAtLeastOneStudent()
         {
-            var sIds = (await _studentsPage.GetCellData(_studentsPage.IdDataCells));
-            sIds.Should().HaveCountGreaterThan(0);
-
-            var names = (await _studentsPage.GetCellData(_studentsPage.NameDataCells));
-            names.Should().HaveCountGreaterThan(0);
+            await _studentsPage.AssertAtLeastOneStudentRowExists();
         }
 
         [When("I click edit on the first student")]
@@ -125,16 +121,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(NavigationActions.SchoolDemoAdminUrl);
         }
 
-        private string? _successAlert;
         private string? _successAlertExtractedId;
         [Then("(I )see a success alert for a new student")]
         public async Task ThenISeeASuccessAlertForANewStudent()
         {
-            await Assertions.Expect(_studentsPage.StudentSuccessAlert).ToBeVisibleAsync();
-            _successAlert = await _studentsPage.StudentSuccessAlert.TextContentAsync();
-
-            var idMatch = Regex.Match(_successAlert, "'(\\d+)'");
-            _successAlertExtractedId = idMatch.Groups[1].Value;
+            _successAlertExtractedId = await _studentsPage.GetSuccessAlertId();
         }
 
         [Then("(I )should not see a success alert")]
@@ -144,7 +135,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [When("I search for student using the success alert id")]
-        public async Task WhenISearchForStudentTesterStudentEE()
+        public async Task WhenISearchForStudent()
         {
             await _studentsPage.SearchForStudent(_successAlertExtractedId);
         }
