@@ -2,11 +2,6 @@
 Feature: Edit Student
 Edit individual students
 
-Scenario: Navigate to the edit student page
-	Given I am on the students page
-	When I click edit on a student
-	Then I see the edit student page
-
 # Positive
 Scenario: Edit a student's name
 	Given I am on the edit page for a new student "Tester Student 1 To Edit"
@@ -42,7 +37,7 @@ Scenario: Edit all student data without saving
 	And enter a student GPA "2.99"
 	When I navigate to the students page
 	And search for the updated student
-	Then I should see the updated student with name "Tester Student 3 Modified" and GPA "2.99"
+	Then I should see the updated student with name "Tester Student To Edit GPA" and GPA "1.12"
 	When I click edit on the first student
 
 # Negative

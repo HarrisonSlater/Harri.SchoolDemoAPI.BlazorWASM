@@ -19,18 +19,33 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [Then("I see the create new student form")]
-        public async Task ISeeTheCreateNewStudentPage()
+        public async Task ISeeTheCreateNewStudentForm()
         {
             await _editStudentPage.AssertCurrentPage();
 
             await _editStudentPage.AssertFormEmpty();
         }
 
+        [Then("I see the edit student form")]
+        public async Task ISeeTheEditStudentForm()
+        {
+            await _editStudentPage.AssertCurrentPage();
+
+            await _editStudentPage.AssertNameNotEmpty();
+        }
+
         [Then("I should be on the create new student page")]
         public async Task IShouldBeOnTheCreateNewStudentPage()
         {
             await _editStudentPage.Navigation.AssertCreateNewStudentPageUrlIsCorrect();
-            await ISeeTheCreateNewStudentPage();
+            await ISeeTheCreateNewStudentForm();
+        }
+
+        [Then("I should be on the edit student page")]
+        public async Task IShouldBeOnTheCreateEditSudentPage()
+        {
+            await _editStudentPage.Navigation.AssertEditStudentPageUrlIsCorrect();
+            await ISeeTheEditStudentForm();
         }
 
         [When("(I )enter a student name {string}")]

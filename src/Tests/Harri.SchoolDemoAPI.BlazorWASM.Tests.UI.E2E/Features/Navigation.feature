@@ -10,3 +10,8 @@ Scenario: Navigate to the create new student page
 	Given I am on the home page
 	When I navigate to the create new student page
 	Then I see the create new student form
+
+Scenario: Navigate to the edit student page
+	Given I am on the students page
+	When I click edit on the first student
+	Then I should be on the edit student page
