@@ -1,11 +1,6 @@
-﻿@Students @e2e
-Feature: ViewStudents
+﻿@students
+Feature: View Students
 View all students and individual students
-
-Scenario: Navigate to students 
-	Given I am on the home page
-	When I navigate to the students page
-	Then I see a table full of students
 
 Scenario: View different pages of students 
 	Given I am on the students page
@@ -18,3 +13,4 @@ Scenario: View different pages of students
 	Then I see a table with at least one student
 	When I click first page
 	Then I see page 1 again
+

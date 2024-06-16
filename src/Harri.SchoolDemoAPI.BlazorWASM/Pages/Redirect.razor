@@ -1,0 +1,14 @@
+﻿@page "/redirect/{*RedirectRoute}"
+@inject NavigationManager NavigationManager
+
+<div>@RedirectRoute</div>
+
+@code {
+    [Parameter]
+    public string? RedirectRoute { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        NavigationManager.NavigateTo(RedirectRoute, replace: true);
+    }
+}

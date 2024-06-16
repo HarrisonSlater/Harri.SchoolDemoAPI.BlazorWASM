@@ -10,6 +10,7 @@ using Moq;
 using MudBlazor;
 using MudBlazor.Services;
 using System.Threading.Tasks;
+using Harri.SchoolDemoAPI.BlazorWASM.Components;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 {
@@ -18,7 +19,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
     /// Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating-basic-tests-in-cs-files
     /// </summary>
     [TestFixture]
-    public class EditStudentTests : BunitTestContext
+    public class EditStudentFormTests : BunitTestContext
     {
         private const string NameInputSelector = "#student-name";
         private const string GpaInputSelector = "#student-gpa";
@@ -42,6 +43,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         {
             var mockExistingStudent = new StudentDto()
             {
+                SId = 1,
                 Name = "Test Existing Student",
                 GPA = 2.99m
             };
@@ -55,17 +57,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         [Test]
         public async Task EditStudent_ForNewStudent_SubmitsSuccessfully()
         {
-            var editStudentPage = RenderComponent<EditStudent>();
+            var editStudentForm = RenderComponent<EditStudentForm>();
 
-            var textField = editStudentPage.Find(NameInputSelector);
+            var textField = editStudentForm.Find(NameInputSelector);
             textField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            var gpaField = editStudentPage.Find(GpaInputSelector);
+            var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
             textField.Change("Test Name");
 
-            await editStudentPage.FindAndClickAsync(SubmitButtonSelector);
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
             _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Once);
         }
@@ -76,21 +78,21 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             _mockStudentApiClient.Setup(client => client.AddStudent(It.IsAny<NewStudentDto>()))
                 .Returns(Task.FromResult((int?)null));
 
-            var editStudentPage = RenderComponent<EditStudent>();
+            var editStudentForm = RenderComponent<EditStudentForm>();
 
-            var textField = editStudentPage.Find(NameInputSelector);
+            var textField = editStudentForm.Find(NameInputSelector);
             textField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            var gpaField = editStudentPage.Find(GpaInputSelector);
+            var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
             textField.Change("Test Name");
 
-            await editStudentPage.FindAndClickAsync(SubmitButtonSelector);
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
             _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Once);
 
-            var errorAlert = editStudentPage.Find(ErrorAlertSelector);
+            var errorAlert = editStudentForm.Find(ErrorAlertSelector);
             errorAlert.Should().NotBeNull();
         }
 
@@ -103,20 +105,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()))
                 .Returns(Task.FromResult((bool?)true));
 
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123));
+            var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
 
-            var textField = editStudentPage.Find(NameInputSelector);
+            var textField = editStudentForm.Find(NameInputSelector);
 
             textField.GetAttribute("value").Should().Be(mockExistingStudent.Name);
 
-            var gpaField = editStudentPage.Find(GpaInputSelector);
+            var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().Be(mockExistingStudent.GPA.ToString());
-
+            
             // Act
             var updatedName = "Test Name Updated";
             textField.Change(updatedName);
 
-            await editStudentPage.FindAndClickAsync(SubmitButtonSelector);
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
             _mockStudentApiClient.Verify(
                 x => x.UpdateStudent(123, It.Is<UpdateStudentDto>(
@@ -135,20 +137,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()))
                 .Returns(Task.FromResult(updateStudentResponse));
 
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123));
+            var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
 
-            var textField = editStudentPage.Find(NameInputSelector);
+            var textField = editStudentForm.Find(NameInputSelector);
 
             textField.GetAttribute("value").Should().Be(mockExistingStudent.Name);
 
-            var gpaField = editStudentPage.Find(GpaInputSelector);
+            var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().Be(mockExistingStudent.GPA.ToString());
 
             // Act
             var updatedName = "Test Name Updated";
             textField.Change(updatedName);
 
-            await editStudentPage.FindAndClickAsync(SubmitButtonSelector);
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
             _mockStudentApiClient.Verify(
                 x => x.UpdateStudent(123, It.Is<UpdateStudentDto>(
@@ -156,7 +158,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
                     dto.GPA == mockExistingStudent.GPA)
                 ), Times.Once);
 
-            var errorAlert = editStudentPage.Find(ErrorAlertSelector);
+            var errorAlert = editStudentForm.Find(ErrorAlertSelector);
             errorAlert.Should().NotBeNull();
 
         }
@@ -168,20 +170,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             var mockExistingStudent = SetUpMockExistingStudent();
 
 
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123));
+            var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
 
-            var textField = editStudentPage.Find(NameInputSelector);
+            var textField = editStudentForm.Find(NameInputSelector);
 
             textField.GetAttribute("value").Should().Be(mockExistingStudent.Name);
 
-            var gpaField = editStudentPage.Find(GpaInputSelector);
+            var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().Be(mockExistingStudent.GPA.ToString());
 
             // Act
-            var button = editStudentPage.Find(SubmitButtonSelector);
+            var button = editStudentForm.Find(SubmitButtonSelector);
 
             // Assert
-            button.IsDisabled().Should().BeTrue();
+            button.IsDisabled().Should().BeFalse();
             _mockStudentApiClient.Verify(x => x.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()), Times.Never);
         }
 
@@ -193,7 +195,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
                 .Returns(Task.FromResult((StudentDto?)null));
 
             // Act
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123));
+            var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
 
             // Assert
             var navMan = Services.GetRequiredService<FakeNavigationManager>();

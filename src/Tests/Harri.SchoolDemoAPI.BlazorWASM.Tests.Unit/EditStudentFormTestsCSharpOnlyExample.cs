@@ -10,6 +10,7 @@ using Moq;
 using MudBlazor;
 using MudBlazor.Services;
 using System.Threading.Tasks;
+using Harri.SchoolDemoAPI.BlazorWASM.Components;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 {
@@ -17,7 +18,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
     /// The same tests from EditStudentTests but written to test the model/c# code only and not assert on UI
     /// </summary>
     [TestFixture]
-    public class EditStudentCSharpOnlyExampleTests : BunitTestContext
+    public class EditStudentFromCSharpOnlyExampleTests : BunitTestContext
     {
         private Mock<IStudentApiClient> _mockStudentApiClient;
 
@@ -35,6 +36,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         {
             var mockExistingStudent = new StudentDto()
             {
+                SId = 1,
                 Name = "Test Existing Student",
                 GPA = 2.99m
             };
@@ -48,7 +50,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         [Test]
         public async Task EditStudent_ForNewStudent_SubmitsSuccessfully()
         {
-            var editStudentPage = RenderComponent<EditStudent>().Instance;
+            var editStudentPage = RenderComponent<EditStudentForm>().Instance;
             var formModel = editStudentPage.Student;
 
             formModel.Name.Should().BeNull();
@@ -67,7 +69,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             _mockStudentApiClient.Setup(client => client.AddStudent(It.IsAny<NewStudentDto>()))
                 .Returns(Task.FromResult((int?)null));
 
-            var editStudentPage = RenderComponent<EditStudent>().Instance;
+            var editStudentPage = RenderComponent<EditStudentForm>().Instance;
             var formModel = editStudentPage.Student;
 
             formModel.Name.Should().BeNull();
@@ -92,7 +94,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()))
                 .Returns(Task.FromResult((bool?)true));
 
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123)).Instance;
+            var editStudentPage = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123)).Instance;
             var formModel = editStudentPage.Student;
 
             formModel.Name.Should().Be(mockExistingStudent.Name);
@@ -121,8 +123,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()))
                 .Returns(Task.FromResult(updateStudentResponse));
 
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123)).Instance;
-            var formModel = editStudentPage.Student;
+            var editStudentPageComponent = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
+            var formModel = editStudentPageComponent.Instance.Student;
+            //editStudentPage.EditForm.EditContext = new Microsoft.AspNetCore.Components.Forms.EditContext(formModel);
 
             formModel.Name.Should().Be(mockExistingStudent.Name);
             formModel.GPA.Should().Be(mockExistingStudent.GPA);
@@ -130,8 +133,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             // Act
             var updatedName = "Test Name Updated";
             formModel.Name = updatedName;
+            var editContext = editStudentPageComponent.Instance.EditForm.EditContext;
 
-            await editStudentPage.HandleValidSubmit();
+            //var nameIdentifier = editContext.Field(nameof(NewStudentDto.Name));
+            var nameIdentifier = new Microsoft.AspNetCore.Components.Forms.FieldIdentifier(formModel, nameof(NewStudentDto.Name));
+
+            editStudentPageComponent.InvokeAsync(() => editContext.NotifyFieldChanged(nameIdentifier));
+
+            await editStudentPageComponent.Instance.HandleValidSubmit();
 
             _mockStudentApiClient.Verify(
                 x => x.UpdateStudent(123, It.Is<UpdateStudentDto>(
@@ -139,11 +148,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
                     dto.GPA == mockExistingStudent.GPA)
                 ), Times.Once);
 
+            var editStudentPage = editStudentPageComponent.Instance;
             // Assert
             editStudentPage.ShowError.Should().BeTrue();
             editStudentPage.DisableSubmit.Should().BeFalse();
 
-            editStudentPage.IsFormUnModified().Should().BeFalse();
+            editStudentPage.IsFormUnModified.Should().BeFalse();
         }
 
         [Test]
@@ -152,7 +162,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             // Arrange
             var mockExistingStudent = SetUpMockExistingStudent();
 
-            var editStudentPage = RenderComponent<EditStudent>(parameters => parameters.Add(s => s.StudentId, 123)).Instance;
+            var editStudentPage = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123)).Instance;
             var formModel = editStudentPage.Student;
 
             formModel.Name.Should().Be(mockExistingStudent.Name);
@@ -160,7 +170,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             // Act
             // Assert
-            editStudentPage.IsFormUnModified().Should().BeTrue();
+            editStudentPage.IsFormUnModified.Should().BeTrue();
             _mockStudentApiClient.Verify(x => x.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()), Times.Never);
         }
 
