@@ -118,7 +118,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see the home url")]
         public async Task ThenISeeTheHomeUrl()
         {
-            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(NavigationActions.SchoolDemoAdminUrl);
+            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(_studentsPage.Navigation.BaseUrl);
         }
 
         private string? _successAlertExtractedId;

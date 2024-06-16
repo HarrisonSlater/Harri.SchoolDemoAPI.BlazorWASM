@@ -5,6 +5,7 @@ using SpecFlow.Actions.Playwright;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 {
@@ -24,7 +25,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public PaginationActions Pagination { get; set; }
 
-        public StudentsPage(IPage page) : base(page)
+        public StudentsPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting) : base(page, baseUrlSetting)
         {
             Pagination = new PaginationActions(_page);
         }

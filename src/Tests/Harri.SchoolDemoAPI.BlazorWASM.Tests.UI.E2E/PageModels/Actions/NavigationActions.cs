@@ -1,4 +1,5 @@
-﻿using Microsoft.Playwright;
+﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
+using Microsoft.Playwright;
 using System.Text.RegularExpressions;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
@@ -8,21 +9,22 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     /// </summary>
     public class NavigationActions
     {
-        private readonly string _baseUrl = SchoolDemoAdminUrl;
-        public const string SchoolDemoAdminUrl = "https://localhost:7144/"; //TODO pull from settings
+        private readonly SchoolDemoBaseUrlSetting _baseUrlSetting;
+        public string BaseUrl => _baseUrlSetting.Value; //TODO pull from settings
 
         private readonly IPage _page;
 
         private ILocator PageHeader => _page.Locator("header.mud-appbar .mud-toolbar");
 
-        public NavigationActions(IPage page)
+        public NavigationActions(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting)
         {
+            _baseUrlSetting = baseUrlSetting;
             _page = page;
         }
 
         public async Task GoToHome()
         {
-            await _page.GotoAsync(_baseUrl);
+            await _page.GotoAsync(BaseUrl);
         }
 
         public async Task AssertPageLoaded()
@@ -32,7 +34,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task GoToStudentsPage()
         {
-            await _page.GotoAsync(_baseUrl + "students");
+            await _page.GotoAsync(BaseUrl + "students");
 
             await AssertPageLoaded();
 
@@ -41,7 +43,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task GoToCreateNewStudentPage()
         {
-            await _page.GotoAsync(_baseUrl + "student/new");
+            await _page.GotoAsync(BaseUrl + "student/new");
 
             await AssertPageLoaded();
 

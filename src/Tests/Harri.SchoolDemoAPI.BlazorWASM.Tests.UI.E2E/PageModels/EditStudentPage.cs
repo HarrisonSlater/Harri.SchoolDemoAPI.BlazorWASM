@@ -1,4 +1,5 @@
-﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels.Actions;
+﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels.Actions;
 using Microsoft.Playwright;
 using SpecFlow.Actions.Playwright;
 using System;
@@ -22,7 +23,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator InputContainersWithError => _page.Locator(".mud-input-control.mud-input-error");
         public ILocator ErrorText => _page.Locator(".mud-input-helper-text.mud-input-error");
 
-        public EditStudentPage(IPage page) : base(page)
+        public EditStudentPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting) : base(page, baseUrlSetting)
         {
         }
 

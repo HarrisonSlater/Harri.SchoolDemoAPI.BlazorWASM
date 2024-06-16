@@ -60,7 +60,6 @@
         if (StudentId is not null)
         {
             Loading = true;
-            //await Task.Delay(1000); // Simulate server delay
             ExistingStudent = await _studentClient.GetStudent(StudentId.Value); //TODO differentiate between 404 and 500
             if (ExistingStudent is not null)
             {
@@ -89,7 +88,6 @@
             var id = await _studentClient.AddStudent(Student);
             if (id is null)
             {
-                // show error
                 DisableSubmit = false;
                 ShowError = true;
                 return;
@@ -109,13 +107,13 @@
 
             if (response is null or false)
             {
-                // show error
                 DisableSubmit = false;
                 ShowError = true;
                 return;
             }
+            //TODO add 'student edited' popup
         }
-        //TODO add 'student added/edited' popup
+
         NavigationManager.NavigateTo("/students");
     }
 }

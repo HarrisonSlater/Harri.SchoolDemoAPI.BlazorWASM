@@ -10,11 +10,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public NavigationActions Navigation { get; set; }
 
         ///<remarks> See <see cref="BrowserDriverHook"/> for IPage injection</remarks>
-        public BasePage(IPage page)
+        public BasePage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting)
         {
             _page = page;
             
-            Navigation = new NavigationActions(_page);
+            Navigation = new NavigationActions(_page, baseUrlSetting);
         }
     }
 }

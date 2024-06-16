@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
 using Microsoft.Playwright;
 using System;
@@ -20,12 +21,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         private readonly StudentsPage _studentsPage;
         private readonly NavigationActions _navigationActions;
 
-        public NavigationSteps(IPage page, EditStudentPage editStudentPage, StudentsPage studentsPage)
+        public NavigationSteps(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, EditStudentPage editStudentPage, StudentsPage studentsPage)
         {
             _page = page;
             _editStudentPage = editStudentPage;
             _studentsPage = studentsPage;
-            _navigationActions = new NavigationActions(page);
+            _navigationActions = new NavigationActions(page, baseUrlSetting);
         }
 
         [Given("I am on the home page")]
