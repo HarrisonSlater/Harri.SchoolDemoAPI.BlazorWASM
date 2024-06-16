@@ -1,9 +1,12 @@
 ﻿@page "/student/{StudentId:int}"
 @using Harri.SchoolDemoAPI.BlazorWASM.Components
 
-<EditStudentForm StudentId=@StudentId/>
+<EditStudentForm @ref=EditStudentForm StudentId=@StudentId/>
 
 @code {
     [Parameter]
     public int? StudentId { get; set; }
+
+    public EditStudentForm EditStudentForm { get; set; }
+
 }

@@ -1,7 +1,8 @@
 ﻿@page "/student/new"
 @using Harri.SchoolDemoAPI.BlazorWASM.Components
 
-<EditStudentForm />
+<EditStudentForm @ref=EditStudentForm />
 
 @code {
+    public EditStudentForm EditStudentForm { get; set; }
 }
