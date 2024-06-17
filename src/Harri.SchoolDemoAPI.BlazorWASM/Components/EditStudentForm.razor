@@ -99,10 +99,10 @@
         else
         {
             var existingStudent = new UpdateStudentDto()
-                {
-                    Name = Student.Name,
-                    GPA = Student.GPA
-                };
+            {
+                Name = Student.Name,
+                GPA = Student.GPA
+            };
             var response = await _studentClient.UpdateStudent(StudentId.Value, existingStudent);
 
             if (response is null or false)
