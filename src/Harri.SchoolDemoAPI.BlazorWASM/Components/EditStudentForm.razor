@@ -47,6 +47,7 @@
     internal string DisplayText => StudentId.HasValue ? "Edit Student" : "Create Student";
 
     internal bool DisableSubmit { get; set; }
+
     internal bool Loading { get; set; }
 
     internal bool? IsFormUnModified => !EditForm?.EditContext?.IsModified();
@@ -60,14 +61,14 @@
         if (StudentId is not null)
         {
             Loading = true;
-            ExistingStudent = await _studentClient.GetStudent(StudentId.Value); //TODO differentiate between 404 and 500
+            ExistingStudent = await _studentClient.GetStudent(StudentId.Value);
             if (ExistingStudent is not null)
             {
                 Student = new NewStudentDto()
-                    {
-                        Name = ExistingStudent.Name,
-                        GPA = ExistingStudent.GPA
-                    };
+                {
+                    Name = ExistingStudent.Name,
+                    GPA = ExistingStudent.GPA
+                };
             }
             else
             {
@@ -85,35 +86,45 @@
 
         if (StudentId is null)
         {
-            var id = await _studentClient.AddStudent(Student);
-            if (id is null)
-            {
-                DisableSubmit = false;
-                ShowError = true;
-                return;
-            }
-
-            NavigationManager.NavigateTo($"/students/page/1?successId={id}");
-            return;
+            await CreateNewStudent();
         }
         else
         {
-            var existingStudent = new UpdateStudentDto()
-            {
-                Name = Student.Name,
-                GPA = Student.GPA
-            };
-            var response = await _studentClient.UpdateStudent(StudentId.Value, existingStudent);
-
-            if (response is null or false)
-            {
-                DisableSubmit = false;
-                ShowError = true;
-                return;
-            }
-            //TODO add 'student edited' popup
+            await UpdateStudent();
         }
+    }
 
-        NavigationManager.NavigateTo("/students");
+    private async Task CreateNewStudent()
+    {
+        var id = await _studentClient.AddStudent(Student);
+        if (id is null)
+        {
+            DisableSubmit = false;
+            ShowError = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/students/page/1?{Constants.QueryString.SuccessId}={id}");
+        }
+    }
+
+    private async Task UpdateStudent()
+    {
+        var existingStudent = new UpdateStudentDto()
+        {
+            Name = Student.Name,
+            GPA = Student.GPA
+        };
+        var response = await _studentClient.UpdateStudent(StudentId.Value, existingStudent);
+
+        if (response is null or false)
+        {
+            DisableSubmit = false;
+            ShowError = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/students/page/1?{Constants.QueryString.EditSuccessId}={StudentId.Value}");
+        }
     }
 }

@@ -13,6 +13,11 @@
         <MudAlert id="student-success-alert" Class="mb-4" Severity=Severity.Success Variant=Variant.Filled data-student-id=@SuccessfulStudentId
             ShowCloseIcon CloseIconClicked="CloseSuccessAlert">@SuccessMessage</MudAlert>
     }
+    else if (ShowEditSuccessMessage)
+    {
+        <MudAlert id="student-edit-success-alert" Class="mb-4" Severity=Severity.Success Variant=Variant.Filled data-student-id=@EditSuccessfulStudentId
+            ShowCloseIcon CloseIconClicked="CloseEditSuccessAlert">@EditSuccessMessage</MudAlert>
+    }
     <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
             QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
 
@@ -49,14 +54,19 @@
     // This query parameter would be better as a strongly typed int however Blazor will 
     // throw an System.InvalidOperationException that will error out the whole page
     // when in fact we want to be able to easily recover from a bad value
-    [Parameter, SupplyParameterFromQuery(Name = "successId")]
+    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.SuccessId)]
     public string? SuccessfulStudentId { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.EditSuccessId)]
+    public string? EditSuccessfulStudentId { get; set; }
 
     public int CurrentPage { get; set; }
 
     internal bool ShowSuccessMessage => SuccessfulStudentId is not null;
+    internal bool ShowEditSuccessMessage => EditSuccessfulStudentId is not null;
 
-    internal string SuccessMessage => $"A student with ID '{SuccessfulStudentId}' was created successfully";
+    internal string SuccessMessage => $"A new student with ID '{SuccessfulStudentId}' was created successfully";
+    internal string EditSuccessMessage => $"Student with ID '{EditSuccessfulStudentId}' was updated successfully";
 
     internal bool AddSuccessIdToHistory { get; set; }
 
@@ -99,7 +109,7 @@
         if (ParametersSet && RegisterEventHandlers)
         {
             RegisterEventHandlers = false;
-            
+
             DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
     }
@@ -118,7 +128,7 @@
 
             if (pageNumber != PageNumber || AddSuccessIdToHistory || PageNumberNullInUrl) // Check if the page has actually changed or the url needs updating before navigating
             {
-                var queryString = SuccessfulStudentId is not null ? $"?successId={SuccessfulStudentId}" : "";
+                var queryString = GetQueryString();
                 var shouldReplaceUrlHistory = PageNumberNullInUrl;
                 NavigationManager.NavigateTo($"/students/page/{pageNumber}{queryString}", replace: shouldReplaceUrlHistory);
 
@@ -128,9 +138,28 @@
         }
     }
 
+    private string GetQueryString()
+    {
+        if (SuccessfulStudentId is not null)
+        {
+            return $"?{Constants.QueryString.SuccessId}={SuccessfulStudentId}";
+        }
+        else if (EditSuccessfulStudentId is not null)
+        {
+            return $"?{Constants.QueryString.EditSuccessId}={EditSuccessfulStudentId}";
+        }
+        return "";
+    }
+
     private void CloseSuccessAlert()
     {
         SuccessfulStudentId = null;
+        AddSuccessIdToHistory = true;
+    }
+
+    private void CloseEditSuccessAlert()
+    {
+        EditSuccessfulStudentId = null;
         AddSuccessIdToHistory = true;
     }
 }
