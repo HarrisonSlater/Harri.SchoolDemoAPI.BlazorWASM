@@ -52,7 +52,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task GoToCreateNewStudentPage()
         {
-            await _page.GotoAsync(BaseUrl + "student/new");
+            await _page.GotoAsync(BaseUrl + "students/new");
 
             await AssertPageLoaded();
 
@@ -84,12 +84,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/new"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/new"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertEditStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/(\\d+)"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/(\\d+)"), new PageAssertionsToHaveURLOptions());
         }
     }
 }
