@@ -1,10 +1,10 @@
 ﻿@page "/students"
 @page "/students/page/{PageNumber:int}"
+@using Harri.SchoolDemoAPI.BlazorWASM.Filters
 @inject NavigationManager NavigationManager
 @inject IStudentApiClient _studentClient
 
 <PageTitle>Students</PageTitle>
-
 
 <MudContainer MaxWidth=MaxWidth.Medium>
     <MudText Typo="Typo.h3" GutterBottom="true">Students</MudText>
@@ -13,28 +13,10 @@
         <MudAlert id="student-success-alert" Class="mb-4" Severity="Severity.Success" Variant="Variant.Filled" data-student-id="SuccessfulStudentId"
             ShowCloseIcon CloseIconClicked="CloseSuccessAlert">@SuccessMessage</MudAlert>
     }
-    @*<MudTable Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=20 CurrentPage=@PageNumber>
-        <HeaderContent>
-            <MudTh>SId</MudTh>
-            <MudTh>Name</MudTh>
-            <MudTh>GPA</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="SId">@context.SId</MudTd>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="GPA">@context.GPA</MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager @ref=@Pager PageSizeOptions="new int[] { 10, 20, 50, 100 }"/>
-        </PagerContent>
-    </MudTable>
-        *@
-    @*CurrentPage=@(PageNumber!.Value - 1)*@
-    @*@if (AllStudents is not null) {*@
     <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=@(CurrentPage) Breakpoint=Breakpoint.None
-        QuickFilter=@_quickFilter>
+            QuickFilter=@StudentDtoFilter.QuickFilterFor(SearchString)>
+
         <ToolBarContent>
-            @*<MudText Typo="Typo.h6">Periodic Elements</MudText>*@
             <MudSpacer />
             <MudTextField @bind-Value="SearchString" id="student-search" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -64,14 +46,13 @@
     [Parameter]
     public int? PageNumber { get; set; }
 
-    // This would be better as a strongly typed int however Blazor will 
+    // This query parameter would be better as a strongly typed int however Blazor will 
     // throw an System.InvalidOperationException that will error out the whole page
     // when in fact we want to be able to easily recover from a bad value
     [Parameter, SupplyParameterFromQuery(Name = "successId")]
     public string? SuccessfulStudentId { get; set; }
 
     public int CurrentPage { get; set; }
-    //internal bool ParametersSet { get; set; }
 
     internal bool ShowSuccessMessage => SuccessfulStudentId is not null;
 
@@ -82,23 +63,6 @@
     internal string SearchString { get; set; }
 
     private MudDataGrid<StudentDto>? DataGrid;
-
-    private Func<StudentDto, bool> _quickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(SearchString))
-            return true;
-
-        if (x.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.SId.ToString().Contains(SearchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.GPA.ToString().Contains(SearchString))
-            return true;
-
-        return false;
-    };
 
     private bool Initialized { get; set; }
     protected override async Task OnInitializedAsync()
@@ -145,12 +109,12 @@
         {
             //Set the URL to include page number which updates when the page is changed in the MudDataGridPager
             var pageNumber = DataGrid!.CurrentPage + 1;
-            //TODO add case for /page without /1
-            if (pageNumber != PageNumber || AddSuccessIdToHistory || PageNumberNullInUrl) // Check if the page has actually changed before navigating
+
+            if (pageNumber != PageNumber || AddSuccessIdToHistory || PageNumberNullInUrl) // Check if the page has actually changed or the url needs updating before navigating
             {
                 var queryString = SuccessfulStudentId is not null ? $"?successId={SuccessfulStudentId}" : "";
                 var shouldReplaceUrlHistory = PageNumberNullInUrl;
-                NavigationManager.NavigateTo($"/students/page/{pageNumber}{queryString}", replace: shouldReplaceUrlHistory);//!AddSuccessIdToHistory);
+                NavigationManager.NavigateTo($"/students/page/{pageNumber}{queryString}", replace: shouldReplaceUrlHistory);
 
                 AddSuccessIdToHistory = false;
                 PageNumberNullInUrl = false;
