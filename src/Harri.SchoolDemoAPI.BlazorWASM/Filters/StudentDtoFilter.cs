@@ -4,7 +4,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Filters
 {
     public static class StudentDtoFilter
     {
-        public static Func<StudentDto, bool> QuickFilterFor(string searchString) => x =>
+        public static Func<StudentDto, bool> QuickFilterFor(string? searchString) => x =>
         {
             if (string.IsNullOrWhiteSpace(searchString))
                 return true;

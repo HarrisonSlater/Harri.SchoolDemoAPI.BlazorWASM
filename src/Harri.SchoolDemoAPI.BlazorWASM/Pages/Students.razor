@@ -7,19 +7,19 @@
 <PageTitle>Students</PageTitle>
 
 <MudContainer MaxWidth=MaxWidth.Medium>
-    <MudText Typo="Typo.h3" GutterBottom="true">Students</MudText>
+    <MudText Typo=Typo.h3 GutterBottom>Students</MudText>
     @if (ShowSuccessMessage)
     {
-        <MudAlert id="student-success-alert" Class="mb-4" Severity="Severity.Success" Variant="Variant.Filled" data-student-id="SuccessfulStudentId"
+        <MudAlert id="student-success-alert" Class="mb-4" Severity=Severity.Success Variant=Variant.Filled data-student-id=@SuccessfulStudentId
             ShowCloseIcon CloseIconClicked="CloseSuccessAlert">@SuccessMessage</MudAlert>
     }
-    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=@(CurrentPage) Breakpoint=Breakpoint.None
-            QuickFilter=@StudentDtoFilter.QuickFilterFor(SearchString)>
+    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
+            QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
 
         <ToolBarContent>
             <MudSpacer />
-            <MudTextField @bind-Value="SearchString" id="student-search" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
+                          AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="x => x.SId" />
@@ -28,13 +28,13 @@
             <TemplateColumn CellClass="d-flex justify-end mr-2">
                 <CellTemplate>
                     <MudStack Row>
-                        <MudButton Class="student-edit-button" OnClick="@(() => GoToEditStudent(context.Item.SId))" Size=Size.Small Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" DisableElevation>Edit</MudButton>
+                        <MudButton Class="student-edit-button" OnClick=@(() => GoToEditStudent(context.Item.SId)) Size=Size.Small Variant=Variant.Filled Color=Color.Primary StartIcon=@Icons.Material.Filled.Edit DisableElevation>Edit</MudButton>
                     </MudStack>
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
         <PagerContent>
-            <MudDataGridPager T=StudentDto PageSizeOptions="new int[] { 10, 15, 50, 100 }" />
+            <MudDataGridPager T=StudentDto PageSizeOptions=@(new int[] { 10, 15, 50, 100 }) />
         </PagerContent>
     </MudDataGrid>
     
@@ -60,11 +60,19 @@
 
     internal bool AddSuccessIdToHistory { get; set; }
 
-    internal string SearchString { get; set; }
+    internal string? SearchString { get; set; }
 
     private MudDataGrid<StudentDto>? DataGrid;
 
+    private bool PageNumberNullInUrl { get; set; }
+
+    // Lifecycle properties
     private bool Initialized { get; set; }
+
+    private bool ParametersSet { get; set; }
+
+    private bool RegisterEventHandlers { get; set; } = true;
+
     protected override async Task OnInitializedAsync()
     {
         var studentsResponse = await _studentClient.GetStudentsRestResponse();
@@ -73,11 +81,9 @@
         {
             AllStudents = studentsResponse.Data;
         }
-        //DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
+
         Initialized = true;
     }
-    private bool PageNumberNullInUrl { get; set; }
-    private bool ParametersSet { get; set; }
     protected override void OnParametersSet()
     {
         if (PageNumber is null) PageNumberNullInUrl = true;
@@ -87,14 +93,13 @@
         ParametersSet = true;
     }
 
-    private bool RegisterEvents { get; set; } = true;
     protected override void OnAfterRender(bool firstRender)
     {
-        if (ParametersSet && RegisterEvents)
+        if (ParametersSet && RegisterEventHandlers)
         {
-            RegisterEvents = false;
+            RegisterEventHandlers = false;
             
-            DataGrid.PagerStateHasChangedEvent += () => PagerStateChanged();
+            DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
     }
 
