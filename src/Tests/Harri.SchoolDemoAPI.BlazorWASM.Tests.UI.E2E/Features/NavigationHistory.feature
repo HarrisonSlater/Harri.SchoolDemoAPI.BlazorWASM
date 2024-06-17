@@ -36,19 +36,23 @@ Scenario: View different pages of students and create a student and click the ba
 	And I create a new student
 	Then I should be on the students page
 	When I click next page
-	Then I see page 2 in the url
+	Then I should be on the students page
 	And see a success alert for a new student
+	And see page 2 in the url
 	When I click back
-	Then I see page 1 in the url
+	Then I should be on the students page
 	And see a success alert for a new student
+	And see page 1 in the url
 	When I click back
 	Then I should be on the create new student page
 	When I click back
-	Then I see page 2 in the url
+	Then I should be on the students page
 	And should not see a success alert
+	And see page 2 in the url
 	When I click back
-	Then I see page 1 in the url
+	Then I should be on the students page
 	And should not see a success alert
+	And see page 1 in the url
 	When I click back
 	Then I see the home url
 

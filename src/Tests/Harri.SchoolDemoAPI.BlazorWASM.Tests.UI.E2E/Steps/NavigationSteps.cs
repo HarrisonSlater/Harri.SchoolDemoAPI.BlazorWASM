@@ -41,6 +41,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _navigationActions.GoToStudentsPage();
         }
 
+        [Given("I am on the students page {int}")]
+        [Given("I go directly to the students page {int}")]
+        public async Task GivenIAmOnTheStudentsPage(int pageNumber)
+        {
+            await _navigationActions.GoToStudentsPage(pageNumber);
+        }
+
         [Given("I am on the create new student page")]
         public async Task GivenIAmOnTheCreateNewStudentPage()
         {

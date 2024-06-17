@@ -123,13 +123,13 @@
         ParametersSet = true;
     }
 
+    private bool RegisterEvents { get; set; } = true;
     protected override void OnAfterRender(bool firstRender)
     {
-        if (firstRender)
+        if (ParametersSet && RegisterEvents)
         {
-            CurrentPage = (PageNumber ?? 1) - 1;
-
-            DataGrid.CurrentPage = CurrentPage; //TODO change this
+            RegisterEvents = false;
+            
             DataGrid.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
     }

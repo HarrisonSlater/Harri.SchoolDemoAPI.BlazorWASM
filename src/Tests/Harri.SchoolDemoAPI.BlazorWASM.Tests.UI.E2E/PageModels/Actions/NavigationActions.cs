@@ -29,12 +29,21 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertPageLoaded()
         {
-            await Assertions.Expect(PageHeader).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions() { Timeout = 60000}); //TODO Read app timeout from settings?
+            await Assertions.Expect(PageHeader).ToBeVisibleAsync();
         }
 
         public async Task GoToStudentsPage()
         {
             await _page.GotoAsync(BaseUrl + "students");
+
+            await AssertPageLoaded();
+
+            await AssertStudentsPageUrlIsCorrect();
+        }
+
+        public async Task GoToStudentsPage(int pageNumber)
+        {
+            await _page.GotoAsync(BaseUrl + $"students/page/{pageNumber}");
 
             await AssertPageLoaded();
 
@@ -70,17 +79,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertStudentsPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/1"), new PageAssertionsToHaveURLOptions() { Timeout= 10000 });
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions()); // { Timeout= 10000 }
         }
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/new"), new PageAssertionsToHaveURLOptions() { Timeout = 10000 });
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/new"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertEditStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/(\\d+)"), new PageAssertionsToHaveURLOptions() { Timeout = 10000 });
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*student/(\\d+)"), new PageAssertionsToHaveURLOptions());
         }
     }
 }
