@@ -8,12 +8,15 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-//builder.Configuration["StudentDemoAPIUrl"]
-var uri = new Uri(builder.Configuration["StudentDemoAPIUrl"]);
+var url = builder.Configuration["StudentDemoAPIUrl"];
+
+if (url is null)
+{
+    throw new ArgumentException("StudentDemoAPIUrl must be set in appsettings.json");
+}
+
+var uri = new Uri(url);
 builder.Services.AddSingleton<IStudentApiClient>(sp => new StudentApiClient(new HttpClient() { BaseAddress = uri }));
 builder.Services.AddMudServices();
-
-
 
 await builder.Build().RunAsync();
