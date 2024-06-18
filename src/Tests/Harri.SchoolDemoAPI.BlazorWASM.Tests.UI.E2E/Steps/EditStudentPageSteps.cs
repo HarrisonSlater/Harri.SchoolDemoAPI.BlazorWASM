@@ -10,12 +10,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
     public class EditStudentPageSteps
     {
         private readonly EditStudentPage _editStudentPage;
-        private readonly StudentsPageSteps _studentsPageSteps;
 
-        public EditStudentPageSteps(EditStudentPage editStudentPage, StudentsPageSteps studentsPageSteps)
+        public EditStudentPageSteps(EditStudentPage editStudentPage)
         {
             _editStudentPage = editStudentPage;
-            _studentsPageSteps = studentsPageSteps;
         }
 
         [Then("I see the create new student form")]

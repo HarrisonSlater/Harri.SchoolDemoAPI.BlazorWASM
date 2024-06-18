@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common;
 using Microsoft.Playwright;
 using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
@@ -10,12 +11,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
     public class StudentsPageSteps
     {
         private readonly StudentsPage _studentsPage;
+        private readonly CreatedTestStudent _createdTestStudent;
 
-        private IReadOnlyList<string> _page1Names;
+        private IReadOnlyList<string>? _page1Names = null;
 
-        public StudentsPageSteps(StudentsPage studentsPage)
+        public StudentsPageSteps(StudentsPage studentsPage, CreatedTestStudent createdTestStudent)
         {
             _studentsPage = studentsPage;
+            _createdTestStudent = createdTestStudent;
         }
 
         [Then("I should be redirected (back )to the students page")]
@@ -36,6 +39,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await Assertions.Expect(_studentsPage.Pagination.PreviousPageButton).ToBeDisabledAsync();
         }
 
+        [Then("I see page 1 again")]
+        public async Task ISeePage1Again()
+        {
+            var page1NamesAgain = await _studentsPage.AssertFullTableAndGetNames();
+
+            page1NamesAgain.Should().BeEquivalentTo(_page1Names);
+        }
+
         [Then("I see a table full of students on page 2")]
         public async Task IShouldSeeATableFullOfStudentsOnPage2()
         {
@@ -54,78 +65,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.StudentEditButton.First.ClickAsync();
         }
 
-        //TODO move to pagination steps
-        [Then("I see page 1 again")]
-        public async Task ISeePage1Again()
-        {
-            var page1NamesAgain = await _studentsPage.AssertFullTableAndGetNames();
-
-            page1NamesAgain.Should().BeEquivalentTo(_page1Names);
-        }
-
-        // Pagination steps, could be separate files
-        [When("I click next page")]
-        public async Task IClickNext()
-        {
-            await _studentsPage.Pagination.NextPageButton.ClickAsync();
-        }
-
-        [When("I click previous page")]
-        public async Task IClickPrevious()
-        {
-            await _studentsPage.Pagination.PreviousPageButton.ClickAsync();
-
-        }
-
-        [When("I click first page")]
-        public async Task IClickFirst()
-        {
-            await _studentsPage.Pagination.GoToFirstPageButton.ClickAsync();
-
-        }
-
-        private int? _lastPage;
-        [When("I click last page")]
-        public async Task IClickLast()
-        {
-            await _studentsPage.Pagination.GoToLastPageButton.ClickAsync();
-            //await _studentsPage.Page.WaitForURLAsync(new Regex(".*"));
-
-            _lastPage = _studentsPage.Pagination.GetPage();
-        }
-
-        [Then("(I )see page {int} in the url")]
-        public async Task ThenISeePageInTheUrl(int pageNumber)
-        {
-            await _studentsPage.Page.WaitForURLAsync(new Regex(".*"));
-            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(new Regex($".*/page/{pageNumber}"));
-        }
-
-        [When("I click back")]
-        public async Task WhenIClickBack()
-        {
-            await _studentsPage.Page.GoBackAsync();
-        }
-
-        [Then("I see the last page in the url")]
-        public async Task ThenISeePageTheLastPageInTheUrl()
-        {
-            if (_lastPage is null) throw new ArgumentException("_lastPage has not been set by a previous step");
-
-            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(new Regex($".*/page/{_lastPage}"));
-        }
-
-        [Then("I see the home url")]
-        public async Task ThenISeeTheHomeUrl()
-        {
-            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(_studentsPage.Navigation.BaseUrl);
-        }
-
-        private string? _successAlertExtractedId;
         [Then("(I )see a success alert for a new student")]
         public async Task ThenISeeASuccessAlertForANewStudent()
         {
-            _successAlertExtractedId = await _studentsPage.GetSuccessAlertId();
+            var studentId = await _studentsPage.GetSuccessAlertId();
+            _createdTestStudent.StudentId = studentId;
         }
 
         [Then("(I )should not see a success alert")]
@@ -137,7 +81,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [When("I search for student using the success alert id")]
         public async Task WhenISearchForStudent()
         {
-            await _studentsPage.SearchForStudent(_successAlertExtractedId);
+            if (_createdTestStudent.StudentId is null) throw new ArgumentException("_createdTestStudent.StudentId has not been set by a previous step");
+
+            await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
         }
 
         [Then("I should see the correct student with name {string}")]
@@ -146,7 +92,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await IShouldSeeATableWithAtLeastOneStudent();
             var rowData = await _studentsPage.GetAllRowData();
 
-            var rowTuple = new Tuple<string?, string?, string?>(_successAlertExtractedId, studentName, null);
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, null);
 
             rowData.Should().ContainEquivalentOf(rowTuple);
         }
@@ -157,7 +103,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await IShouldSeeATableWithAtLeastOneStudent();
             var rowData = await _studentsPage.GetAllRowData();
 
-            var rowTuple = new Tuple<string?, string?, string?>(_successAlertExtractedId, studentName, gpa);
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, gpa);
 
             rowData.Should().ContainEquivalentOf(rowTuple);
         }
@@ -168,7 +114,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await IShouldSeeATableWithAtLeastOneStudent();
             var rowData = await _studentsPage.GetAllRowData();
 
-            var rowTuple = new Tuple<string?, string?, string?>(_successAlertExtractedId, studentName, gpa);
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, gpa);
 
             rowData.Should().NotContainEquivalentOf(rowTuple);
         }

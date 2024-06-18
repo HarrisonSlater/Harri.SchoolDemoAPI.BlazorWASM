@@ -114,8 +114,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return await AssertRowsAndGetCellData(names);
         }
 
-        public async Task SearchForStudent(string searchString)
+        public async Task SearchForStudent(string? searchString)
         {
+            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
+
             await StudentSearch.FillAsync(searchString);
         }
 
@@ -129,8 +131,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return firstRow;
         }
 
-        public async Task ClickEditOnStudent(string studentId)
+        public async Task ClickEditOnStudent(string? studentId)
         {
+            if (studentId is null) throw new ArgumentException($"{nameof(studentId)} cannot be null");
+
             var rows = await GetAllRowData();
             var index = rows.FindIndex(0, x => x.Item1.Equals(studentId));
 
@@ -145,7 +149,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task<string> GetSuccessAlertId()
         {
-            var idMatch = Regex.Match(await GetSuccessAlert(), "'(\\d+)'");
+            var successAlertText = await GetSuccessAlert();
+
+            if (successAlertText is null) throw new ArgumentException($"{nameof(successAlertText)} cannot be null");
+
+            var idMatch = Regex.Match(successAlertText, "'(\\d+)'");
             var id = idMatch.Groups[1].Value;
             id.Should().NotBeNull();
 

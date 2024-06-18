@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using TechTalk.SpecFlow;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
 {
     [Binding]
     public class NavigationSteps
@@ -19,14 +19,29 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         private readonly IPage _page;
         private readonly EditStudentPage _editStudentPage;
         private readonly StudentsPage _studentsPage;
+        private readonly CreatedTestStudent _createdTestStudent;
         private readonly NavigationActions _navigationActions;
 
-        public NavigationSteps(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, EditStudentPage editStudentPage, StudentsPage studentsPage)
+        public NavigationSteps(IPage page, NavigationActions navigationActions, EditStudentPage editStudentPage, StudentsPage studentsPage, 
+            CreatedTestStudent createdTestStudent)
         {
             _page = page;
             _editStudentPage = editStudentPage;
             _studentsPage = studentsPage;
-            _navigationActions = new NavigationActions(page, baseUrlSetting);
+            _createdTestStudent = createdTestStudent;
+            _navigationActions = navigationActions;
+        }
+
+        [When("I click back")]
+        public async Task WhenIClickBack()
+        {
+            await _studentsPage.Page.GoBackAsync();
+        }
+
+        [Then("I see the home url")]
+        public async Task ThenISeeTheHomeUrl()
+        {
+            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(_studentsPage.Navigation.BaseUrl);
         }
 
         [Given("I am on the home page")]
@@ -66,22 +81,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _navigationActions.NavigateToCreateNewStudentPage();
         }
 
-        //TODO move to separate step file for combined steps?
-        private (string?, string?, string?) _studentRow;
         [Given("I am on the edit page for a student")]
         public async Task GivenIAmOnTheEditPageForAStudent()
         {
             await GivenIAmOnTheStudentsPage();
 
-            _studentRow = await _studentsPage.ClickEditOnTheFirstStudent();
+            await _studentsPage.ClickEditOnTheFirstStudent();
 
             await _editStudentPage.AssertCurrentPage();
             await _editStudentPage.AssertFormNotEmpty();
         }
 
-        private string _newStudentId;
         [Given("I am on the edit page for a new student {string}")]
-
         public async Task GivenIAmOnTheEditPageForANewStudent(string name)
         {
             await IAmOnTheEditPageForANewStudent(name);
@@ -99,8 +110,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
 
             await _editStudentPage.CreateNewStudent(name, gpa);
 
-            //TODO Use this id in cleanup tag
-            _newStudentId = await _studentsPage.GetSuccessAlertId();
+            _createdTestStudent.StudentId = await _studentsPage.GetSuccessAlertId();
 
             await ISearchForTheNewStudent();
 
@@ -109,7 +119,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _editStudentPage.AssertCurrentPage();
             await _editStudentPage.AssertNameNotEmpty();
 
-            if (gpa is null )
+            if (gpa is null)
             {
                 await _editStudentPage.AssertGPAEmpty();
             }
@@ -122,13 +132,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [When("I click edit on the new/updated student")]
         public async Task IClickEditOnTheNewStudent()
         {
-            await _studentsPage.ClickEditOnStudent(_newStudentId);
+            await _studentsPage.ClickEditOnStudent(_createdTestStudent.StudentId);
         }
 
         [When("(I )search for the new/updated student")]
         public async Task ISearchForTheNewStudent()
         {
-            await _studentsPage.SearchForStudent(_newStudentId);
+            await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
         }
 
         //TODO this is copy pasted from StudentPageSteps, refactor required
@@ -139,11 +149,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
 
             var rowData = await _studentsPage.GetAllRowData();
 
-            var rowTuple = new Tuple<string?, string?, string?>(_newStudentId, studentName, null);
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, null);
 
             rowData.Should().ContainEquivalentOf(rowTuple);
-        }        
-        
+        }
+
         [Then("I should see the updated/same student with name {string} and GPA {string}")]
         public async Task ThenIShouldSeeTheUpdatedStudent(string studentName, string gpa)
         {
@@ -151,7 +161,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
 
             var rowData = await _studentsPage.GetAllRowData();
 
-            var rowTuple = new Tuple<string?, string?, string?>(_newStudentId, studentName, gpa);
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, gpa);
 
             rowData.Should().ContainEquivalentOf(rowTuple);
         }
