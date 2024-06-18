@@ -102,7 +102,7 @@
         if (PageNumber is null) PageNumberNullInUrl = true;
 
         PageNumber = PageNumber ?? 1;
-        CurrentPage = (PageNumber ?? 1) - 1;
+        CurrentPage = (PageNumber.Value) - 1;
         ParametersSet = true;
     }
 
