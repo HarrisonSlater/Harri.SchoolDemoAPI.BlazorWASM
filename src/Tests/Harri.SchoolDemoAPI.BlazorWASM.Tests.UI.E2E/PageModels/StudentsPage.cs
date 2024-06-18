@@ -95,8 +95,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertStudentPageIsVisible()
         {
-            await Navigation.AssertStudentsPageUrlIsCorrect();
             await AssertFullTableAndGetNames();
+
+            await Navigation.AssertStudentsPageUrlIsCorrect();
         }
 
         public async Task<IReadOnlyList<string>> AssertFullTableAndGetNames()

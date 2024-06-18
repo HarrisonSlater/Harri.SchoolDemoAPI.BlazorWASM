@@ -14,3 +14,13 @@ Scenario: View different pages of students
 	When I click first page
 	Then I see page 1 again
 
+
+Scenario Outline: Go directly to a page of students
+	Given I go directly to the students page <page>
+	Then I should be on the students page
+	And see page <page> in the url
+
+	Examples: 
+	| page |
+	| 1    |
+	| 6    |

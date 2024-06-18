@@ -94,7 +94,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             _lastPage = _studentsPage.Pagination.GetPage();
         }
 
-        [Then("I see page {int} in the url")]
+        [Then("(I )see page {int} in the url")]
         public async Task ThenISeePageInTheUrl(int pageNumber)
         {
             await _studentsPage.Page.WaitForURLAsync(new Regex(".*"));

@@ -29,6 +29,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         public const string GPADataCellsSelector = "td[data-label=\"GPA\"]";
         public const string SearchFieldSelector = "#student-search";
 
+        private const string ErrorAlertSelector = "#student-error-alert";
+
 
         private Mock<IStudentApiClient> _mockStudentApiClient;
         private List<StudentDto> _mockExistingStudents;
@@ -95,6 +97,25 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+        }
+
+        [Test]
+        public void ViewStudents_ShowsErrorOnFail()
+        {
+            // Arrange
+            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse())
+                .Returns(Task.FromResult(new RestSharp.RestResponse<List<StudentDto>>(new RestSharp.RestRequest())
+                {
+                    Data = null
+                }));
+
+            // Act
+            var studentsPage = RenderComponent<Students>();
+
+            // Assert
+            studentsPage.WaitForElement(ErrorAlertSelector);
 
             _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
         }

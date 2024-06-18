@@ -1,0 +1,20 @@
+﻿@if (ShowAlert) {
+    <MudAlert Severity=Severity.Success Variant=Variant.Filled data-student-id=@SuccessfulStudentId
+              ShowCloseIcon CloseIconClicked=CloseCallback @attributes=@OtherAttributes>@Message(SuccessfulStudentId!)</MudAlert>
+}
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? OtherAttributes { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? SuccessfulStudentId { get; set; }
+
+    [Parameter, EditorRequired]
+    public required Func<string, string> Message { get; set; }
+
+    [Parameter]
+    public EventCallback CloseCallback { get; set; }
+
+    public bool ShowAlert => SuccessfulStudentId is not null;
+}
