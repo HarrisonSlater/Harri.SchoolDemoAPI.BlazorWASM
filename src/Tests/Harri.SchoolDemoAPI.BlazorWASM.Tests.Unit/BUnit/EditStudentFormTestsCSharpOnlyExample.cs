@@ -12,7 +12,7 @@ using MudBlazor.Services;
 using System.Threading.Tasks;
 using Harri.SchoolDemoAPI.BlazorWASM.Components;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BUnit
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.Bunit
 {
     /// <summary>
     /// The same tests from EditStudentTests but written to test the model/c# code only and not assert on UI

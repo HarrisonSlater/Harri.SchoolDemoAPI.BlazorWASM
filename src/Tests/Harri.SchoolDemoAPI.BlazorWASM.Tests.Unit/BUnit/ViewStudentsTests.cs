@@ -17,7 +17,7 @@ using AngleSharp.Text;
 using NUnit.Framework.Constraints;
 using System;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BUnit
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.Bunit
 {
     [TestFixture]
     public class ViewStudentsTests : BunitTestContext

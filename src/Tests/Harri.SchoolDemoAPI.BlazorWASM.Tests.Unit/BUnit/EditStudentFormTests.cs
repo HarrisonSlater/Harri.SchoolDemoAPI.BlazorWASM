@@ -12,7 +12,7 @@ using MudBlazor.Services;
 using System.Threading.Tasks;
 using Harri.SchoolDemoAPI.BlazorWASM.Components;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BUnit
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.Bunit
 {
     /// <summary>
     /// These tests are written entirely in C#.

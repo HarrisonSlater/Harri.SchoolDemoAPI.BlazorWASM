@@ -1,7 +1,7 @@
 using Bunit;
 using NUnit.Framework;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BUnit
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.Bunit
 {
     /// <summary>
     /// Test context wrapper for bUnit.
