@@ -12,7 +12,7 @@ Scenario: Create new student with name
 	Then I should be redirected to the students page
 	And see a success alert for a new student
 	When I search for student using the success alert id
-	Then I should see the correct student with name "Tester StudentE2E-2"
+	Then I should see the new student with name "Tester StudentE2E-2"
 
 @cleanupNewStudent
 Scenario: Create new student with name and GPA
@@ -23,7 +23,7 @@ Scenario: Create new student with name and GPA
 	Then I should be redirected to the students page
 	And see a success alert for a new student
 	When I search for student using the success alert id
-	Then I should see the correct student with name "Tester StudentE2E-2" and GPA "3.91"
+	Then I should see the new student with name "Tester StudentE2E-2" and GPA "3.91"
 
 @cleanupNewStudent
 Scenario: Create new student with name and GPA without saving

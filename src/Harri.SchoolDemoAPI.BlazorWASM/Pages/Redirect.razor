@@ -6,9 +6,9 @@
 
 @code {
     [Parameter]
-    public string? RedirectRoute { get; set; }
+    public required string RedirectRoute { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         NavigationManager.NavigateTo(RedirectRoute, replace: true);
     }

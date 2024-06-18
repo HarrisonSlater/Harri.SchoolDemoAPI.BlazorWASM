@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.TestContext;
 using Microsoft.Playwright;
 using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
@@ -86,7 +87,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
         }
 
-        [Then("I should see the correct student with name {string}")]
+        [Then("I should see the updated/same/new student with name {string}")]
         public async Task ThenIShouldSeeTheCorrectStudent(string studentName)
         {
             await IShouldSeeATableWithAtLeastOneStudent();
@@ -97,7 +98,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             rowData.Should().ContainEquivalentOf(rowTuple);
         }
 
-        [Then("I should see the correct student with name {string} and GPA {string}")]
+        [Then("I should see the updated/same/new student with name {string} and GPA {string}")]
+
         public async Task ThenIShouldSeeTheCorrectStudentWithNameAndGPA(string studentName, string gpa)
         {
             await IShouldSeeATableWithAtLeastOneStudent();

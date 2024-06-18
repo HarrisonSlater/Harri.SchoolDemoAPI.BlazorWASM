@@ -1,5 +1,6 @@
 ﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
 using Microsoft.Playwright;
+using SpecFlow.Actions.Playwright;
 using System.Text.RegularExpressions;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
@@ -10,16 +11,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     public class NavigationActions
     {
         private readonly SchoolDemoBaseUrlSetting _baseUrlSetting;
+        private readonly PlaywrightConfiguration _config;
         public string BaseUrl => _baseUrlSetting.Value; //TODO pull from settings
 
         private readonly IPage _page;
 
         private ILocator PageHeader => _page.Locator("header.mud-appbar .mud-toolbar");
 
-        public NavigationActions(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting)
+        public NavigationActions(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config)
         {
-            _baseUrlSetting = baseUrlSetting;
             _page = page;
+            _baseUrlSetting = baseUrlSetting;
+            _config = config;
         }
 
         public async Task GoToHome()
@@ -29,7 +32,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertPageLoaded()
         {
-            await Assertions.Expect(PageHeader).ToBeVisibleAsync();
+            await Assertions.Expect(PageHeader).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions() { Timeout = _config.DefaultTimeout * 1000 });
         }
 
         public async Task GoToStudentsPage()

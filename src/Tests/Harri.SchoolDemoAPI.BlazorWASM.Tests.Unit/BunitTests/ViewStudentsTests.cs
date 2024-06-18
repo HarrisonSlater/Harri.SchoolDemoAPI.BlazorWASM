@@ -30,8 +30,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
         private const string ErrorAlertSelector = "#student-error-alert";
 
-        private Mock<IStudentApiClient> _mockStudentApiClient;
-        private List<StudentDto> _mockExistingStudents;
+        private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
+        private List<StudentDto>? _mockExistingStudents;
 
         private List<string?> _expectedSIds = [];
         private List<string?> _expectedNames = [];
@@ -242,7 +242,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
         private void ShouldSeeOnlyOneStudentInGrid(IRenderedComponent<Students> studentsPage, int studentId)
         {
-            var expectedStudent = _mockExistingStudents.Find(s => s.SId == studentId);
+            var expectedStudent = _mockExistingStudents?.Find(s => s.SId == studentId);
             if (expectedStudent == null) throw new ArgumentException($"Invalid test studentId: {studentId}");
 
             SelectorShouldHaveText(studentsPage, IdDataCellsSelector, [expectedStudent.SId.ToString()]);

@@ -27,13 +27,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
         private const string ErrorAlertSelector = "#student-error-alert";
 
-        private Mock<IStudentApiClient> _mockStudentApiClient;
+        private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
 
         [SetUp]
         public void SetUp()
         {
             _mockStudentApiClient = new Mock<IStudentApiClient>();
-
             Services.AddSingleton(_mockStudentApiClient.Object);
             Services.AddMudServices();
             JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
@@ -164,7 +163,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         }
 
         [Test]
-        public async Task EditStudent_ForExistingStudent_DoesNotSubmitWhenNoChangesMade()
+        public void EditStudent_ForExistingStudent_DoesNotSubmitWhenNoChangesMade()
         {
             // Arrange
             var mockExistingStudent = SetUpMockExistingStudent();
@@ -188,7 +187,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         }
 
         [Test]
-        public async Task EditStudent_ForExistingStudent_RedirectsIfInvalidStudentId()
+        public void EditStudent_ForExistingStudent_RedirectsIfInvalidStudentId()
         {
             // Arrange
             _mockStudentApiClient.Setup(client => client.GetStudent(123))
@@ -202,6 +201,5 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             navMan.Uri.Should().EndWith("new");
         }
-
     }
 }

@@ -113,7 +113,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("I search for student using the success alert id", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 15
- testRunner.Then("I should see the correct student with name \"Tester StudentE2E-2\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I should see the new student with name \"Tester StudentE2E-2\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -160,7 +160,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("I search for student using the success alert id", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 26
- testRunner.Then("I should see the correct student with name \"Tester StudentE2E-2\" and GPA \"3.91\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I should see the new student with name \"Tester StudentE2E-2\" and GPA \"3.91\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

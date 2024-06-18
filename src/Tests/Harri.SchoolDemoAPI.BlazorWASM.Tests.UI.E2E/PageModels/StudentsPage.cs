@@ -25,7 +25,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public PaginationActions Pagination { get; set; }
 
-        public StudentsPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting) : base(page, baseUrlSetting)
+        public StudentsPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
             Pagination = new PaginationActions(_page);
         }
@@ -136,7 +136,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             if (studentId is null) throw new ArgumentException($"{nameof(studentId)} cannot be null");
 
             var rows = await GetAllRowData();
-            var index = rows.FindIndex(0, x => x.Item1.Equals(studentId));
+            var index = rows.FindIndex(0, x => x.Item1 == (studentId));
 
             await StudentEditButton.Nth(index).ClickAsync();
         }

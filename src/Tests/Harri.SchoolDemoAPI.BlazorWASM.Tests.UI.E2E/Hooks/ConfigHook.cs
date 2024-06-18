@@ -14,7 +14,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks
     {
         private readonly IObjectContainer _objectContainer;
 
-        private static SchoolDemoBaseUrlSetting _baseUrlSetting;
+        private static SchoolDemoBaseUrlSetting? _baseUrlSetting;
         public ConfigHook(IObjectContainer objectContainer)
         {
             _objectContainer = objectContainer;
@@ -31,7 +31,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks
         }
 
         [BeforeScenario]
-        public async Task BeforeScenario()
+        public void BeforeScenario()
         {
             _objectContainer.RegisterInstanceAs(_baseUrlSetting);
         }

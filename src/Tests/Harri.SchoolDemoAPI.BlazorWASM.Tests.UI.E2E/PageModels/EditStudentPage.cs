@@ -23,7 +23,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator InputContainersWithError => _page.Locator(".mud-input-control.mud-input-error");
         public ILocator ErrorText => _page.Locator(".mud-input-helper-text.mud-input-error");
 
-        public EditStudentPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting) : base(page, baseUrlSetting)
+        public EditStudentPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
         }
 

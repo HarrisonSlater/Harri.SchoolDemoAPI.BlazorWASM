@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.TestContext;
 using Microsoft.Playwright;
 using System;
 using System.Collections.Generic;
@@ -139,31 +140,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         public async Task ISearchForTheNewStudent()
         {
             await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
-        }
-
-        //TODO this is copy pasted from StudentPageSteps, refactor required
-        [Then("I should see the updated/same student with name {string}")]
-        public async Task ThenIShouldSeeTheUpdatedStudent(string studentName)
-        {
-            await _studentsPage.AssertAtLeastOneStudentRowExists();
-
-            var rowData = await _studentsPage.GetAllRowData();
-
-            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, null);
-
-            rowData.Should().ContainEquivalentOf(rowTuple);
-        }
-
-        [Then("I should see the updated/same student with name {string} and GPA {string}")]
-        public async Task ThenIShouldSeeTheUpdatedStudent(string studentName, string gpa)
-        {
-            await _studentsPage.AssertAtLeastOneStudentRowExists();
-
-            var rowData = await _studentsPage.GetAllRowData();
-
-            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, gpa);
-
-            rowData.Should().ContainEquivalentOf(rowTuple);
         }
     }
 }
