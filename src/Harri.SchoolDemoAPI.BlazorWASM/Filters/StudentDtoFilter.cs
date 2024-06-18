@@ -9,13 +9,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Filters
             if (string.IsNullOrWhiteSpace(searchString))
                 return true;
 
-            if (x.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if (x.Name is not null && x.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (x.SId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if (x.SId is not null && x.SId.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (x.GPA.ToString().Contains(searchString))
+            if (x.GPA is not null && x.GPA.Value.ToString().Contains(searchString))
                 return true;
 
             return false;
