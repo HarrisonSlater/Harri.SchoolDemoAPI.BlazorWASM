@@ -1,5 +1,6 @@
 ﻿@page "/students"
 @page "/students/page/{PageNumber:int}"
+@using Harri.SchoolDemoAPI.BlazorWASM.Components.Alerts
 @using Harri.SchoolDemoAPI.BlazorWASM.Filters
 @inject NavigationManager NavigationManager
 @inject IStudentApiClient _studentClient
@@ -8,16 +9,14 @@
 
 <MudContainer MaxWidth=MaxWidth.Medium>
     <MudText Typo=Typo.h3 GutterBottom>Students</MudText>
-    @if (ShowSuccessMessage)
+
+    @if (ShowError)
     {
-        <MudAlert id="student-success-alert" Class="mb-4" Severity=Severity.Success Variant=Variant.Filled data-student-id=@SuccessfulStudentId
-            ShowCloseIcon CloseIconClicked="CloseSuccessAlert">@SuccessMessage</MudAlert>
+        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorText</MudAlert>
     }
-    else if (ShowEditSuccessMessage)
-    {
-        <MudAlert id="student-edit-success-alert" Class="mb-4" Severity=Severity.Success Variant=Variant.Filled data-student-id=@EditSuccessfulStudentId
-            ShowCloseIcon CloseIconClicked="CloseEditSuccessAlert">@EditSuccessMessage</MudAlert>
-    }
+    <StudentSuccessAlert id="student-success-alert" Class="mb-4" Message=SuccessMessage SuccessfulStudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
+    <StudentSuccessAlert id="student-edit-success-alert" Class="mb-4" Message=EditSuccessMessage SuccessfulStudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
+
     <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
             QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
 
@@ -51,22 +50,21 @@
     [Parameter]
     public int? PageNumber { get; set; }
 
-    // This query parameter would be better as a strongly typed int however Blazor will 
-    // throw an System.InvalidOperationException that will error out the whole page
-    // when in fact we want to be able to easily recover from a bad value
+    // Create/Edit success alerts
     [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.SuccessId)]
     public string? SuccessfulStudentId { get; set; }
 
     [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.EditSuccessId)]
     public string? EditSuccessfulStudentId { get; set; }
 
+    internal string SuccessMessage(string id) => $"A new student with ID '{id}' was created successfully";
+
+    internal string EditSuccessMessage(string id) => $"Student with ID '{id}' was updated successfully";
+
+    internal bool ShowError { get; set; }
+    internal string ErrorText => "Failed to retrieve students. Please refresh the page.";
+
     public int CurrentPage { get; set; }
-
-    internal bool ShowSuccessMessage => SuccessfulStudentId is not null;
-    internal bool ShowEditSuccessMessage => EditSuccessfulStudentId is not null;
-
-    internal string SuccessMessage => $"A new student with ID '{SuccessfulStudentId}' was created successfully";
-    internal string EditSuccessMessage => $"Student with ID '{EditSuccessfulStudentId}' was updated successfully";
 
     internal bool AddSuccessIdToHistory { get; set; }
 
@@ -90,6 +88,10 @@
         if (studentsResponse.Data != null)
         {
             AllStudents = studentsResponse.Data;
+        }
+        else
+        {
+            ShowError = true;
         }
 
         Initialized = true;
@@ -154,11 +156,6 @@
     private void CloseSuccessAlert()
     {
         SuccessfulStudentId = null;
-        AddSuccessIdToHistory = true;
-    }
-
-    private void CloseEditSuccessAlert()
-    {
         EditSuccessfulStudentId = null;
         AddSuccessIdToHistory = true;
     }
