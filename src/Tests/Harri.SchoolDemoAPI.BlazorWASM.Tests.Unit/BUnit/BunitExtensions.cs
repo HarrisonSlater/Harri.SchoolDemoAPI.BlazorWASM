@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BUnit
 {
     public static class BunitExtensions
     {
