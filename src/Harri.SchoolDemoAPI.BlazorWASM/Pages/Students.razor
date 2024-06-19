@@ -12,10 +12,10 @@
 
     @if (ShowError)
     {
-        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorText</MudAlert>
+        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.StudentsPage.ErrorText</MudAlert>
     }
-    <StudentSuccessAlert id="student-success-alert" Class="mb-4" Message=SuccessMessage SuccessfulStudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
-    <StudentSuccessAlert id="student-edit-success-alert" Class="mb-4" Message=EditSuccessMessage SuccessfulStudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
+    <StudentSuccessAlert id="student-success-alert" Class="mb-4" Message=Text.StudentsPage.SuccessMessage SuccessfulStudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
+    <StudentSuccessAlert id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage SuccessfulStudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
 
     <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
             QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
@@ -57,12 +57,7 @@
     [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.EditSuccessId)]
     public string? EditSuccessfulStudentId { get; set; }
 
-    internal string SuccessMessage(string id) => $"A new student with ID '{id}' was created successfully";
-
-    internal string EditSuccessMessage(string id) => $"Student with ID '{id}' was updated successfully";
-
     internal bool ShowError { get; set; }
-    internal string ErrorText => "Failed to retrieve students. Please refresh the page.";
 
     public int CurrentPage { get; set; }
 

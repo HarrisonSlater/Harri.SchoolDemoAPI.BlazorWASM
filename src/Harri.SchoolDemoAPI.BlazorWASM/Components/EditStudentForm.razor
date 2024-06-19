@@ -1,17 +1,17 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IStudentApiClient _studentClient
 
-<PageTitle>@DisplayText</PageTitle>
+<PageTitle>@Text.EditStudentForm.DisplayText(StudentId)</PageTitle>
 
 <EditForm @ref=EditForm Model="@Student" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <MudContainer MaxWidth=MaxWidth.Small>
         @if (ShowError)
         {
-            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorText</MudAlert>
+            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.EditStudentForm.ErrorText(StudentId)</MudAlert>
         }
 
-        <MudText Typo="Typo.h3" GutterBottom="true">@DisplayText</MudText>
+        <MudText Typo="Typo.h3" GutterBottom="true">@Text.EditStudentForm.DisplayText(StudentId)</MudText>
 
         <MudCard>
             <MudCardContent>
@@ -44,8 +44,6 @@
 
     public EditForm? EditForm { get; set; }
 
-    internal string DisplayText => StudentId.HasValue ? "Edit Student" : "Create Student";
-
     internal bool DisableSubmit { get; set; }
 
     internal bool Loading { get; set; }
@@ -54,7 +52,6 @@
 
 
     internal bool ShowError { get; set; }
-    internal string ErrorText => StudentId.HasValue ? "Failed to update student. Please try again" : "Failed to create new student. Please try again";
 
     protected override async Task OnInitializedAsync()
     {
