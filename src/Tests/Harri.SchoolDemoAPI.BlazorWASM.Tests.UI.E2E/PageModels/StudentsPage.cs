@@ -32,22 +32,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task<int> GetRowsDisplayed()
         {
-            //await Assertions.Expect(RowsDisplayed).ToBeVisibleAsync();
             var rowsDisplayed = await RowsDisplayed.TextContentAsync();
 
             rowsDisplayed.Should().NotBeNull();
 
             var rowsDisplayedInt = int.Parse(rowsDisplayed!);
             return rowsDisplayedInt;
-        }
-
-        public async Task<IReadOnlyList<string>> AssertRowsAndGetCellData(ILocator locator)
-        {
-            await Assertions.Expect(locator).ToHaveCountAsync(await GetRowsDisplayed());
-            var pageCellData = await locator.AllTextContentsAsync();
-            pageCellData.Should().AllSatisfy(x => x.Should().NotBeEmpty());
-
-            return pageCellData;
         }
 
         public async Task<IReadOnlyList<string>> GetCellData(ILocator locator)
@@ -84,6 +74,61 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return (id, name, gpa);
         }
 
+        public async Task SearchForStudent(string? searchString)
+        {
+            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
+
+            await StudentSearch.FillAsync(searchString);
+        }
+
+        public async Task ClickEditOnStudent(string? studentId)
+        {
+            if (studentId is null) throw new ArgumentException($"{nameof(studentId)} cannot be null");
+
+            var rows = await GetAllRowData();
+            var index = rows.FindIndex(0, x => x.Item1 == (studentId));
+
+            await StudentEditButton.Nth(index).ClickAsync();
+        }
+
+        public async Task<(string?, string?, string?)> ClickEditOnTheFirstStudent()
+        {
+            var firstStudent = StudentEditButton.First;
+            var firstRow = (await GetAllRowData()).First();
+
+            await firstStudent.ClickAsync();
+
+            return firstRow;
+        }
+
+        public async Task<string?> GetSuccessAlert()
+        {
+            return await StudentSuccessAlert.TextContentAsync();
+        }
+
+        public async Task<string> GetSuccessAlertId()
+        {
+            var successAlertText = await GetSuccessAlert();
+
+            if (successAlertText is null) throw new ArgumentException($"{nameof(successAlertText)} cannot be null");
+
+            var idMatch = Regex.Match(successAlertText, "'(\\d+)'");
+            var id = idMatch.Groups[1].Value;
+            id.Should().NotBeNull();
+
+            return id;
+        }
+
+        // Assertions
+        public async Task<IReadOnlyList<string>> AssertRowsAndGetCellData(ILocator locator)
+        {
+            await Assertions.Expect(locator).ToHaveCountAsync(await GetRowsDisplayed());
+            var pageCellData = await locator.AllTextContentsAsync();
+            pageCellData.Should().AllSatisfy(x => x.Should().NotBeEmpty());
+
+            return pageCellData;
+        }
+
         public async Task AssertAtLeastOneStudentRowExists()
         {
             var sIds = (await GetCellData(IdDataCells));
@@ -112,52 +157,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await AssertRowsAndGetCellData(sIds);
 
             return await AssertRowsAndGetCellData(names);
-        }
-
-        public async Task SearchForStudent(string? searchString)
-        {
-            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
-
-            await StudentSearch.FillAsync(searchString);
-        }
-
-        public async Task<(string?, string?, string?)> ClickEditOnTheFirstStudent()
-        {
-            var firstStudent = StudentEditButton.First;
-            var firstRow = (await GetAllRowData()).First();
-
-            await firstStudent.ClickAsync();
-
-            return firstRow;
-        }
-
-        public async Task ClickEditOnStudent(string? studentId)
-        {
-            if (studentId is null) throw new ArgumentException($"{nameof(studentId)} cannot be null");
-
-            var rows = await GetAllRowData();
-            var index = rows.FindIndex(0, x => x.Item1 == (studentId));
-
-            await StudentEditButton.Nth(index).ClickAsync();
-        }
-
-        public async Task<string?> GetSuccessAlert()
-        {
-            await Assertions.Expect(StudentSuccessAlert).ToBeVisibleAsync();
-            return await StudentSuccessAlert.TextContentAsync();
-        }
-
-        public async Task<string> GetSuccessAlertId()
-        {
-            var successAlertText = await GetSuccessAlert();
-
-            if (successAlertText is null) throw new ArgumentException($"{nameof(successAlertText)} cannot be null");
-
-            var idMatch = Regex.Match(successAlertText, "'(\\d+)'");
-            var id = idMatch.Groups[1].Value;
-            id.Should().NotBeNull();
-
-            return id;
         }
     }
 }

@@ -62,6 +62,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await ClickSave();
         }
 
+        // Assertions
         public async Task ShouldHaveValidationErrorForName()
         {
             var errorContainerName = InputContainersWithError.Filter(new LocatorFilterOptions() { Has = StudentNameInput });
