@@ -12,7 +12,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     {
         private readonly SchoolDemoBaseUrlSetting _baseUrlSetting;
         private readonly PlaywrightConfiguration _config;
-        public string BaseUrl => _baseUrlSetting.Value; //TODO pull from settings
+        public string BaseUrl => _baseUrlSetting.Value;
 
         private readonly IPage _page;
 
@@ -82,7 +82,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertStudentsPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions()); // { Timeout= 10000 }
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
