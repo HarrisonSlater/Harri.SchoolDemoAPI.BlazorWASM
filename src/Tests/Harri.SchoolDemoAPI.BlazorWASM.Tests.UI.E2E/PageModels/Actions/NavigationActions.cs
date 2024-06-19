@@ -62,9 +62,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await AssertCreateNewStudentPageUrlIsCorrect();
         }
 
+        public async Task NavigateToHomePage()
+        {
+            var studentsNavLink = _page.Locator("#nav-home");
+
+            await studentsNavLink.ClickAsync();
+
+            await AssertStudentsPageUrlIsCorrect();
+        }
+
         public async Task NavigateToStudentsPage()
         {
-            var studentsNavLink = _page.GetByRole(AriaRole.Link, new() { Name = "Students" });
+            var studentsNavLink = _page.Locator("#nav-students");
 
             await studentsNavLink.ClickAsync();
 
@@ -73,7 +82,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task NavigateToCreateNewStudentPage()
         {
-            var createNewStudentNavLink = _page.GetByRole(AriaRole.Link, new() { Name = "Create new student" }); //TODO not select by text
+            var createNewStudentNavLink = _page.Locator("#nav-students-new");
 
             await createNewStudentNavLink.ClickAsync();
 
