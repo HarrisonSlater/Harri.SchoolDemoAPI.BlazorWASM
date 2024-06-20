@@ -60,6 +60,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.AssertAtLeastOneStudentRowExists();
         }
 
+        [Then("The students table should be empty")]
+        public async Task TheStudentsTableShouldBeEmpty()
+        {
+            await _studentsPage.AssertNoStudentRowsExist();
+        }
+
         [When("I click edit on the first student")]
         public async Task IClickEditOnTheFirstStudent()
         {
@@ -79,12 +85,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await Assertions.Expect(_studentsPage.StudentSuccessAlert).Not.ToBeVisibleAsync();
         }
 
-        [When("I search for student using the success alert id")]
-        public async Task WhenISearchForStudent()
+        [When("I search for student using the success alert ID")]
+        public async Task WhenISearchForStudentUsingID()
         {
-            if (_createdTestStudent.StudentId is null) throw new ArgumentException("_createdTestStudent.StudentId has not been set by a previous step");
-
             await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
+        }
+        [When("I search for student {string}")]
+        public async Task WhenISearchForStudent(string searchString)
+        {
+            await _studentsPage.SearchForStudent(searchString);
         }
 
         [Then("I should see the updated/same/new student with name {string}")]
@@ -108,17 +117,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, gpa);
 
             rowData.Should().ContainEquivalentOf(rowTuple);
-        }
-
-        [Then("I should not see a student with name {string} and GPA {string}")]
-        public async Task ThenIShouldNotSeeAStudentWithNameAndGPA(string studentName, string gpa)
-        {
-            await IShouldSeeATableWithAtLeastOneStudent();
-            var rowData = await _studentsPage.GetAllRowData();
-
-            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, studentName, gpa);
-
-            rowData.Should().NotContainEquivalentOf(rowTuple);
         }
     }
 }

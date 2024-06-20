@@ -1,0 +1,78 @@
+﻿using FluentAssertions;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels.Actions;
+using Microsoft.Playwright;
+using SpecFlow.Actions.Playwright;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
+{
+    public class HomePage : BasePage
+    {
+        public ILocator ViewStudentsButton => _page.Locator("#home-shortcut-students");
+        public ILocator CreateNewStudentButton => _page.Locator("#home-shortcut-students-new");
+        public ILocator EditStudentIdInput => _page.Locator("#home-shortcut-edit-student-id");
+        public ILocator EditStudentButton => _page.Locator("#home-shortcut-edit-student");
+
+        public ILocator InvalidStudentErrorAlert => _page.Locator("#student-error-alert");
+
+
+        public HomePage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
+        {
+        }
+
+        public async Task ClickViewStudentsButton()
+        {
+            await ViewStudentsButton.ClickAsync();
+        }
+
+        public async Task ClickCreateNewStudentButton()
+        {
+            await CreateNewStudentButton.ClickAsync();
+        }
+
+        public async Task ClickEditStudentButton()
+        {
+            await EditStudentButton.ClickAsync();
+        }
+
+        public async Task EnterEditStudentId(string id)
+        {
+            await EditStudentIdInput.FillAsync(id);
+        }
+
+        //TODO refactor, copied from StudentsPage.cs
+        public async Task<string?> GetErrorAlert()
+        {
+            await Assertions.Expect(InvalidStudentErrorAlert).ToBeVisibleAsync();
+            return await InvalidStudentErrorAlert.TextContentAsync();
+        }
+
+        public async Task<string> GetErrorAlertId()
+        {
+            var errorAlertText = await GetErrorAlert();
+
+            if (errorAlertText is null) throw new ArgumentException($"{nameof(errorAlertText)} cannot be null");
+
+            var idMatch = Regex.Match(errorAlertText, "'(\\d+)'");
+            var id = idMatch.Groups[1].Value;
+            id.Should().NotBeNull();
+
+            return id;
+        }
+
+        public async Task AssertHomePageIsVisible()
+        {
+            await Assertions.Expect(ViewStudentsButton).ToBeVisibleAsync();
+            await Assertions.Expect(CreateNewStudentButton).ToBeVisibleAsync();
+            await Assertions.Expect(EditStudentIdInput).ToBeVisibleAsync();
+            await Assertions.Expect(EditStudentIdInput).ToBeEmptyAsync();
+            await Assertions.Expect(EditStudentButton).ToBeVisibleAsync();
+        }
+    }
+}

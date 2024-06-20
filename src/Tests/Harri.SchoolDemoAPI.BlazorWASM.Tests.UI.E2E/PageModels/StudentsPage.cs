@@ -103,6 +103,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task<string?> GetSuccessAlert()
         {
+            await Assertions.Expect(StudentSuccessAlert).ToBeVisibleAsync();
             return await StudentSuccessAlert.TextContentAsync();
         }
 
@@ -127,6 +128,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             pageCellData.Should().AllSatisfy(x => x.Should().NotBeEmpty());
 
             return pageCellData;
+        }
+
+        public async Task AssertNoStudentRowsExist()
+        {
+            await Assertions.Expect(IdDataCells).ToHaveCountAsync(0);
+            await Assertions.Expect(NameDataCells).ToHaveCountAsync(0);
         }
 
         public async Task AssertAtLeastOneStudentRowExists()

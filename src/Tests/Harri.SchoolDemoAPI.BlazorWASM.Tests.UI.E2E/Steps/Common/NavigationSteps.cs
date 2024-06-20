@@ -22,15 +22,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         private readonly StudentsPage _studentsPage;
         private readonly CreatedTestStudent _createdTestStudent;
         private readonly NavigationActions _navigationActions;
+        private readonly HomePage _homePage;
 
-        public NavigationSteps(IPage page, NavigationActions navigationActions, EditStudentPage editStudentPage, StudentsPage studentsPage, 
-            CreatedTestStudent createdTestStudent)
+        public NavigationSteps(IPage page, NavigationActions navigationActions, HomePage homePage, EditStudentPage editStudentPage,
+            StudentsPage studentsPage, CreatedTestStudent createdTestStudent)
         {
             _page = page;
             _editStudentPage = editStudentPage;
             _studentsPage = studentsPage;
             _createdTestStudent = createdTestStudent;
             _navigationActions = navigationActions;
+            _homePage = homePage;
         }
 
         [When("I click back")]
@@ -42,13 +44,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         [Then("I see the home url")]
         public async Task ThenISeeTheHomeUrl()
         {
-            await Assertions.Expect(_studentsPage.Page).ToHaveURLAsync(_studentsPage.Navigation.BaseUrl);
+            await _navigationActions.AssertHomePageUrlIsCorrect();
         }
 
         [Given("I am on the home page")]
         public async Task GivenIAmOnTheHomePage()
         {
             await _navigationActions.GoToHome();
+        }
+        
+        [Then("I should be on the home page")]
+        public async Task ThenIShouldBeOnTheHomePage()
+        {
+            await _homePage.AssertHomePageIsVisible();
+            await ThenISeeTheHomeUrl();
         }
 
         [Given("I am on the students page")]
@@ -89,8 +98,21 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
 
             await _studentsPage.ClickEditOnTheFirstStudent();
 
-            await _editStudentPage.AssertCurrentPage();
+            await _editStudentPage.AssertEditStudentPageIsVisible();
             await _editStudentPage.AssertFormNotEmpty();
+        }
+
+        // Setup steps
+        [Given("A new student {string} exists")]
+        public async Task GivenANewStudentExists(string name)
+        {
+            await AStudentExists(name);
+        }
+
+        [Given("A new student {string} with GPA {string} exists")]
+        public async Task GivenANewStudentWithGPAExists(string name, string gpa)
+        {
+            await AStudentExists(name, gpa);
         }
 
         [Given("I am on the edit page for a new student {string}")]
@@ -107,17 +129,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
 
         private async Task IAmOnTheEditPageForANewStudent(string name, string? gpa = null)
         {
-            await _navigationActions.GoToCreateNewStudentPage();
-
-            await _editStudentPage.CreateNewStudent(name, gpa);
-
-            _createdTestStudent.StudentId = await _studentsPage.GetSuccessAlertId();
+            await AStudentExists(name, gpa);
 
             await ISearchForTheNewStudent();
 
             await IClickEditOnTheNewStudent();
 
-            await _editStudentPage.AssertCurrentPage();
+            await _editStudentPage.AssertEditStudentPageIsVisible();
             await _editStudentPage.AssertNameNotEmpty();
 
             if (gpa is null)
@@ -128,6 +146,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
             {
                 await _editStudentPage.AssertGPANotEmpty();
             }
+        }
+
+        private async Task AStudentExists(string name, string? gpa = null)
+        {
+            await _navigationActions.GoToCreateNewStudentPage();
+
+            await _editStudentPage.CreateNewStudent(name, gpa);
+
+            _createdTestStudent.StudentId = await _studentsPage.GetSuccessAlertId();
         }
 
         [When("I click edit on the new/updated student")]

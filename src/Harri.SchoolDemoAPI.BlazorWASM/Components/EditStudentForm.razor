@@ -69,8 +69,8 @@
             }
             else
             {
-                //Invalid StudentId provided, redirect to create new
-                NavigationManager.NavigateTo("/students/new");
+                //Invalid StudentId provided, redirect to home and show error
+                NavigationManager.NavigateTo($"/?{Constants.QueryString.InvalidStudentId}={StudentId.Value}");
             }
             Loading = false;
         }

@@ -6,6 +6,7 @@
         {
             public const string SuccessId = "successId";
             public const string EditSuccessId = "editSuccessId";
+            public const string InvalidStudentId = "invalidStudentId";
         }
     }
 }

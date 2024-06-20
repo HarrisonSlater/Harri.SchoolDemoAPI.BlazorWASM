@@ -28,6 +28,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public async Task GoToHome()
         {
             await _page.GotoAsync(BaseUrl);
+
+            await AssertPageLoaded();
+
+            await AssertHomePageUrlIsCorrect();
         }
 
         public async Task AssertPageLoaded()
@@ -89,19 +93,29 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await AssertCreateNewStudentPageUrlIsCorrect();
         }
 
+        public async Task AssertHomePageUrlIsCorrect()
+        {
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex($"^{BaseUrl}(\\?.*)?$"));
+        }
+
         public async Task AssertStudentsPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/new"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/new$"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertEditStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/(\\d+)"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/(\\d+)$"), new PageAssertionsToHaveURLOptions());
+        }
+
+        public async Task AssertEditStudentPageUrlIsCorrect(string id)
+        {
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex($"^.*students/{id}$"), new PageAssertionsToHaveURLOptions());
         }
     }
 }

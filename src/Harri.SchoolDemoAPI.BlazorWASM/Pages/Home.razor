@@ -10,22 +10,25 @@
 <MudText Typo=Typo.h3 GutterBottom>SchoolDemoAPI Admin UI Home</MudText>
 
 <MudContainer MaxWidth=MaxWidth.Small>
-    <MudText Typo="Typo.h4" GutterBottom="true">Students</MudText>
 
+    <StudentAlert Severity=Severity.Error id="student-error-alert" Class="mb-4" Message=Text.StudentsPage.InvalidStudentId StudentId=@InvalidStudentId CloseCallback=@(() => InvalidStudentId = null) />
+    
     <MudCard id="home-student-links"> 
         <MudCardContent>
-            <MudStack >
-                <MudButton StartIcon=@Icons.Material.Filled.List  Variant=Variant.Filled Color=Color.Info Href="students">View all students</MudButton>
+            <MudText Typo="Typo.h4" GutterBottom="true">Students</MudText>
 
-                <MudButton StartIcon=@Icons.Material.Filled.Add Variant=Variant.Filled Color=Color.Secondary Href="students/new">Create new student</MudButton>
+            <MudStack >
+                <MudButton id="home-shortcut-students" StartIcon=@Icons.Material.Filled.List  Variant=Variant.Filled Color=Color.Info Href="students">View all students</MudButton>
+
+                <MudButton id="home-shortcut-students-new" StartIcon=@Icons.Material.Filled.Add Variant=Variant.Filled Color=Color.Secondary Href="students/new">Create new student</MudButton>
 
                 <EditForm OnValidSubmit=GoToEditStudent Model=EditStudentFormModel>
                     <DataAnnotationsValidator />
                     <MudStack Row AlignItems=AlignItems.Start Style="" Class="pa-2">
-                        <MudTextField Variant="Variant.Outlined" @bind-Value=@EditStudentFormModel.EditStudentId Label="Student ID" Placeholder="123" 
+                        <MudTextField id="home-shortcut-edit-student-id" Variant="Variant.Outlined" @bind-Value=@EditStudentFormModel.EditStudentId Label="Student ID" Placeholder="123"
                                       For=@(() => EditStudentFormModel.EditStudentId)></MudTextField>
                                       <MudPaper Elevation=0>
-                        <MudButton ButtonType=ButtonType.Submit StartIcon=@Icons.Material.Outlined.Edit Variant=Variant.Filled Color=Color.Primary
+                            <MudButton id="home-shortcut-edit-student" ButtonType=ButtonType.Submit StartIcon=@Icons.Material.Outlined.Edit Variant=Variant.Filled Color=Color.Primary
                                        Style="text-wrap:nowrap;" Class="pa-4 mt-1">Edit student</MudButton>
                         </MudPaper>
                     </MudStack>
@@ -36,6 +39,10 @@
 </MudContainer>
 
 @code {
+
+    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.InvalidStudentId)]
+    public string? InvalidStudentId { get; set; }
+
     public GoToEditStudentForm EditStudentFormModel { get; set; } = new GoToEditStudentForm();
 
     public void GoToEditStudent()

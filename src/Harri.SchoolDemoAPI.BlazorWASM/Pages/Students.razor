@@ -14,8 +14,8 @@
     {
         <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.StudentsPage.ErrorText</MudAlert>
     }
-    <StudentSuccessAlert id="student-success-alert" Class="mb-4" Message=Text.StudentsPage.SuccessMessage SuccessfulStudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
-    <StudentSuccessAlert id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage SuccessfulStudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
+    <StudentAlert Severity=Severity.Success id="student-success-alert" Class="mb-4" Message=Text.StudentsPage.SuccessMessage StudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
+    <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
 
     <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
             QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>

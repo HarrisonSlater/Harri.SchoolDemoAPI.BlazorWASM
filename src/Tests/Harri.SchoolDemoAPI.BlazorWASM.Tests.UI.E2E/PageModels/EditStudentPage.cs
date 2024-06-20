@@ -81,7 +81,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await Assertions.Expect(errorContainerGPA.Locator(ErrorText)).ToContainTextAsync(new Regex("GPA"));
         }
 
-        public async Task AssertCurrentPage()
+        public async Task AssertEditStudentPageIsVisible()
         {
             await Assertions.Expect(StudentNameInput).ToBeVisibleAsync();
             await Assertions.Expect(StudentNameLabel).Not.ToBeEmptyAsync();
