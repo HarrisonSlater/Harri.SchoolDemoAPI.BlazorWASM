@@ -21,6 +21,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public ILocator InvalidStudentErrorAlert => _page.Locator("#student-error-alert");
 
+        public ILocator InputContainersWithError => _page.Locator(".mud-input-control.mud-input-error");
+        public ILocator ErrorText => _page.Locator(".mud-input-helper-text.mud-input-error");
 
         public HomePage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
@@ -44,6 +46,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public async Task EnterEditStudentId(string id)
         {
             await EditStudentIdInput.FillAsync(id);
+        }
+
+        public async Task ShouldHaveValidationErrorForStudentID()
+        {
+            var errorContainerName = InputContainersWithError.Filter(new LocatorFilterOptions() { Has = EditStudentIdInput });
+
+            await Assertions.Expect(errorContainerName.Locator(ErrorText)).ToBeVisibleAsync();
+            await Assertions.Expect(errorContainerName.Locator(ErrorText)).ToContainTextAsync(new Regex("Student ID"));
         }
 
         //TODO refactor, copied from StudentsPage.cs

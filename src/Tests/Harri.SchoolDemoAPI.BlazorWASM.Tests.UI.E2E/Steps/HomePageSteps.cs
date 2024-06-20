@@ -60,6 +60,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
             await _homePage.EnterEditStudentId(id);
         }
 
+        [Then("I should see a validation error for the Student ID")]
+        public async Task ThenIShouldSeeAValidationErrorForTheStudentID()
+        {
+            await _homePage.ShouldHaveValidationErrorForStudentID();
+        }
+
         [Then("(I )see an error alert for a non existing student {string}")]
         public async Task ThenISeeAnErrorAlertForANewStudent(string id)
         {

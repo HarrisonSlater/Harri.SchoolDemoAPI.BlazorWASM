@@ -26,6 +26,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         private const string SubmitButtonSelector = "#submit-button";
 
         private const string ErrorAlertSelector = "#student-error-alert";
+        private const string ErrorInputsSelector = ".mud-input-control.mud-input-error";
+
 
         private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
 
@@ -94,6 +96,55 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var errorAlert = editStudentForm.Find(ErrorAlertSelector);
             errorAlert.Should().NotBeNull();
         }
+        
+        [Test]
+        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForName()
+        {
+            var editStudentForm = RenderComponent<EditStudentForm>();
+
+            var textField = editStudentForm.Find(NameInputSelector);
+            textField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            var gpaField = editStudentForm.Find(GpaInputSelector);
+            gpaField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            //textField.Change("");
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+
+            var errorInputContainer = editStudentForm.Find(ErrorInputsSelector);
+
+            var errorText = errorInputContainer.LastChild?.TextContent;
+            
+            errorText.Should().NotBeNullOrWhiteSpace();
+
+            _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
+        }
+
+        [Test]
+        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForNameAndGPA()
+        {
+            var editStudentForm = RenderComponent<EditStudentForm>();
+
+            var textField = editStudentForm.Find(NameInputSelector);
+            textField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            var gpaField = editStudentForm.Find(GpaInputSelector);
+            gpaField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            gpaField.Change("asdf");
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+
+            var errorInputContainers = editStudentForm.FindAll(ErrorInputsSelector);
+
+            foreach (var errorInputContainer in errorInputContainers)
+            {
+                var errorText = errorInputContainer.LastChild?.TextContent;
+
+                errorText.Should().NotBeNullOrWhiteSpace();
+            }
+
+            _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
+        }
 
         // Existing Student
         [Test]
@@ -144,7 +195,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().Be(mockExistingStudent.GPA.ToString());
-
+            
             // Act
             var updatedName = "Test Name Updated";
             textField.Change(updatedName);
