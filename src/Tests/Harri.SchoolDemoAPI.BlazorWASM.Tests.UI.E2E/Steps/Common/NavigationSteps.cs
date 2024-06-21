@@ -38,8 +38,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         [When("I click back")]
         public async Task WhenIClickBack()
         {
-            await _studentsPage.Page.GoBackAsync();
+            await _page.GoBackAsync();
         }
+
+        [When("I refresh the page")]
+        public async Task ThenIRefreshThePage()
+        {
+            await _page.ReloadAsync();
+        }
+
 
         [Then("I see the home url")]
         public async Task ThenISeeTheHomeUrl()

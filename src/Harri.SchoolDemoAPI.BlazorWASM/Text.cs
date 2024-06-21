@@ -8,6 +8,8 @@
 
             public static string EditSuccessMessage(string id) => $"Student with ID '{id}' was updated successfully";
 
+            public static string DeleteSuccessMessage(string id) => $"Student with ID '{id}' was deleted successfully";
+
             public static string InvalidStudentId(string id) => $"Student with ID '{id}' does not exist";
 
             public static string ErrorText => "Failed to retrieve students. Please refresh the page.";

@@ -22,6 +22,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator StudentSearch => _page.Locator("#student-search");
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
+        public ILocator StudentDeleteAlert => _page.Locator("#student-delete-alert");
 
         public PaginationActions Pagination { get; set; }
 
@@ -106,7 +107,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await Assertions.Expect(StudentSuccessAlert).ToBeVisibleAsync();
             return await StudentSuccessAlert.TextContentAsync();
         }
+        
+        public async Task<string?> GetDeleteAlert()
+        {
+            await Assertions.Expect(StudentDeleteAlert).ToBeVisibleAsync();
+            return await StudentDeleteAlert.TextContentAsync();
+        }
 
+        //TODO refactor
         public async Task<string> GetSuccessAlertId()
         {
             var successAlertText = await GetSuccessAlert();
@@ -114,6 +122,19 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             if (successAlertText is null) throw new ArgumentException($"{nameof(successAlertText)} cannot be null");
 
             var idMatch = Regex.Match(successAlertText, "'(\\d+)'");
+            var id = idMatch.Groups[1].Value;
+            id.Should().NotBeNull();
+
+            return id;
+        }
+        
+        public async Task<string> GetDeleteAlertId()
+        {
+            var deleteAlertText = await GetDeleteAlert();
+
+            if (deleteAlertText is null) throw new ArgumentException($"{nameof(deleteAlertText)} cannot be null");
+
+            var idMatch = Regex.Match(deleteAlertText, "'(\\d+)'");
             var id = idMatch.Groups[1].Value;
             id.Should().NotBeNull();
 

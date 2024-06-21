@@ -23,6 +23,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator InputContainersWithError => _page.Locator(".mud-input-control.mud-input-error");
         public ILocator ErrorText => _page.Locator(".mud-input-helper-text.mud-input-error");
 
+        public ILocator DeleteButton => _page.Locator("#delete-student-button");
+        public ILocator DeleteDialogCancelButton => _page.Locator("#dialog-cancel");
+        public ILocator DeleteDialogButton => _page.Locator("#dialog-delete");
+
+        public ILocator DeleteDialog => _page.GetByRole(AriaRole.Dialog);
+
+
         public EditStudentPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
         }
@@ -50,6 +57,21 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public async Task ClickSave()
         {
             await SaveButton.ClickAsync();
+        }
+
+        public async Task ClickDelete()
+        {
+            await DeleteButton.ClickAsync();
+        }
+        
+        public async Task ClickDeleteInDialog()
+        {
+            await DeleteDialogButton.ClickAsync();
+        }
+
+        public async Task ClickCancelInDialog()
+        {
+            await DeleteDialogCancelButton.ClickAsync();
         }
 
         public async Task CreateNewStudent(string name, string? gpa = null)

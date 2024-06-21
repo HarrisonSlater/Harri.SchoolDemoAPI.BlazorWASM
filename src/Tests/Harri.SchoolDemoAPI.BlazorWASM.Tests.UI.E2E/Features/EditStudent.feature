@@ -8,6 +8,7 @@ Scenario: Edit a student's name
 	When I enter a student name "Tester Student 1 Modified"
 	And click save
 	Then I should be redirected to the students page
+	And see a success alert for an updated student
 	When I search for the updated student
 	Then I should see the updated student with name "Tester Student 1 Modified"
 
@@ -17,6 +18,7 @@ Scenario: Edit a student's GPA
 	And enter a student GPA "3.45"
 	And click save
 	Then I should be redirected to the students page
+	And see a success alert for an updated student
 	When I search for the updated student
 	Then I should see the updated student with name "Tester Student 2 To Edit GPA" and GPA "3.45"
 	When I click edit on the first student
@@ -27,6 +29,7 @@ Scenario: Edit all student data
 	And enter a student GPA "2.99"
 	And click save
 	Then I should be redirected to the students page
+	And see a success alert for an updated student
 	When I search for the updated student
 	Then I should see the updated student with name "Tester Student 3 Modified" and GPA "2.99"
 	When I click edit on the first student

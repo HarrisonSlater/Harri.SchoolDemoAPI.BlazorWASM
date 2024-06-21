@@ -16,6 +16,7 @@
     }
     <StudentAlert Severity=Severity.Success id="student-success-alert" Class="mb-4" Message=Text.StudentsPage.SuccessMessage StudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
+    <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
     <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
             QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
@@ -51,11 +52,15 @@
     public int? PageNumber { get; set; }
 
     // Create/Edit success alerts
-    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.SuccessId)]
+    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.CreateSuccessId)]
     public string? SuccessfulStudentId { get; set; }
 
     [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.EditSuccessId)]
     public string? EditSuccessfulStudentId { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.DeleteStudentId)]
+    public string? DeleteStudentIdAlert { get; set; }
+
 
     internal bool ShowError { get; set; }
 
@@ -137,13 +142,18 @@
 
     private string GetQueryString()
     {
+        //TODO test this in bunit tests
         if (SuccessfulStudentId is not null)
         {
-            return $"?{Constants.QueryString.SuccessId}={SuccessfulStudentId}";
+            return $"?{Constants.QueryString.CreateSuccessId}={SuccessfulStudentId}";
         }
         else if (EditSuccessfulStudentId is not null)
         {
             return $"?{Constants.QueryString.EditSuccessId}={EditSuccessfulStudentId}";
+        }
+        else if (DeleteStudentIdAlert is not null)
+        {
+            return $"?{Constants.QueryString.DeleteStudentId}={DeleteStudentIdAlert}";
         }
         return "";
     }

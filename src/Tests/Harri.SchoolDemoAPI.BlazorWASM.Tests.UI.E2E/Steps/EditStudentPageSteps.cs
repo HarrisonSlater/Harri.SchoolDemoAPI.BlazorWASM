@@ -76,6 +76,36 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _editStudentPage.ClickSave();
         }
 
+        [When("I click delete")]
+        public async Task WhenIClickDelete()
+        {
+            await _editStudentPage.ClickDelete();
+        }
+
+        [When("I click delete on the delete dialog")]
+        public async Task WhenIClickDeleteOnTheDeleteDialog()
+        {
+            await _editStudentPage.ClickDeleteInDialog();
+        }
+
+        [When("I click cancel on the delete dialog")]
+        public async Task WhenIClickCancelOnTheDeleteDialog()
+        {
+            await _editStudentPage.ClickCancelInDialog();
+        }
+
+        [Then("I should see the delete student dialog")]
+        public async Task ThenIShouldSeeTheDeleteStudentDialog()
+        {
+            await Assertions.Expect(_editStudentPage.DeleteDialog).ToBeVisibleAsync();
+        }
+
+        [Then("I should not see the delete student dialog")]
+        public async Task ThenIShouldNotSeeTheDeleteStudentDialog()
+        {
+            await Assertions.Expect(_editStudentPage.DeleteDialog).Not.ToBeVisibleAsync();
+        }
+
         [When("(I )create a new student")]
         public async Task WhenICreateANewStudent()
         {
