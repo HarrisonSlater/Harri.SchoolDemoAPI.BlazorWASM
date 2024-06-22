@@ -3,7 +3,6 @@ Feature: Create Student
 Create new students
 
 # Positive
-# TODO cleanup tag
 @cleanupNewStudent
 Scenario: Create new student with name
 	Given I am on the create new student page

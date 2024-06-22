@@ -68,11 +68,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task NavigateToHomePage()
         {
-            var studentsNavLink = _page.Locator("#nav-home");
+            var homeNavLink = _page.Locator("#nav-home");
 
-            await studentsNavLink.ClickAsync();
+            await homeNavLink.ClickAsync();
 
-            await AssertStudentsPageUrlIsCorrect();
+            await AssertHomePageUrlIsCorrect();
         }
 
         public async Task NavigateToStudentsPage()

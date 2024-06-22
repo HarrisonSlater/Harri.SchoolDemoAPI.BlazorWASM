@@ -1,15 +1,6 @@
-﻿using FluentAssertions;
-using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
-using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
+﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.TestContext;
 using Microsoft.Playwright;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using TechTalk.SpecFlow;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
@@ -86,6 +77,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
             await _navigationActions.GoToCreateNewStudentPage();
         }
 
+        [When("I navigate to the home page")]
+        public async Task INavigateToTheHomePage()
+        {
+            await _navigationActions.NavigateToHomePage();
+        }
+
         [When("(I )navigate to the students page")]
         public async Task INavigateToTheStudentsPage()
         {
@@ -107,61 +104,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
 
             await _editStudentPage.AssertEditStudentPageIsVisible();
             await _editStudentPage.AssertFormNotEmpty();
-        }
-
-        // Setup steps
-        [Given("A new student {string} exists")]
-        public async Task GivenANewStudentExists(string name)
-        {
-            await AStudentExists(name);
-        }
-
-        [Given("A new student {string} with GPA {string} exists")]
-        public async Task GivenANewStudentWithGPAExists(string name, string gpa)
-        {
-            await AStudentExists(name, gpa);
-        }
-
-        [Given("I am on the edit page for a new student {string}")]
-        public async Task GivenIAmOnTheEditPageForANewStudent(string name)
-        {
-            await IAmOnTheEditPageForANewStudent(name);
-        }
-
-        [Given("I am on the edit page for a new student {string} with GPA {string}")]
-        public async Task GivenIAmOnTheEditPageForANewStudentWithGPA(string name, string gpa)
-        {
-            await IAmOnTheEditPageForANewStudent(name, gpa);
-        }
-
-        private async Task IAmOnTheEditPageForANewStudent(string name, string? gpa = null)
-        {
-            await AStudentExists(name, gpa);
-
-            await ISearchForTheNewStudent();
-
-            await IClickEditOnTheNewStudent();
-
-            await _editStudentPage.AssertEditStudentPageIsVisible();
-            await _editStudentPage.AssertNameNotEmpty();
-
-            if (gpa is null)
-            {
-                await _editStudentPage.AssertGPAEmpty();
-            }
-            else
-            {
-                await _editStudentPage.AssertGPANotEmpty();
-            }
-        }
-
-        private async Task AStudentExists(string name, string? gpa = null)
-        {
-            await _navigationActions.GoToCreateNewStudentPage();
-
-            await _editStudentPage.CreateNewStudent(name, gpa);
-
-            _createdTestStudent.StudentId = await _studentsPage.GetSuccessAlertId();
         }
 
         [When("I click edit on the new/updated student")]

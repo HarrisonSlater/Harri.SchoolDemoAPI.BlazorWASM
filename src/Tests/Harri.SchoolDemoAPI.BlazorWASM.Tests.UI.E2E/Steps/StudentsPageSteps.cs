@@ -73,10 +73,16 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [Then("(I )see a success alert for a new student")]
-        [Then("(I )see a success alert for an updated student")]
         public async Task ThenISeeASuccessAlertForANewStudent()
         {
             var studentId = await _studentsPage.GetSuccessAlertId();
+            _createdTestStudent.StudentId = studentId;
+        }
+
+        [Then("(I )see a success alert for an updated student")]
+        public async Task ThenISeeASuccessAlertForAnUpdatedStudent()
+        {
+            var studentId = await _studentsPage.GetEditSuccessAlertId();
             _createdTestStudent.StudentId = studentId;
         }
 

@@ -22,6 +22,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator StudentSearch => _page.Locator("#student-search");
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
+        public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
         public ILocator StudentDeleteAlert => _page.Locator("#student-delete-alert");
 
         public PaginationActions Pagination { get; set; }
@@ -108,33 +109,44 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return await StudentSuccessAlert.TextContentAsync();
         }
         
+        public async Task<string?> GetEditSuccessAlert()
+        {
+            await Assertions.Expect(StudentEditSuccessAlert).ToBeVisibleAsync();
+            return await StudentEditSuccessAlert.TextContentAsync();
+        }
+        
         public async Task<string?> GetDeleteAlert()
         {
             await Assertions.Expect(StudentDeleteAlert).ToBeVisibleAsync();
             return await StudentDeleteAlert.TextContentAsync();
         }
 
-        //TODO refactor
         public async Task<string> GetSuccessAlertId()
         {
             var successAlertText = await GetSuccessAlert();
 
-            if (successAlertText is null) throw new ArgumentException($"{nameof(successAlertText)} cannot be null");
-
-            var idMatch = Regex.Match(successAlertText, "'(\\d+)'");
-            var id = idMatch.Groups[1].Value;
-            id.Should().NotBeNull();
-
-            return id;
+            return ExtractIdFromAlert(successAlertText);
         }
-        
+
+        public async Task<string> GetEditSuccessAlertId()
+        {
+            var successAlertText = await GetEditSuccessAlert();
+
+            return ExtractIdFromAlert(successAlertText);
+        }
+
         public async Task<string> GetDeleteAlertId()
         {
             var deleteAlertText = await GetDeleteAlert();
 
-            if (deleteAlertText is null) throw new ArgumentException($"{nameof(deleteAlertText)} cannot be null");
+            return ExtractIdFromAlert(deleteAlertText);
+        }
 
-            var idMatch = Regex.Match(deleteAlertText, "'(\\d+)'");
+        private string ExtractIdFromAlert(string? alertText)
+        {
+            if (alertText is null) throw new ArgumentException($"{nameof(alertText)} cannot be null");
+
+            var idMatch = Regex.Match(alertText, "'(\\d+)'");
             var id = idMatch.Groups[1].Value;
             id.Should().NotBeNull();
 

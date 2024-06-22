@@ -50,7 +50,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks
             
         }
 
-        [AfterScenario]
+        [AfterScenario(Order = 10)] // Should be last to run so cleanup hooks can run in the browser
         public async Task AfterScenario()
         {
             await _browserContext!.CloseAsync();
