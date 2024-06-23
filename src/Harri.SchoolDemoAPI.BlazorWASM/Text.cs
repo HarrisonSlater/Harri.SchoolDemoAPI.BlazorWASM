@@ -20,6 +20,9 @@
             public static string ErrorText(int? id) => id.HasValue ? "Failed to update student. Please try again" : "Failed to create new student. Please try again";
 
             public static string DisplayText(int? id) => id.HasValue ? "Edit Student" : "Create Student";
+
+            public static string DeleteText(string? name, int? id) => $"Permanently delete student {name} with id \"{id}\"";
+
         }
     }
 }
