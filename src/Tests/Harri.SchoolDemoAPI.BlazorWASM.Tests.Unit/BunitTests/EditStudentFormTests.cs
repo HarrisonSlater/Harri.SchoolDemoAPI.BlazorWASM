@@ -250,7 +250,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             var navMan = Services.GetRequiredService<FakeNavigationManager>();
 
-            navMan.Uri.Should().EndWith("new");
+            navMan.Uri.Should().Be($"http://localhost/?{Constants.QueryString.InvalidStudentId}=123");
         }
     }
 }
