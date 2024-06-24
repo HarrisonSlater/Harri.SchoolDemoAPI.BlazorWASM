@@ -1,0 +1,49 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  Solution: '**/*.sln'
+  BuildPlatform: 'Any CPU'
+  BuildConfiguration: 'Release'
+  CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
+
+
+stages:
+- stage: 'Build'
+  displayName: 'Build the Blazor WASM Web App'
+  jobs: 
+    - job: 'Build'
+      steps:
+
+      - task: NuGetToolInstaller@1
+
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet restore'
+        inputs:
+          command: 'restore'
+          projects: '$(Solution)'
+          feedsToUse: 'select'
+          workingDirectory: '$(Build.Repository.LocalPath)'
+          
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet build - $(BuildConfiguration)'
+        inputs:
+          command: 'build'
+          projects: '$(Solution)'
+          arguments: '--no-restore --configuration $(BuildConfiguration) /p:Platform="$(BuildPlatform)" /p:SkipInvalidConfigurations=true"'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet test - Unit'
+        inputs:
+          command: 'test'
+          projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.csproj'
+          testRunTitle: 'Run Unit Tests'
+
