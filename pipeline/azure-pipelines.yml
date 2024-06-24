@@ -14,7 +14,7 @@ variables:
   BuildPlatform: 'Any CPU'
   BuildConfiguration: 'Release'
   CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
-  PortToTest: 5001
+  PortToTest: 80
   SchoolDemoBaseUrl: 'http://localhost:$(PortToTest)/' # variable that overrides appsettings.json in UI tests
 
 
@@ -81,12 +81,13 @@ stages:
       - task: ExtractFiles@1
         inputs:
           archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
-          destinationFolder: '$(System.DefaultWorkingDirectory)/Extract'
-          cleanDestinationFolder: false
+          destinationFolder: '/var/www/html'
+          cleanDestinationFolder: true
           overwriteExistingFiles: false
           
       - script: 'sudo service nginx start'
-      - script: 'ls /etc/nginx/sites-available'
+      - script: 'cat /etc/nginx/sites-available/default'
+      - script: 'ls /var/www/html'
 
 #      - script: | 
 #          cd $(System.DefaultWorkingDirectory)/Extract/
@@ -107,3 +108,4 @@ stages:
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)/students'
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)/students/123'
+      
