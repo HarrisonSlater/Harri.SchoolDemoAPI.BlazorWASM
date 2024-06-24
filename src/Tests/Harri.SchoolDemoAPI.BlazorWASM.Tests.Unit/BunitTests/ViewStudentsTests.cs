@@ -161,9 +161,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         }
 
         [TestCase("Test Existing Student")]
-        //[TestCase("Student")]
-        //[TestCase("  ")]
-        //[TestCase("")]
+        [TestCase("Student")]
+        [TestCase("  ")]
+        [TestCase("")]
         public void ViewStudents_SearchFeatureShouldMatchAllStudents(string searchString)
         {
             // Arrange
