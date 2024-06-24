@@ -90,7 +90,7 @@ stages:
           cleanDestinationFolder: true
           overwriteExistingFiles: false
 
-      - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot /var/www/html'
+      - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot/* /var/www/html/'
           
       - script: 'sudo service nginx start'
       - script: 'cat /etc/nginx/sites-available/default'
