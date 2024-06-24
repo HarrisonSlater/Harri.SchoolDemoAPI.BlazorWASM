@@ -14,6 +14,8 @@ variables:
   BuildPlatform: 'Any CPU'
   BuildConfiguration: 'Release'
   CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
+  PortToTest: 5001
+  SchoolDemoBaseUrl: 'http://localhost:$(PortToTest)/' # variable that overrides appsettings.json in UI tests
 
 
 stages:
@@ -47,3 +49,54 @@ stages:
           projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.csproj'
           testRunTitle: 'Run Unit Tests'
 
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet publish - $(BuildConfiguration)'
+        inputs:
+          command: 'publish'
+          publishWebProjects: true
+          arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)/Build/$(BuildConfiguration)'
+          
+      - publish: '$(Build.ArtifactStagingDirectory)/Build'
+        artifact: build
+
+- stage: 'DeployAndTest'
+  displayName: 'Deploy and Test'
+  dependsOn: Build
+  jobs: 
+    - job: 'DeployAndTestJob'
+      displayName: 'Deploy (in-agent) and run integration tests'
+      steps:
+
+      - task: DownloadBuildArtifacts@1
+        inputs:
+          buildType: 'current'
+          downloadType: 'single'
+          artifactName: 'build'
+          downloadPath: '$(System.DefaultWorkingDirectory)'
+          cleanDestinationFolder: false
+
+#      - script: 'ls $(System.DefaultWorkingDirectory)'
+#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.Tests.Integration'
+
+      - task: ExtractFiles@1
+        inputs:
+          archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
+          destinationFolder: '$(System.DefaultWorkingDirectory)/Extract'
+          cleanDestinationFolder: false
+          overwriteExistingFiles: false
+
+      - script: | 
+          cd $(System.DefaultWorkingDirectory)/Extract/
+          nohup dotnet ./Harri.SchoolDemoAPI.BlazorWASM.dll --urls=$(SchoolDemoBaseUrl) &
+          echo "##vso[task.setvariable variable=dotnetProcessId;]"$!
+          cd $(System.DefaultWorkingDirectory)
+        displayName: Run SchoolDemo Blazor Admin UI $(BuildConfiguration) build
+      
+      - task: FileTransform@1
+        displayName: appsettings.json transform
+        inputs:
+          folderPath: '$(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
+          fileType: 'json'
+          targetFiles: 'appsettings.json'
+        
+      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
