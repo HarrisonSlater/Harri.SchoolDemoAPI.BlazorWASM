@@ -128,15 +128,13 @@ stages:
       - script: 'sleep 2s'
 
       - script: 'curl -X GET -S -L http://localhost:8080/'
-      - script: 'curl -X GET -S -L http://localhost:8080/students/1'
+      - script: 'curl -X GET -S http://localhost:8080/students/1'
       - task: FileTransform@1
         displayName: appsettings.json transform
         inputs:
           folderPath: '$(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
           fileType: 'json'
           targetFiles: 'appsettings.json'
-
-      - script: 'sleep 1s'
         
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students'
