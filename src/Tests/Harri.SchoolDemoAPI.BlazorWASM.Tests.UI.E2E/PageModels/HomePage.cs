@@ -59,7 +59,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await Assertions.Expect(errorContainerName.Locator(ErrorText)).ToContainTextAsync(new Regex("Student ID"));
         }
 
-        //TODO refactor, copied from StudentsPage.cs
         public async Task<string?> GetErrorAlert()
         {
             await Assertions.Expect(InvalidStudentErrorAlert).ToBeVisibleAsync();
