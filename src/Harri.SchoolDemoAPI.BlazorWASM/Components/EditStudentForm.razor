@@ -1,23 +1,25 @@
-﻿@inject NavigationManager NavigationManager
+﻿@using Harri.SchoolDemoAPI.BlazorWASM.Components.Dialogs
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
 @inject IStudentApiClient _studentClient
 
-<PageTitle>@DisplayText</PageTitle>
+<PageTitle>@Text.EditStudentForm.DisplayText(StudentId)</PageTitle>
 
 <EditForm @ref=EditForm Model="@Student" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <MudContainer MaxWidth=MaxWidth.Small>
         @if (ShowError)
         {
-            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorText</MudAlert>
+            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.EditStudentForm.ErrorText(StudentId)</MudAlert>
         }
 
-        <MudText Typo="Typo.h3" GutterBottom="true">@DisplayText</MudText>
+        <MudText Typo="Typo.h3" GutterBottom>@Text.EditStudentForm.DisplayText(StudentId)</MudText>
 
         <MudCard>
             <MudCardContent>
                 @if (Loading)
                 {
-                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    <MudProgressCircular Color="Color.Primary" Indeterminate/>
                 }
                 else
                 {
@@ -26,8 +28,15 @@
                 }
             </MudCardContent>
             <MudCardActions>
+
+                @if (StudentId is not null)
+                {
+                    <MudButton id="delete-student-button" OnClick="@(() => OpenDeleteDialog(StudentId.Value, Text.EditStudentForm.DeleteText(ExistingStudent?.Name, StudentId)))" 
+                        Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Disabled=@(Loading) Class="ml-3">Delete</MudButton>
+                }
                 <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading) Class="ml-auto ma-4">Save</MudButton>
                 @*<MudButton OnClick="Cancel" Variant="Variant.Filled" Color="Color.Error" Class="ml-4 ma-4">Cancel</MudButton>*@
+
             </MudCardActions>
         </MudCard>
     </MudContainer>
@@ -44,17 +53,13 @@
 
     public EditForm? EditForm { get; set; }
 
-    internal string DisplayText => StudentId.HasValue ? "Edit Student" : "Create Student";
-
     internal bool DisableSubmit { get; set; }
 
     internal bool Loading { get; set; }
 
     internal bool? IsFormUnModified => !EditForm?.EditContext?.IsModified();
 
-
     internal bool ShowError { get; set; }
-    internal string ErrorText => StudentId.HasValue ? "Failed to update student. Please try again" : "Failed to create new student. Please try again";
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,8 +77,8 @@
             }
             else
             {
-                //Invalid StudentId provided, redirect to create new
-                NavigationManager.NavigateTo("/students/new");
+                //Invalid StudentId provided, redirect to home and show error
+                NavigationManager.NavigateTo($"/?{Constants.QueryString.InvalidStudentId}={StudentId.Value}");
             }
             Loading = false;
         }
@@ -104,7 +109,7 @@
         }
         else
         {
-            NavigationManager.NavigateTo($"/students/page/1?{Constants.QueryString.SuccessId}={id}");
+            NavigationManager.NavigateTo($"/students/page/1?{Constants.QueryString.CreateSuccessId}={id}");
         }
     }
 
@@ -115,7 +120,7 @@
             Name = Student.Name,
             GPA = Student.GPA
         };
-        var response = await _studentClient.UpdateStudent(StudentId.Value, existingStudent);
+        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent);
 
         if (response is null or false)
         {
@@ -125,6 +130,36 @@
         else
         {
             NavigationManager.NavigateTo($"/students/page/1?{Constants.QueryString.EditSuccessId}={StudentId.Value}");
+        }
+    }
+
+    private async Task OpenDeleteDialog(int id, string name)
+    {
+        DisableSubmit = true;
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters<DeleteDialog>() { { x => x.Text, name } };
+        var dialog = await DialogService.ShowAsync<DeleteDialog>("Delete Student?", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await _studentClient.DeleteStudentRestResponse(id);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo($"/students/page/1?{Constants.QueryString.DeleteStudentId}={id}");
+            }
+            else
+            {
+                //TODO change error message here based on 409 status code
+                ShowError = true;
+                DisableSubmit = true;
+            }
+        }
+        else
+        {
+            DisableSubmit = ShowError; //TODO test this in auto testss
         }
     }
 }

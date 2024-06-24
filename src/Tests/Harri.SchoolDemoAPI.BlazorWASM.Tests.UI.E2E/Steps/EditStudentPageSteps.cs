@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels;
+using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.TestContext;
 using Microsoft.Playwright;
 using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
@@ -10,18 +11,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
     public class EditStudentPageSteps
     {
         private readonly EditStudentPage _editStudentPage;
-        private readonly StudentsPageSteps _studentsPageSteps;
+        private readonly CreatedTestStudent _createdTestStudent;
 
-        public EditStudentPageSteps(EditStudentPage editStudentPage, StudentsPageSteps studentsPageSteps)
+        public EditStudentPageSteps(EditStudentPage editStudentPage, CreatedTestStudent createdTestStudent)
         {
             _editStudentPage = editStudentPage;
-            _studentsPageSteps = studentsPageSteps;
+            _createdTestStudent = createdTestStudent;
         }
 
         [Then("I see the create new student form")]
         public async Task ISeeTheCreateNewStudentForm()
         {
-            await _editStudentPage.AssertCurrentPage();
+            await _editStudentPage.AssertEditStudentPageIsVisible();
 
             await _editStudentPage.AssertFormEmpty();
         }
@@ -29,7 +30,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I see the edit student form")]
         public async Task ISeeTheEditStudentForm()
         {
-            await _editStudentPage.AssertCurrentPage();
+            await _editStudentPage.AssertEditStudentPageIsVisible();
 
             await _editStudentPage.AssertNameNotEmpty();
         }
@@ -37,15 +38,24 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I should be on the create new student page")]
         public async Task IShouldBeOnTheCreateNewStudentPage()
         {
-            await _editStudentPage.Navigation.AssertCreateNewStudentPageUrlIsCorrect();
             await ISeeTheCreateNewStudentForm();
+            await _editStudentPage.Navigation.AssertCreateNewStudentPageUrlIsCorrect();
         }
 
         [Then("I should be on the edit student page")]
         public async Task IShouldBeOnTheCreateEditSudentPage()
         {
-            await _editStudentPage.Navigation.AssertEditStudentPageUrlIsCorrect();
             await ISeeTheEditStudentForm();
+            await _editStudentPage.Navigation.AssertEditStudentPageUrlIsCorrect();
+        }
+
+        [Then("I should be on the edit student page for an existing student with gpa")]
+        public async Task IShouldBeOnTheCreateEditSudentPageForAnExistingStudent()
+        {
+            await ISeeTheEditStudentForm();
+            await _editStudentPage.Navigation.AssertEditStudentPageUrlIsCorrect(_createdTestStudent.StudentId);
+
+            await _editStudentPage.AssertGPANotEmpty();
         }
 
         [When("(I )enter a student name {string}")]
@@ -64,6 +74,36 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         public async Task IClickSave()
         {
             await _editStudentPage.ClickSave();
+        }
+
+        [When("I click delete")]
+        public async Task WhenIClickDelete()
+        {
+            await _editStudentPage.ClickDelete();
+        }
+
+        [When("I click delete on the delete dialog")]
+        public async Task WhenIClickDeleteOnTheDeleteDialog()
+        {
+            await _editStudentPage.ClickDeleteInDialog();
+        }
+
+        [When("I click cancel on the delete dialog")]
+        public async Task WhenIClickCancelOnTheDeleteDialog()
+        {
+            await _editStudentPage.ClickCancelInDialog();
+        }
+
+        [Then("I should see the delete student dialog")]
+        public async Task ThenIShouldSeeTheDeleteStudentDialog()
+        {
+            await Assertions.Expect(_editStudentPage.DeleteDialog).ToBeVisibleAsync();
+        }
+
+        [Then("I should not see the delete student dialog")]
+        public async Task ThenIShouldNotSeeTheDeleteStudentDialog()
+        {
+            await Assertions.Expect(_editStudentPage.DeleteDialog).Not.ToBeVisibleAsync();
         }
 
         [When("(I )create a new student")]

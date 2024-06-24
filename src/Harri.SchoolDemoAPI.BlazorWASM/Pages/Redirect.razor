@@ -1,13 +1,14 @@
-﻿@page "/redirect/{*RedirectRoute}"
+﻿@*Not currently used. This can be used to redirect from a page to the same page and reload the component*@
+@page "/redirect/{*RedirectRoute}"
 @inject NavigationManager NavigationManager
 
 <div>@RedirectRoute</div>
 
 @code {
     [Parameter]
-    public string? RedirectRoute { get; set; }
+    public required string RedirectRoute { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         NavigationManager.NavigateTo(RedirectRoute, replace: true);
     }

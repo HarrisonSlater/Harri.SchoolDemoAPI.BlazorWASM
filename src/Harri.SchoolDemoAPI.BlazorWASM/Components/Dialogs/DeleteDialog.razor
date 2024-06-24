@@ -1,0 +1,19 @@
+﻿<MudDialog id="delete-student-dialog">
+    <DialogContent>
+        <MudText>@Text</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton id="dialog-cancel" OnClick="Cancel">Cancel</MudButton>
+        <MudButton id="dialog-delete" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever" OnClick="Submit">Delete</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter]
+    public required MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+}

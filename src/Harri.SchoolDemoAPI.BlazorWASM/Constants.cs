@@ -4,8 +4,11 @@
     {
         public static class QueryString
         {
-            public const string SuccessId = "successId";
+            public const string CreateSuccessId = "successId";
             public const string EditSuccessId = "editSuccessId";
+            public const string DeleteStudentId = "deleteId";
+
+            public const string InvalidStudentId = "invalidStudentId";
         }
     }
 }

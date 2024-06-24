@@ -1,59 +1,59 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
+@using System.ComponentModel.DataAnnotations
+@using Harri.SchoolDemoAPI.Models.Attributes
 
-<PageTitle>Home</PageTitle>
+
+<PageTitle>SchoolDemoAPI Blazor Admin UI</PageTitle>
 
 
-<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
-<MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 8 Template!</MudText>
+<MudText Typo=Typo.h3 GutterBottom>SchoolDemoAPI Admin UI Home</MudText>
 
-<MudAlert Severity="Severity.Normal">
-    You can find documentation and examples on our website here:
-    <MudLink Href="https://mudblazor.com" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        <b>www.mudblazor.com</b>
-    </MudLink>
-</MudAlert>
+<MudContainer MaxWidth=MaxWidth.Small>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">Interactivity in this Template</MudText>
-<br />
-<MudText Typo="Typo.body2">
-    When you opt for the "Global" Interactivity Location, <br />
-    the render modes are defined in App.razor and consequently apply to all child components.<br />
-    In this case, providers are globally set in the MainLayout.<br />
-    <br />
-    On the other hand, if you choose the "Per page/component" Interactivity Location,<br />
-    it is necessary to include the <br />
-    <br />
-    &lt;MudPopoverProvider /&gt; <br />
-    &lt;MudDialogProvider /&gt; <br />
-    &lt;MudSnackbarProvider /&gt; <br />
-    <br />
-    components on every interactive page.<br />
-    <br />
-    If a render mode is not specified for a page, it defaults to Server-Side Rendering (SSR),<br />
-    similar to this page. While MudBlazor allows pages to be rendered in SSR,<br />
-    please note that interactive features, such as buttons and dropdown menus, will not be functional.
-</MudText>
+    <StudentAlert Severity=Severity.Error id="student-error-alert" Class="mb-4" Message=Text.StudentsPage.InvalidStudentId StudentId=@InvalidStudentId CloseCallback=@(() => InvalidStudentId = null) />
+    
+    <MudCard id="home-student-links"> 
+        <MudCardContent>
+            <MudText Typo="Typo.h4" GutterBottom="true">Students</MudText>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">What's New in Blazor with the Release of .NET 8</MudText>
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">Prerendering</MudText>
-<MudText Typo="Typo.body2" GutterBottom="true">
-    If you're exploring the features of .NET 8 Blazor,<br /> you might be pleasantly surprised to learn that each page is prerendered on the server,<br /> regardless of the selected render mode.<br /><br />
-    This means that you'll need to inject all necessary services on the server,<br /> even when opting for the wasm (WebAssembly) render mode.<br /><br />
-    This prerendering functionality is crucial to ensuring that WebAssembly mode feels fast and responsive,<br /> especially when it comes to initial page load times.<br /><br />
-    For more information on how to detect prerendering and leverage the RenderContext, you can refer to the following link:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issuecomment-1783568121" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+            <MudStack >
+                <MudButton id="home-shortcut-students" StartIcon=@Icons.Material.Filled.List  Variant=Variant.Filled Color=Color.Info Href="students">View all students</MudButton>
 
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">InteractiveAuto</MudText>
-<MudText Typo="Typo.body2">
-    A discussion on how to achieve this can be found here:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issue-1950424116" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+                <MudButton id="home-shortcut-students-new" StartIcon=@Icons.Material.Filled.Add Variant=Variant.Filled Color=Color.Secondary Href="students/new">Create new student</MudButton>
+
+                <EditForm OnValidSubmit=GoToEditStudent Model=EditStudentFormModel>
+                    <DataAnnotationsValidator />
+                    <MudStack Row AlignItems=AlignItems.Start Style="" Class="pa-2">
+                        <MudTextField id="home-shortcut-edit-student-id" Variant="Variant.Outlined" @bind-Value=@EditStudentFormModel.EditStudentId Label="Student ID" Placeholder="123"
+                                      For=@(() => EditStudentFormModel.EditStudentId)></MudTextField>
+                                      <MudPaper Elevation=0>
+                            <MudButton id="home-shortcut-edit-student" ButtonType=ButtonType.Submit StartIcon=@Icons.Material.Outlined.Edit Variant=Variant.Filled Color=Color.Primary
+                                       Style="text-wrap:nowrap;" Class="pa-4 mt-1">Edit student</MudButton>
+                        </MudPaper>
+                    </MudStack>
+                </EditForm>
+            </MudStack>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+
+    [Parameter, SupplyParameterFromQuery(Name = Constants.QueryString.InvalidStudentId)]
+    public string? InvalidStudentId { get; set; }
+
+    public GoToEditStudentForm EditStudentFormModel { get; set; } = new GoToEditStudentForm();
+
+    public void GoToEditStudent()
+    {
+        NavigationManager.NavigateTo($"/students/{EditStudentFormModel.EditStudentId}", replace: false);
+    }
+
+    public class GoToEditStudentForm
+    {
+        [Required(ErrorMessage = "Student ID is required.")]
+        [PositiveInt(ErrorMessage = "Student ID should be a number greater than 0.")]
+        public string? EditStudentId { get; set; }
+    }
+}

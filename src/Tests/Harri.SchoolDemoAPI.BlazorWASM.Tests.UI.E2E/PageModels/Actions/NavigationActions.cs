@@ -1,5 +1,6 @@
 ﻿using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
 using Microsoft.Playwright;
+using SpecFlow.Actions.Playwright;
 using System.Text.RegularExpressions;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
@@ -10,26 +11,32 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     public class NavigationActions
     {
         private readonly SchoolDemoBaseUrlSetting _baseUrlSetting;
-        public string BaseUrl => _baseUrlSetting.Value; //TODO pull from settings
+        private readonly PlaywrightConfiguration _config;
+        public string BaseUrl => _baseUrlSetting.Value;
 
         private readonly IPage _page;
 
         private ILocator PageHeader => _page.Locator("header.mud-appbar .mud-toolbar");
 
-        public NavigationActions(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting)
+        public NavigationActions(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config)
         {
-            _baseUrlSetting = baseUrlSetting;
             _page = page;
+            _baseUrlSetting = baseUrlSetting;
+            _config = config;
         }
 
         public async Task GoToHome()
         {
             await _page.GotoAsync(BaseUrl);
+
+            await AssertPageLoaded();
+
+            await AssertHomePageUrlIsCorrect();
         }
 
         public async Task AssertPageLoaded()
         {
-            await Assertions.Expect(PageHeader).ToBeVisibleAsync();
+            await Assertions.Expect(PageHeader).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions() { Timeout = _config.DefaultTimeout * 1000 });
         }
 
         public async Task GoToStudentsPage()
@@ -59,9 +66,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await AssertCreateNewStudentPageUrlIsCorrect();
         }
 
+        public async Task NavigateToHomePage()
+        {
+            var homeNavLink = _page.Locator("#nav-home");
+
+            await homeNavLink.ClickAsync();
+
+            await AssertHomePageUrlIsCorrect();
+        }
+
         public async Task NavigateToStudentsPage()
         {
-            var studentsNavLink = _page.GetByRole(AriaRole.Link, new() { Name = "Students" });
+            var studentsNavLink = _page.Locator("#nav-students");
 
             await studentsNavLink.ClickAsync();
 
@@ -70,26 +86,36 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task NavigateToCreateNewStudentPage()
         {
-            var createNewStudentNavLink = _page.GetByRole(AriaRole.Link, new() { Name = "Create new student" }); //TODO not select by text
+            var createNewStudentNavLink = _page.Locator("#nav-students-new");
 
             await createNewStudentNavLink.ClickAsync();
 
             await AssertCreateNewStudentPageUrlIsCorrect();
         }
 
+        public async Task AssertHomePageUrlIsCorrect()
+        {
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex($"^{BaseUrl}(\\?.*)?$"));
+        }
+
         public async Task AssertStudentsPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions()); // { Timeout= 10000 }
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/new"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/new$"), new PageAssertionsToHaveURLOptions());
         }
 
         public async Task AssertEditStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*students/(\\d+)"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/(\\d+)$"), new PageAssertionsToHaveURLOptions());
+        }
+
+        public async Task AssertEditStudentPageUrlIsCorrect(string id)
+        {
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex($"^.*students/{id}$"), new PageAssertionsToHaveURLOptions());
         }
     }
 }

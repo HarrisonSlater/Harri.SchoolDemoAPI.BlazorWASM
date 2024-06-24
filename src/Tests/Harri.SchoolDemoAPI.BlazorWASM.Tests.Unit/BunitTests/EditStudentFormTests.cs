@@ -12,7 +12,7 @@ using MudBlazor.Services;
 using System.Threading.Tasks;
 using Harri.SchoolDemoAPI.BlazorWASM.Components;
 
-namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
+namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
     /// <summary>
     /// These tests are written entirely in C#.
@@ -26,14 +26,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         private const string SubmitButtonSelector = "#submit-button";
 
         private const string ErrorAlertSelector = "#student-error-alert";
+        private const string ErrorInputsSelector = ".mud-input-control.mud-input-error";
 
-        private Mock<IStudentApiClient> _mockStudentApiClient;
 
-        [SetUp] 
+        private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
+
+        [SetUp]
         public void SetUp()
         {
             _mockStudentApiClient = new Mock<IStudentApiClient>();
-
             Services.AddSingleton(_mockStudentApiClient.Object);
             Services.AddMudServices();
             JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
@@ -95,6 +96,55 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             var errorAlert = editStudentForm.Find(ErrorAlertSelector);
             errorAlert.Should().NotBeNull();
         }
+        
+        [Test]
+        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForName()
+        {
+            var editStudentForm = RenderComponent<EditStudentForm>();
+
+            var textField = editStudentForm.Find(NameInputSelector);
+            textField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            var gpaField = editStudentForm.Find(GpaInputSelector);
+            gpaField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            //textField.Change("");
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+
+            var errorInputContainer = editStudentForm.Find(ErrorInputsSelector);
+
+            var errorText = errorInputContainer.LastChild?.TextContent;
+            
+            errorText.Should().NotBeNullOrWhiteSpace();
+
+            _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
+        }
+
+        [Test]
+        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForNameAndGPA()
+        {
+            var editStudentForm = RenderComponent<EditStudentForm>();
+
+            var textField = editStudentForm.Find(NameInputSelector);
+            textField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            var gpaField = editStudentForm.Find(GpaInputSelector);
+            gpaField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            gpaField.Change("asdf");
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+
+            var errorInputContainers = editStudentForm.FindAll(ErrorInputsSelector);
+
+            foreach (var errorInputContainer in errorInputContainers)
+            {
+                var errorText = errorInputContainer.LastChild?.TextContent;
+
+                errorText.Should().NotBeNullOrWhiteSpace();
+            }
+
+            _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
+        }
 
         // Existing Student
         [Test]
@@ -113,7 +163,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().Be(mockExistingStudent.GPA.ToString());
-            
+
             // Act
             var updatedName = "Test Name Updated";
             textField.Change(updatedName);
@@ -145,7 +195,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().Be(mockExistingStudent.GPA.ToString());
-
+            
             // Act
             var updatedName = "Test Name Updated";
             textField.Change(updatedName);
@@ -164,7 +214,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         }
 
         [Test]
-        public async Task EditStudent_ForExistingStudent_DoesNotSubmitWhenNoChangesMade()
+        public void EditStudent_ForExistingStudent_DoesNotSubmitWhenNoChangesMade()
         {
             // Arrange
             var mockExistingStudent = SetUpMockExistingStudent();
@@ -188,7 +238,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         }
 
         [Test]
-        public async Task EditStudent_ForExistingStudent_RedirectsIfInvalidStudentId()
+        public void EditStudent_ForExistingStudent_RedirectsIfInvalidStudentId()
         {
             // Arrange
             _mockStudentApiClient.Setup(client => client.GetStudent(123))
@@ -200,8 +250,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             // Assert
             var navMan = Services.GetRequiredService<FakeNavigationManager>();
 
-            navMan.Uri.Should().EndWith("new");
+            navMan.Uri.Should().Be($"http://localhost/?{Constants.QueryString.InvalidStudentId}=123");
         }
-
     }
 }
