@@ -73,6 +73,30 @@ stages:
       displayName: 'Deploy (in-agent) and run UI E2E tests'
       steps:
 
+      - task: DockerInstaller@0
+        inputs:
+          dockerVersion: $(DockerVersion)
+
+      - script: 'docker pull $(DockerNamespace)/$(DockerSQLImageName)'
+        displayName: docker pull SQL DB Image
+
+      - script: 'docker pull $(DockerNamespace)/$(DockerAPIImageName)'
+        displayName: docker pull REST API Image
+
+      - script: 'docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=p@ssw0rd" -p 1433:1433 -d $(DockerNamespace)/$(DockerSQLImageName)'
+        displayName: docker run - School Demo SQL DB Container
+      
+      - script: 'docker run -d -p $(APIPortToTest):8080 --add-host=host.docker.internal:host-gateway $(DockerNamespace)/$(DockerAPIImageName)'
+        displayName: docker run - School Demo API Container
+
+      - script: 'docker stats --no-stream'
+
+      - script: 'sleep 10s'
+
+      - script: 'curl -X GET -S -L http://localhost:8080/'
+      - script: 'curl -X GET -S http://localhost:8080/students/1'
+
+
       - task: DownloadBuildArtifacts@1
         inputs:
           buildType: 'current'
@@ -109,26 +133,6 @@ stages:
 #          cd $(System.DefaultWorkingDirectory)
 #        displayName: Run SchoolDemo Blazor Admin UI $(BuildConfiguration) build
       
-      - task: DockerInstaller@0
-        inputs:
-          dockerVersion: $(DockerVersion)
-
-      - script: 'docker pull $(DockerNamespace)/$(DockerSQLImageName)'
-        displayName: docker pull SQL DB Image
-
-      - script: 'docker pull $(DockerNamespace)/$(DockerAPIImageName)'
-        displayName: docker pull REST API Image
-
-      - script: 'docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=p@ssw0rd" -p 1433:1433 -d $(DockerNamespace)/$(DockerSQLImageName)'
-        displayName: docker run - School Demo SQL DB Container
-      
-      - script: 'docker run -d -p $(APIPortToTest):8080 --add-host=host.docker.internal:host-gateway $(DockerNamespace)/$(DockerAPIImageName)'
-        displayName: docker run - School Demo API Container
-
-      - script: 'sleep 2s'
-
-      - script: 'curl -X GET -S -L http://localhost:8080/'
-      - script: 'curl -X GET -S http://localhost:8080/students/1'
       - task: FileTransform@1
         displayName: appsettings.json transform
         inputs:
