@@ -120,6 +120,10 @@ stages:
         inputs:
             command: 'build'
             projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
+            
+      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Debug/' 
+      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Release/'   
+      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Release/net8.0'
 
       - script: 'pwsh $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Release/net8.0/playwright.ps1 install'
       - task: DotNetCoreCLI@2
