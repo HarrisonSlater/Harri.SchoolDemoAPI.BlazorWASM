@@ -98,5 +98,9 @@ stages:
           folderPath: '$(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
           fileType: 'json'
           targetFiles: 'appsettings.json'
+
+      - script: 'sleep 5s'
         
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
+      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)/students'
+      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)/students/123'
