@@ -115,7 +115,13 @@ stages:
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students'
 #      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students/123'
-      
+
+      - task: DotNetCoreCLI@2
+        inputs:
+            command: 'build'
+            projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
+
+      - script: 'pwsh $(Build.Repository.LocalPath)/src/Tests/bin/Debug/netX/playwright.ps1 install'
       - task: DotNetCoreCLI@2
         displayName: dotnet test - UI E2E
         inputs:
