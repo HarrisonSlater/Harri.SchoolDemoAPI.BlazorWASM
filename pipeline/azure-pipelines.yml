@@ -64,7 +64,7 @@ stages:
   dependsOn: Build
   jobs: 
     - job: 'DeployAndTestJob'
-      displayName: 'Deploy (in-agent) and run integration tests'
+      displayName: 'Deploy (in-agent) and run UI E2E tests'
       steps:
 
       - task: DownloadBuildArtifacts@1
