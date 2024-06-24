@@ -79,7 +79,7 @@ stages:
 #      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
 
 #      - script: 'sudo nginx -s quit'
-      - script: 'rm /var/www/html/*'
+      - script: 'sudo rm /var/www/html/*'
 
       - task: ExtractFiles@1
         inputs:
