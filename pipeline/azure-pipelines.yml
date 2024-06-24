@@ -110,9 +110,15 @@ stages:
           fileType: 'json'
           targetFiles: 'appsettings.json'
 
-      - script: 'sleep 5s'
+      - script: 'sleep 1s'
         
       - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
-      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)/students'
-      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)/students/123'
+      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students/123'
       
+      - task: DotNetCoreCLI@2
+        displayName: dotnet test - UI E2E
+        inputs:
+          command: 'test'
+          projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
+          testRunTitle: 'UI E2E Tests'
