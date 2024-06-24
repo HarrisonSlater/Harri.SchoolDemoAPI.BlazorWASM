@@ -14,9 +14,15 @@ variables:
   BuildPlatform: 'Any CPU'
   BuildConfiguration: 'Release'
   CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
-  PortToTest: 80
-  SchoolDemoBaseUrl: 'http://localhost:$(PortToTest)/' # variable that overrides appsettings.json in UI tests
+#  PortToTest: 80
+  APIPortToTest: 8080
+  SchoolDemoBaseUrl: 'http://localhost/' # variable that overrides appsettings.json in UI tests
 
+  DockerNamespace: harrisonslater
+  DockerSQLImageName: harri-schooldemosql-database:latest
+#  DockerImageRepository: harri-schooldemoapi
+  DockerAPIImageName: harri-schooldemoapi:latest
+  DockerVersion: '25.0.5'
 
 stages:
 - stage: 'Build'
@@ -103,6 +109,22 @@ stages:
 #          cd $(System.DefaultWorkingDirectory)
 #        displayName: Run SchoolDemo Blazor Admin UI $(BuildConfiguration) build
       
+      - task: DockerInstaller@0
+        inputs:
+          dockerVersion: $(DockerVersion)
+
+      - script: 'docker pull $(DockerNamespace)/$(DockerSQLImageName)'
+        displayName: docker pull SQL DB Image
+
+      - script: 'docker pull $(DockerNamespace)/$(DockerAPIImageName)'
+        displayName: docker pull REST API Image
+
+      - script: 'docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=p@ssw0rd" -p 1433:1433 -d $(DockerNamespace)/$(DockerSQLImageName)'
+        displayName: docker run - School Demo SQL DB Container
+      
+      - script: 'docker run -d -p $(APIPortToTest):8080 --add-host=host.docker.internal:host-gateway $(DockerNamespace)/$(DockerAPIImageName)'
+        displayName: docker run - School Demo API Container
+
       - task: FileTransform@1
         displayName: appsettings.json transform
         inputs:
