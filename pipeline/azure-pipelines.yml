@@ -76,7 +76,7 @@ stages:
           cleanDestinationFolder: false
 
 #      - script: 'ls $(System.DefaultWorkingDirectory)'
-#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.Tests.Integration'
+#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
 
       - task: ExtractFiles@1
         inputs:
