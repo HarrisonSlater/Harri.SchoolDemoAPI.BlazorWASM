@@ -24,8 +24,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator InputContainersWithError => _page.Locator(".mud-input-control.mud-input-error");
         public ILocator ErrorText => _page.Locator(".mud-input-helper-text.mud-input-error");
 
+        public AlertActions Alerts { get; set; }
+
         public HomePage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
+            Alerts = new AlertActions(page);
         }
 
         public async Task ClickViewStudentsButton()
@@ -65,15 +68,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task<string> GetErrorAlertId()
         {
-            var errorAlertText = await GetErrorAlert();
-
-            if (errorAlertText is null) throw new ArgumentException($"{nameof(errorAlertText)} cannot be null");
-
-            var idMatch = Regex.Match(errorAlertText, "'(\\d+)'");
-            var id = idMatch.Groups[1].Value;
-            id.Should().NotBeNull();
-
-            return id;
+            return Alerts.ExtractIdFromAlert(await GetErrorAlert());
         }
 
         public async Task AssertHomePageIsVisible()

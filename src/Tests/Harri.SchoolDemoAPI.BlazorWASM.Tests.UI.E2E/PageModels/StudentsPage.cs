@@ -26,10 +26,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator StudentDeleteAlert => _page.Locator("#student-delete-alert");
 
         public PaginationActions Pagination { get; set; }
+        public AlertActions Alerts { get; set; }
 
         public StudentsPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
-            Pagination = new PaginationActions(_page);
+            Pagination = new PaginationActions(page);
+            Alerts = new AlertActions(page);
         }
 
         public async Task<int> GetRowsDisplayed()
@@ -123,34 +125,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task<string> GetSuccessAlertId()
         {
-            var successAlertText = await GetSuccessAlert();
-
-            return ExtractIdFromAlert(successAlertText);
+            return Alerts.ExtractIdFromAlert(await GetSuccessAlert());
         }
 
         public async Task<string> GetEditSuccessAlertId()
         {
-            var successAlertText = await GetEditSuccessAlert();
-
-            return ExtractIdFromAlert(successAlertText);
+            return Alerts.ExtractIdFromAlert(await GetEditSuccessAlert());
         }
 
         public async Task<string> GetDeleteAlertId()
         {
-            var deleteAlertText = await GetDeleteAlert();
-
-            return ExtractIdFromAlert(deleteAlertText);
-        }
-
-        private string ExtractIdFromAlert(string? alertText)
-        {
-            if (alertText is null) throw new ArgumentException($"{nameof(alertText)} cannot be null");
-
-            var idMatch = Regex.Match(alertText, "'(\\d+)'");
-            var id = idMatch.Groups[1].Value;
-            id.Should().NotBeNull();
-
-            return id;
+            return Alerts.ExtractIdFromAlert(await GetDeleteAlert());
         }
 
         // Assertions
