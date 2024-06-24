@@ -81,14 +81,16 @@ stages:
 #      - script: 'sudo nginx -s quit'
       - script: 'sudo rm /var/www/html/*'
 
-      - script: 'sudo unzip $(System.DefaultWorkingDirectory)/Release/Harri.SchoolDemoAPI.BlazorWASM.zip -d /var/www/html'
+#      - script: 'sudo unzip $(System.DefaultWorkingDirectory)/Release/Harri.SchoolDemoAPI.BlazorWASM.zip -d /var/www/html'
 
-#      - task: ExtractFiles@1
-#        inputs:
-#          archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
-#          destinationFolder: '/var/www/html'
-#          cleanDestinationFolder: false
-#          overwriteExistingFiles: false
+      - task: ExtractFiles@1
+        inputs:
+          archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
+          destinationFolder: '$(System.DefaultWorkingDirectory)/Extract'
+          cleanDestinationFolder: true
+          overwriteExistingFiles: false
+
+      - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot /var/www/html'
           
       - script: 'sudo service nginx start'
       - script: 'cat /etc/nginx/sites-available/default'
