@@ -78,14 +78,15 @@ stages:
 #      - script: 'ls $(System.DefaultWorkingDirectory)'
 #      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
 
-      - script: 'sudo nginx -s quit'
+#      - script: 'sudo nginx -s quit'
+      - script: 'rm /var/www/html/*'
 
       - task: ExtractFiles@1
         inputs:
           archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
           destinationFolder: '/var/www/html'
-          cleanDestinationFolder: true
-          overwriteExistingFiles: true
+          cleanDestinationFolder: false
+          overwriteExistingFiles: false
           
       - script: 'sudo service nginx start'
       - script: 'cat /etc/nginx/sites-available/default'
