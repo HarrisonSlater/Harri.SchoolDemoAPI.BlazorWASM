@@ -124,7 +124,9 @@ stages:
       
       - script: 'docker run -d -p $(APIPortToTest):8080 --add-host=host.docker.internal:host-gateway $(DockerNamespace)/$(DockerAPIImageName)'
         displayName: docker run - School Demo API Container
-        
+
+      - script: 'sleep 2s'
+
       - script: 'curl -X GET -S -L http://localhost:8080/'
       - script: 'curl -X GET -S -L http://localhost:8080/students/1'
       - task: FileTransform@1
