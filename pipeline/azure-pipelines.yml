@@ -75,18 +75,20 @@ stages:
           downloadPath: '$(System.DefaultWorkingDirectory)'
           cleanDestinationFolder: false
 
-#      - script: 'ls $(System.DefaultWorkingDirectory)'
+      - script: 'ls $(System.DefaultWorkingDirectory)'
 #      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
 
 #      - script: 'sudo nginx -s quit'
       - script: 'sudo rm /var/www/html/*'
 
-      - task: ExtractFiles@1
-        inputs:
-          archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
-          destinationFolder: '/var/www/html'
-          cleanDestinationFolder: false
-          overwriteExistingFiles: false
+      - script: 'sudo unzip $(System.DefaultWorkingDirectory)/Release/Harri.SchoolDemoAPI.BlazorWASM.zip -d /var/www/html'
+
+#      - task: ExtractFiles@1
+#        inputs:
+#          archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
+#          destinationFolder: '/var/www/html'
+#          cleanDestinationFolder: false
+#          overwriteExistingFiles: false
           
       - script: 'sudo service nginx start'
       - script: 'cat /etc/nginx/sites-available/default'
