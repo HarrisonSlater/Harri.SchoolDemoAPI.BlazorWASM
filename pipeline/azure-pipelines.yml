@@ -1,0 +1,191 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  Solution: '**/*.sln'
+  BuildPlatform: 'Any CPU'
+  BuildConfiguration: 'Release'
+  CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
+  APIPortToTest: 8080
+  SchoolDemoBaseUrl: 'http://localhost/' # variable that overrides appsettings.json in UI tests
+  DockerNamespace: harrisonslater
+  DockerSQLImageName: harri-schooldemosql-database:latest
+  DockerAPIImageName: harri-schooldemoapi:latest
+  DockerVersion: '25.0.5'
+
+stages:
+- stage: 'Build'
+  displayName: 'Build the Blazor WASM Web App'
+  jobs: 
+    - job: 'Build'
+      steps:
+
+      - task: NuGetToolInstaller@1
+
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet restore'
+        inputs:
+          command: 'restore'
+          projects: '$(Solution)'
+          feedsToUse: 'select'
+          workingDirectory: '$(Build.Repository.LocalPath)'
+          
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet build - $(BuildConfiguration)'
+        inputs:
+          command: 'build'
+          projects: '$(Solution)'
+          arguments: '--no-restore --configuration $(BuildConfiguration) /p:Platform="$(BuildPlatform)" /p:SkipInvalidConfigurations=true"'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet test - Unit'
+        inputs:
+          command: 'test'
+          projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.csproj'
+          testRunTitle: 'Run Unit Tests'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'dotnet publish - $(BuildConfiguration)'
+        inputs:
+          command: 'publish'
+          publishWebProjects: true
+          arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)/Build/$(BuildConfiguration)'
+          
+      - publish: '$(Build.ArtifactStagingDirectory)/Build'
+        artifact: build
+
+- stage: 'DeployAndTest'
+  displayName: 'Deploy and Test'
+  dependsOn: Build
+  jobs: 
+    - job: 'DeployAndTestJob'
+      displayName: 'Deploy (in-agent) and run UI E2E tests'
+      steps:
+
+# Setup SQL container and REST API container
+      - task: DockerInstaller@0
+        inputs:
+          dockerVersion: $(DockerVersion)
+
+      - script: 'docker pull $(DockerNamespace)/$(DockerSQLImageName)'
+        displayName: docker pull SQL DB Image
+
+      - script: 'docker pull $(DockerNamespace)/$(DockerAPIImageName)'
+        displayName: docker pull REST API Image
+
+      - script: 'docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=p@ssw0rd" -p 1433:1433 -d $(DockerNamespace)/$(DockerSQLImageName)'
+        displayName: docker run - School Demo SQL DB Container
+      
+      - script: 'docker run -d -p $(APIPortToTest):8080 --add-host=host.docker.internal:host-gateway $(DockerNamespace)/$(DockerAPIImageName)'
+        displayName: docker run - School Demo REST API Container
+
+#      - script: 'docker stats --no-stream'
+#      - script: 'sleep 5s'
+#      - script: 'curl -X GET -S -L http://localhost:8080/'
+#      - script: 'curl -X GET -S http://localhost:8080/students/1'
+
+
+      - task: DownloadBuildArtifacts@1
+        inputs:
+          buildType: 'current'
+          downloadType: 'single'
+          artifactName: 'build'
+          downloadPath: '$(System.DefaultWorkingDirectory)'
+          cleanDestinationFolder: false
+
+      - task: ExtractFiles@1
+        inputs:
+          archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
+          destinationFolder: '$(System.DefaultWorkingDirectory)/Extract'
+          cleanDestinationFolder: true
+          overwriteExistingFiles: false
+
+      - script: 'sudo rm /var/www/html/*'
+        displayName: 'Clean NGINX web root'
+
+      - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot/* /var/www/html/'
+        displayName: 'Move static files to NGINX web root'
+
+      - script: |
+          sudo sh -c 'echo "\
+           server {\n\
+                listen 80 default_server;\n\
+                listen [::]:80 default_server;\n\
+                root /var/www/html;\n\
+                index index.html index.htm index.nginx-debian.html;\n\
+                server_name _;\n\
+                location / {\n\
+                    try_files \$uri \$uri/ /index.html =404;\n\
+                }\n\
+            }\n\
+           "\
+          > /etc/nginx/sites-available/default'
+        displayName: 'Set NGINX config'
+
+      - script: 'sudo service nginx start'
+        displayName: 'Start NGINX'
+
+#      - script: 'cat /etc/nginx/sites-available/default'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students/123'
+      
+      - task: FileTransform@1
+        displayName: appsettings.json transform
+        inputs:
+          folderPath: '$(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
+          fileType: 'json'
+          targetFiles: 'appsettings.json'
+
+      - task: DotNetCoreCLI@2
+        inputs:
+            command: 'build'
+            projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
+        displayName: 'dotnet build - UI E2E'
+
+#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
+#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Debug/' 
+
+      - script: 'pwsh $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Debug/net8.0/playwright.ps1 install'
+        displayName: 'Setup Playwright Script'
+      - task: DotNetCoreCLI@2
+        displayName: dotnet test - UI E2E
+        inputs:
+          command: 'test'
+          projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
+          testRunTitle: 'UI E2E Tests'
+
+      - script: 'sudo nginx -s quit'
+        displayName: 'Quit NGINX'
+- stage: 'PostGithubCommitStatus'
+  displayName: 'Github Commit Status'
+  dependsOn:
+  - 'DeployAndTest'
+  condition: always()
+  jobs:
+    - job: 'GithubPostSuccessCommitStatus'
+      displayName: 'Successful - Update Github Commit Status'
+      condition: eq(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Succeeded')
+      steps:
+      - checkout: none
+      - template: tasks/rest-github-commit-check.yml
+        parameters:
+          state: 'success'
+          description: 'The build succeeded'
+    - job: 'GithubPostFailureCommitStatus'
+      displayName: 'Failure - Update Github Commit Status'
+      condition: in(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Failed', 'Skipped')
+      steps:
+      - checkout: none
+      - template: tasks/rest-github-commit-check.yml
+        parameters:
+          state: 'failure'
+          description: 'The build failed'
