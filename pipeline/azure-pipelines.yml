@@ -14,13 +14,10 @@ variables:
   BuildPlatform: 'Any CPU'
   BuildConfiguration: 'Release'
   CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
-#  PortToTest: 80
   APIPortToTest: 8080
   SchoolDemoBaseUrl: 'http://localhost/' # variable that overrides appsettings.json in UI tests
-
   DockerNamespace: harrisonslater
   DockerSQLImageName: harri-schooldemosql-database:latest
-#  DockerImageRepository: harri-schooldemoapi
   DockerAPIImageName: harri-schooldemoapi:latest
   DockerVersion: '25.0.5'
 
