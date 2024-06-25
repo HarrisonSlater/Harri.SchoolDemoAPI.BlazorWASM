@@ -14,13 +14,10 @@ variables:
   BuildPlatform: 'Any CPU'
   BuildConfiguration: 'Release'
   CommitIdForGitHub: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
-#  PortToTest: 80
   APIPortToTest: 8080
   SchoolDemoBaseUrl: 'http://localhost/' # variable that overrides appsettings.json in UI tests
-
   DockerNamespace: harrisonslater
   DockerSQLImageName: harri-schooldemosql-database:latest
-#  DockerImageRepository: harri-schooldemoapi
   DockerAPIImageName: harri-schooldemoapi:latest
   DockerVersion: '25.0.5'
 
@@ -73,6 +70,7 @@ stages:
       displayName: 'Deploy (in-agent) and run UI E2E tests'
       steps:
 
+# Setup SQL container and REST API container
       - task: DockerInstaller@0
         inputs:
           dockerVersion: $(DockerVersion)
@@ -87,14 +85,12 @@ stages:
         displayName: docker run - School Demo SQL DB Container
       
       - script: 'docker run -d -p $(APIPortToTest):8080 --add-host=host.docker.internal:host-gateway $(DockerNamespace)/$(DockerAPIImageName)'
-        displayName: docker run - School Demo API Container
+        displayName: docker run - School Demo REST API Container
 
-      - script: 'docker stats --no-stream'
-
-      - script: 'sleep 10s'
-
-      - script: 'curl -X GET -S -L http://localhost:8080/'
-      - script: 'curl -X GET -S http://localhost:8080/students/1'
+#      - script: 'docker stats --no-stream'
+#      - script: 'sleep 5s'
+#      - script: 'curl -X GET -S -L http://localhost:8080/'
+#      - script: 'curl -X GET -S http://localhost:8080/students/1'
 
 
       - task: DownloadBuildArtifacts@1
@@ -105,14 +101,6 @@ stages:
           downloadPath: '$(System.DefaultWorkingDirectory)'
           cleanDestinationFolder: false
 
-      - script: 'ls $(System.DefaultWorkingDirectory)'
-#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
-
-#      - script: 'sudo nginx -s quit'
-      - script: 'sudo rm /var/www/html/*'
-
-#      - script: 'sudo unzip $(System.DefaultWorkingDirectory)/Release/Harri.SchoolDemoAPI.BlazorWASM.zip -d /var/www/html'
-
       - task: ExtractFiles@1
         inputs:
           archiveFilePatterns: '**/Harri.SchoolDemoAPI.BlazorWASM.zip'
@@ -120,8 +108,12 @@ stages:
           cleanDestinationFolder: true
           overwriteExistingFiles: false
 
+      - script: 'sudo rm /var/www/html/*'
+        displayName: 'Clean NGINX web root'
+
       - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot/* /var/www/html/'
-          
+        displayName: 'Move static files to NGINX web root'
+
       - script: |
           sudo sh -c 'echo "\
            server {\n\
@@ -136,17 +128,15 @@ stages:
             }\n\
            "\
           > /etc/nginx/sites-available/default'
+        displayName: 'Set NGINX config'
 
       - script: 'sudo service nginx start'
-      - script: 'cat /etc/nginx/sites-available/default'
-      - script: 'ls /var/www/html'
+        displayName: 'Start NGINX'
 
-#      - script: | 
-#          cd $(System.DefaultWorkingDirectory)/Extract/
-#          nohup dotnet ./Harri.SchoolDemoAPI.BlazorWASM.dll --urls=$(SchoolDemoBaseUrl) &
-#          echo "##vso[task.setvariable variable=dotnetProcessId;]"$!
-#          cd $(System.DefaultWorkingDirectory)
-#        displayName: Run SchoolDemo Blazor Admin UI $(BuildConfiguration) build
+#      - script: 'cat /etc/nginx/sites-available/default'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students'
+#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students/123'
       
       - task: FileTransform@1
         displayName: appsettings.json transform
@@ -154,22 +144,24 @@ stages:
           folderPath: '$(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
           fileType: 'json'
           targetFiles: 'appsettings.json'
-        
-      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)'
-      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students'
-#      - script: 'curl -X GET -S -L $(SchoolDemoBaseUrl)students/123'
 
       - task: DotNetCoreCLI@2
         inputs:
             command: 'build'
             projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
-            
-      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Debug/' 
+        displayName: 'dotnet build - UI E2E'
+
+#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E'
+#      - script: 'ls $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Debug/' 
 
       - script: 'pwsh $(Build.Repository.LocalPath)/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/bin/Debug/net8.0/playwright.ps1 install'
+        displayName: 'Setup Playwright Script'
       - task: DotNetCoreCLI@2
         displayName: dotnet test - UI E2E
         inputs:
           command: 'test'
           projects: '**/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj'
           testRunTitle: 'UI E2E Tests'
+
+      - script: 'sudo nginx -s quit'
+        displayName: 'Quit NGINX'
