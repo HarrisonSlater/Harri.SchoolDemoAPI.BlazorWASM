@@ -122,6 +122,21 @@ stages:
 
       - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot/* /var/www/html/'
           
+      - script: |
+          sudo sh -c 'echo "\
+           server {\n\
+                listen 80 default_server;\n\
+                listen [::]:80 default_server;\n\
+                root /var/www/html;\n\
+                index index.html index.htm index.nginx-debian.html;\n\
+                server_name _;\n\
+                location / {\n\
+                    try_files $uri $uri/ /index.html =404;\n\
+                }\n\
+            }\n\
+           "\
+          > /etc/nginx/sites-available/default'
+
       - script: 'sudo service nginx start'
       - script: 'cat /etc/nginx/sites-available/default'
       - script: 'ls /var/www/html'
