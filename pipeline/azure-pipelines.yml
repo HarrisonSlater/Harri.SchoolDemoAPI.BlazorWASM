@@ -121,7 +121,8 @@ stages:
           overwriteExistingFiles: false
 
       - script: 'sudo mv $(System.DefaultWorkingDirectory)/Extract/wwwroot/* /var/www/html/'
-          
+        displayName: 'Move static files to NGINX web root'
+
       - script: |
           sudo sh -c 'echo "\
            server {\n\
@@ -136,10 +137,12 @@ stages:
             }\n\
            "\
           > /etc/nginx/sites-available/default'
+        displayName: 'Set NGINX config'
 
       - script: 'sudo service nginx start'
-      - script: 'cat /etc/nginx/sites-available/default'
-      - script: 'ls /var/www/html'
+        displayName: 'Start NGINX'
+#      - script: 'cat /etc/nginx/sites-available/default'
+
 
 #      - script: | 
 #          cd $(System.DefaultWorkingDirectory)/Extract/
