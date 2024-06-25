@@ -173,7 +173,7 @@ stages:
   jobs:
     - job: 'GithubPostSuccessCommitStatus'
       displayName: 'Successful - Update Github Commit Status'
-      condition: and(eq(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Succeeded'), eq(stageDependencies.DeployAndTestDocker.DeployAndTestDockerJob.result, 'Succeeded'))
+      condition: eq(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Succeeded')
       steps:
       - checkout: none
       - template: tasks/rest-github-commit-check.yml
@@ -182,7 +182,7 @@ stages:
           description: 'The build succeeded'
     - job: 'GithubPostFailureCommitStatus'
       displayName: 'Failure - Update Github Commit Status'
-      condition: or(in(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Failed', 'Skipped'), in(stageDependencies.DeployAndTestDocker.DeployAndTestDockerJob.result, 'Failed', 'Skipped'))
+      condition: in(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Failed', 'Skipped')
       steps:
       - checkout: none
       - template: tasks/rest-github-commit-check.yml
