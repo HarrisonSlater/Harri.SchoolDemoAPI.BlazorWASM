@@ -165,3 +165,27 @@ stages:
 
       - script: 'sudo nginx -s quit'
         displayName: 'Quit NGINX'
+- stage: 'PostGithubCommitStatus'
+  displayName: 'Github Commit Status'
+  dependsOn:
+  - 'DeployAndTest'
+  condition: always()
+  jobs:
+    - job: 'GithubPostSuccessCommitStatus'
+      displayName: 'Successful - Update Github Commit Status'
+      condition: and(eq(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Succeeded'), eq(stageDependencies.DeployAndTestDocker.DeployAndTestDockerJob.result, 'Succeeded'))
+      steps:
+      - checkout: none
+      - template: tasks/rest-github-commit-check.yml
+        parameters:
+          state: 'success'
+          description: 'The build succeeded'
+    - job: 'GithubPostFailureCommitStatus'
+      displayName: 'Failure - Update Github Commit Status'
+      condition: or(in(stageDependencies.DeployAndTest.DeployAndTestJob.result, 'Failed', 'Skipped'), in(stageDependencies.DeployAndTestDocker.DeployAndTestDockerJob.result, 'Failed', 'Skipped'))
+      steps:
+      - checkout: none
+      - template: tasks/rest-github-commit-check.yml
+        parameters:
+          state: 'failure'
+          description: 'The build failed'
