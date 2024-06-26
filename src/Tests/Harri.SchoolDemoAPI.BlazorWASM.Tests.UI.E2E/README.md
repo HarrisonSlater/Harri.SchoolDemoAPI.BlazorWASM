@@ -17,5 +17,6 @@ $env:PWDEBUG=1
 
 dotnet test
 
+Also set "headless": false in specflow.actions.json to launch the full browser for debugging
 
- By default SchoolDemoBaseUrl points to https://localhost:7144
+ By default SchoolDemoBaseUrl in appsettings.json points to https://localhost:7144
