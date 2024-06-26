@@ -27,7 +27,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks
 
             var baseUrl = config["SchoolDemoBaseUrl"];
             _baseUrlSetting = new SchoolDemoBaseUrlSetting(baseUrl);
-
         }
 
         [BeforeScenario]

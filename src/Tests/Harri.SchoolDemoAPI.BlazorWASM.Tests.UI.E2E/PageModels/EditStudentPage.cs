@@ -105,6 +105,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertEditStudentPageIsVisible()
         {
+            await Navigation.AssertPageLoaded();
+
             await Assertions.Expect(StudentNameInput).ToBeVisibleAsync();
             await Assertions.Expect(StudentNameLabel).Not.ToBeEmptyAsync();
 
