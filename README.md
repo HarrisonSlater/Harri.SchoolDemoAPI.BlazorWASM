@@ -1,5 +1,5 @@
 # Harri.SchoolDemoAPI.BlazorWASM
-Blazor WASM Standalone Admin UI
+Blazor WASM Standalone Admin UI for .NET 8 REST API [Harri.SchoolDemoAPI](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI)
 
 
 # Dependencies
