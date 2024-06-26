@@ -28,6 +28,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         private const string ErrorAlertSelector = "#student-error-alert";
         private const string ErrorInputsSelector = ".mud-input-control.mud-input-error";
 
+        public const string DeleteButton = "#delete-student-button";
+        public const string DeleteDialogCancelButton = "#dialog-cancel";
+        public const string DeleteDialogButton = "#dialog-delete";
+
+        public const string DeleteDialog = ".mud-dialog";
 
         private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
 
@@ -37,7 +42,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient = new Mock<IStudentApiClient>();
             Services.AddSingleton(_mockStudentApiClient.Object);
             Services.AddMudServices();
+
             JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
+            JSInterop.SetupVoid("mudPopover.connect", _ => true);
+            JSInterop.SetupVoid("mudPopover.initialize", _ => true);
         }
 
         private StudentDto SetUpMockExistingStudent()
@@ -48,7 +56,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
                 Name = "Test Existing Student",
                 GPA = 2.99m
             };
-            _mockStudentApiClient.Setup(client => client.GetStudent(123))
+            _mockStudentApiClient.Setup(client => client.GetStudent(It.IsAny<int>()))
                 .Returns(Task.FromResult((StudentDto?)mockExistingStudent));
 
             return mockExistingStudent;
@@ -218,7 +226,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         {
             // Arrange
             var mockExistingStudent = SetUpMockExistingStudent();
-
 
             var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
 

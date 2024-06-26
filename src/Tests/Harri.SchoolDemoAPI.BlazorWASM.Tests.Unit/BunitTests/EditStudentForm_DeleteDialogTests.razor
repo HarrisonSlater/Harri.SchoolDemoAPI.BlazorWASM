@@ -1,0 +1,164 @@
+﻿@using RestSharp
+@inherits BunitTestContext
+@code {
+    private const string NameInputSelector = "#student-name";
+    private const string GpaInputSelector = "#student-gpa";
+    private const string SubmitButtonSelector = "#submit-button";
+
+    private const string ErrorAlertSelector = "#student-error-alert";
+    private const string ErrorInputsSelector = ".mud-input-control.mud-input-error";
+
+
+    public const string DeleteButton = "#delete-student-button";
+    public const string DeleteDialogCancelButton = "#dialog-cancel";
+    public const string DeleteDialogButton = "#dialog-delete";
+
+    public const string DeleteDialog = ".mud-dialog";
+
+    private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
+    private static int TestStudentId = 123;
+
+    private IRenderedFragment? _renderedFragment;
+    private IRenderedComponent<EditStudentForm>? _editStudentForm;
+    private IRenderedComponent<MudDialogProvider>? _dialogProvider;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _mockStudentApiClient = new Mock<IStudentApiClient>();
+        Services.AddSingleton(_mockStudentApiClient.Object);
+        Services.AddMudServices();
+
+        SetUpMudBlazorJSMocks();
+
+        SetUpMockExistingStudent();
+
+        var fragment = GetEditStudentFormRenderFragment(TestStudentId);
+
+        _renderedFragment = Render(fragment);
+        _editStudentForm = _renderedFragment.FindComponent<EditStudentForm>();
+        _dialogProvider = _renderedFragment.FindComponent<MudDialogProvider>();
+
+        AssertTextAndNameNotNullOrEmpty(_editStudentForm);
+    }
+
+    private void SetUpMudBlazorJSMocks()
+    {
+        JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
+        JSInterop.SetupVoid("mudPopover.connect", _ => true);
+        JSInterop.SetupVoid("mudPopover.initialize", _ => true);
+        JSInterop.SetupVoid("mudElementRef.saveFocus", _ => true);
+        JSInterop.SetupVoid("mudScrollManager.lockScroll", _ => true);
+        JSInterop.SetupVoid("mudScrollManager.unlockScroll", _ => true);
+        JSInterop.Setup<int>("mudpopoverHelper.countProviders");
+    }
+
+    private StudentDto SetUpMockExistingStudent()
+    {
+        var mockExistingStudent = new StudentDto()
+                {
+                    SId = TestStudentId,
+                    Name = "Test Existing Student",
+                    GPA = 2.99m
+                };
+        _mockStudentApiClient.Setup(client => client.GetStudent(It.IsAny<int>()))
+                             .Returns(Task.FromResult((StudentDto?)mockExistingStudent));
+
+        return mockExistingStudent;
+    }
+
+    private RenderFragment GetEditStudentFormRenderFragment(int studentId)
+    {
+        return 
+        @<text>
+            <MudDialogProvider />
+
+            <EditStudentForm StudentId=studentId />
+
+        </text>
+        ;
+    }
+
+    private static IEnumerable<TestCaseData> DeleteStudentTestCases()
+    {
+        var successfulDelete = new RestResponse<bool>(new RestRequest())
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true
+            };
+        var failedDelete = new RestResponse<bool>(new RestRequest())
+            {
+                StatusCode = System.Net.HttpStatusCode.InternalServerError,
+                IsSuccessStatusCode = false
+            };
+        yield return new TestCaseData(successfulDelete, true, false, $"?{Constants.QueryString.DeleteStudentId}={TestStudentId}");
+        yield return new TestCaseData(failedDelete, true, true, $"localhost/");
+    }
+
+    [TestCaseSource(nameof(DeleteStudentTestCases))]
+    public async Task EditStudent_DeleteExistingStudent_ShouldDelete(RestResponse<bool> mockedDeleteResponse, bool expectedDisableSubmit, bool expectedShowError, string expectedUriEnding)
+    {
+        // Arrange
+        _mockStudentApiClient.Setup(client => client.DeleteStudentRestResponse(It.IsAny<int>()))
+            .Returns(Task.FromResult(mockedDeleteResponse));
+
+        // Act 
+        _editStudentForm?.Find(DeleteButton).Click();
+
+        _dialogProvider!.Find(DeleteDialog);
+        await _dialogProvider!.FindAndClickAsync(DeleteDialogButton);
+
+        // Assert
+        _mockStudentApiClient.Verify(x => x.DeleteStudentRestResponse(TestStudentId), Times.Once);
+
+        var formInstance = _editStudentForm!.Instance;
+        formInstance.DisableSubmit.Should().Be(expectedDisableSubmit);
+        formInstance.ShowError.Should().Be(expectedShowError);
+
+        var navMan = Services.GetRequiredService<FakeNavigationManager>();
+        navMan.Uri.Should().EndWith(expectedUriEnding);
+    }
+
+    [TestCase(true, true)]
+    [TestCase(false, false)]
+    public async Task EditStudent_DeleteExistingStudent_ShouldCancelCorrectly(bool showError, bool expectedDisableSubmit)
+    {
+        // Arrange
+        var successfulDelete = new RestResponse<bool>(new RestRequest())
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true
+            };
+        _mockStudentApiClient.Setup(client => client.DeleteStudentRestResponse(It.IsAny<int>()))
+            .Returns(Task.FromResult(successfulDelete));
+
+        _editStudentForm!.Instance.ShowError = showError;
+
+        // Act
+        _editStudentForm?.Find(DeleteButton).Click();
+        
+        _dialogProvider!.Find(DeleteDialog);
+        await _dialogProvider!.FindAndClickAsync(DeleteDialogCancelButton);
+
+        _dialogProvider.Invoking(x => x!.Find(DeleteDialog)).Should().ThrowExactly<ElementNotFoundException>();
+
+        // Assert
+        _mockStudentApiClient.Verify(x => x.DeleteStudentRestResponse(TestStudentId), Times.Never);
+
+        var formInstance = _editStudentForm!.Instance;
+        formInstance.DisableSubmit.Should().Be(expectedDisableSubmit);
+        formInstance.ShowError.Should().Be(expectedDisableSubmit);
+
+        var navMan = Services.GetRequiredService<FakeNavigationManager>();
+        navMan.Uri.Should().EndWith("localhost/");
+    }
+
+    public void AssertTextAndNameNotNullOrEmpty(IRenderedComponent<EditStudentForm> editStudentForm)
+    {
+        var textField = editStudentForm.Find(NameInputSelector);
+        textField.GetAttribute("value").Should().NotBeNullOrEmpty();
+
+        var gpaField = editStudentForm.Find(GpaInputSelector);
+        gpaField.GetAttribute("value").Should().NotBeNullOrEmpty();
+    }
+}
