@@ -27,4 +27,4 @@ https://github.com/HarrisonSlater/Harri.SchoolDemoAPI.BlazorWASM/blob/main/src/H
 - CucumberExpressions.SpecFlow.3-9
 - SpecFlow.Actions.Playwright
 
-See the UI Test README: https://github.com/HarrisonSlater/Harri.SchoolDemoAPI.BlazorWASM/tree/main/src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E
+See the UI Test README [here](src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/README.md)
