@@ -23,6 +23,8 @@
 
             public static string DeleteText(string? name, int? id) => $"Permanently delete student {name} with id \"{id}\"";
 
+            public static string FailedToDelete = "Something went wrong. Failed to delete student. Please refresh the page.";
+            public static string FailedToDeleteConflict = "Failed to delete student. This student has existing records. Please delete student applications first.";
         }
     }
 }

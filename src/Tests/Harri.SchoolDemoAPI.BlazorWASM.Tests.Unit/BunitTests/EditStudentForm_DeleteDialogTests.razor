@@ -76,7 +76,7 @@
             <EditStudentForm StudentId=studentId />
 
         </text>
-        ;
+    ;
     }
 
     private static IEnumerable<TestCaseData> DeleteStudentTestCases()
@@ -91,12 +91,18 @@
                 StatusCode = System.Net.HttpStatusCode.InternalServerError,
                 IsSuccessStatusCode = false
             };
-        yield return new TestCaseData(successfulDelete, true, false, $"?{Constants.QueryString.DeleteStudentId}={TestStudentId}");
-        yield return new TestCaseData(failedDelete, true, true, $"localhost/");
+        var failedDeleteConflict = new RestResponse<bool>(new RestRequest())
+            {
+                StatusCode = System.Net.HttpStatusCode.Conflict,
+                IsSuccessStatusCode = false
+            };
+        yield return new TestCaseData(successfulDelete, true, false, Text.EditStudentForm.ErrorText(TestStudentId) , $"?{Constants.QueryString.DeleteStudentId}={TestStudentId}");
+        yield return new TestCaseData(failedDelete, true, true, Text.EditStudentForm.FailedToDelete, $"localhost/");
+        yield return new TestCaseData(failedDeleteConflict, true, true, Text.EditStudentForm.FailedToDeleteConflict, $"localhost/");
     }
 
     [TestCaseSource(nameof(DeleteStudentTestCases))]
-    public async Task EditStudent_DeleteExistingStudent_ShouldDelete(RestResponse<bool> mockedDeleteResponse, bool expectedDisableSubmit, bool expectedShowError, string expectedUriEnding)
+    public async Task EditStudent_DeleteExistingStudent_ShouldDelete(RestResponse<bool> mockedDeleteResponse, bool expectedDisableSubmit, bool expectedShowError, string expectedErrorText, string expectedUriEnding)
     {
         // Arrange
         _mockStudentApiClient.Setup(client => client.DeleteStudentRestResponse(It.IsAny<int>()))
@@ -114,6 +120,7 @@
         var formInstance = _editStudentForm!.Instance;
         formInstance.DisableSubmit.Should().Be(expectedDisableSubmit);
         formInstance.ShowError.Should().Be(expectedShowError);
+        formInstance.ErrorText.Should().Be(expectedErrorText);
 
         var navMan = Services.GetRequiredService<FakeNavigationManager>();
         navMan.Uri.Should().EndWith(expectedUriEnding);

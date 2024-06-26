@@ -1,4 +1,5 @@
 ﻿@using Harri.SchoolDemoAPI.BlazorWASM.Components.Dialogs
+@using System.Net
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 @inject IStudentApiClient _studentClient
@@ -60,6 +61,7 @@
     internal bool? IsFormUnModified => !EditForm?.EditContext?.IsModified();
 
     internal bool ShowError { get; set; }
+    internal string? ErrorText { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,6 +84,7 @@
             }
             Loading = false;
         }
+        ErrorText = Text.EditStudentForm.ErrorText(StudentId);
     }
 
     internal async Task HandleValidSubmit()
@@ -152,14 +155,26 @@
             }
             else
             {
-                //TODO change error message here based on 409 status code
                 ShowError = true;
                 DisableSubmit = true;
+                SetErrorTextForFailedDelete(response.StatusCode);
             }
         }
         else
         {
-            DisableSubmit = ShowError; //TODO test this in auto testss
+            DisableSubmit = ShowError;
+        }
+    }
+
+    private void SetErrorTextForFailedDelete(HttpStatusCode statusCode)
+    {
+        if (statusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            ErrorText = Text.EditStudentForm.FailedToDeleteConflict;
+        }
+        else
+        {
+            ErrorText = Text.EditStudentForm.FailedToDelete;
         }
     }
 }
