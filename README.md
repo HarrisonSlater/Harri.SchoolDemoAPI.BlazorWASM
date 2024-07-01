@@ -1,17 +1,25 @@
 # Harri.SchoolDemoAPI.BlazorWASM
-Blazor WASM Standalone Admin UI for .NET 8 REST API [Harri.SchoolDemoAPI](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI)
 
+Admin UI Demo for managing CRUD operations on students, schools, and student's applications to schools.
+
+Written in Blazor as a WASM standalone app using MudBlazor. The backend .NET 8 REST API is a separate project here: [Harri.SchoolDemoAPI](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI)
+This project has full Unit and UI E2E test projects. 
+
+## WIP
+So far the students pages are complete with in-depth tests covering the implemented functionality
 
 # Dependencies
 - MudBlazor
-- https://github.com/HarrisonSlater/Harri.SchoolDemoAPI
+- [Harri.SchoolDemoAPI](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI)
 
-Running the app
-Pointing to local Harri.SchoolDemoAPI instance
+# Running the app
+To point to a local Harri.SchoolDemoAPI instance:
 
-Set StudentDemoAPIUrl in appsettings.json
-https://github.com/HarrisonSlater/Harri.SchoolDemoAPI.BlazorWASM/blob/main/src/Harri.SchoolDemoAPI.BlazorWASM/wwwroot/appsettings.json
- By default StudentDemoAPIUrl points to http://localhost:8080
+Set StudentDemoAPIUrl in [appsettings.json](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI.BlazorWASM/blob/main/src/Harri.SchoolDemoAPI.BlazorWASM/wwwroot/appsettings.json)
+
+ By default StudentDemoAPIUrl points to http://localhost:8080 
+
+To set up and run the REST API locally without building the project follow the [running from container instructions](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI#running-from-container)
 
 # Test Dependencies
 - NUnit
