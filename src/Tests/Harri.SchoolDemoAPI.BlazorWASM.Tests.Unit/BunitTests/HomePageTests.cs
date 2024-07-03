@@ -109,7 +109,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         [TestCase("")]
         [TestCase("asdf")]
         [TestCase("-100")]
-        //[TestCase("0")]
+        [TestCase("0")]
         public async Task HomePage_ShowsErrorOnEditStudentIDInput(string? studentId)
         {
             // Arrange
