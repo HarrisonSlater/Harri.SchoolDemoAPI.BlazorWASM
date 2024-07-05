@@ -81,6 +81,28 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Once);
         }
 
+        [TestCase("0.1")]
+        [TestCase("0.99")]
+        [TestCase("1")]
+        [TestCase("3.55")]
+        public async Task EditStudent_ForNewStudent_SubmitsSuccessfully_WithGPA(string gpa)
+        {
+            var editStudentForm = RenderComponent<EditStudentForm>();
+
+            var textField = editStudentForm.Find(NameInputSelector);
+            textField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            var gpaField = editStudentForm.Find(GpaInputSelector);
+            gpaField.GetAttribute("value").Should().BeNullOrEmpty();
+
+            textField.Change("Test Name");
+            gpaField.Change(gpa);
+
+            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+
+            _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Once);
+        }
+
         [Test]
         public async Task EditStudent_ForNewStudent_ShowsErrorOnFail()
         {
@@ -128,8 +150,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
         }
 
-        [Test]
-        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForNameAndGPA()
+        [TestCase("asdf")]
+        [TestCase("0")]
+        [TestCase("-1")]
+        [TestCase("-3.55")]
+        [TestCase("3.555")]
+        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForNameAndGPA(string gpa)
         {
             var editStudentForm = RenderComponent<EditStudentForm>();
 
@@ -139,11 +165,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            gpaField.Change("asdf");
+            gpaField.Change(gpa);
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
             var errorInputContainers = editStudentForm.FindAll(ErrorInputsSelector);
 
+            errorInputContainers.Count.Should().Be(2);
             foreach (var errorInputContainer in errorInputContainers)
             {
                 var errorText = errorInputContainer.LastChild?.TextContent;

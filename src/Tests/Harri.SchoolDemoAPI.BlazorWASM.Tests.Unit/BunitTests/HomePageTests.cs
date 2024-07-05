@@ -127,7 +127,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             await homePage.FindAndClickAsync(EditStudentButton);
 
             // Assert
-
             var errorInputContainer = homePage.Find(ErrorInputsSelector);
 
             var errorText = errorInputContainer.LastChild?.TextContent;
