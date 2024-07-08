@@ -1,4 +1,4 @@
-# Harri.SchoolDemoAPI.BlazorWASM
+# Harri.SchoolDemoAPI.BlazorWASM - Blazor Admin UI
 
 Admin UI Demo for managing CRUD operations on students, schools, and student's applications to schools.
 
