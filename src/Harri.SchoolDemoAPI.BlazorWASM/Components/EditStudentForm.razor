@@ -11,7 +11,7 @@
     <MudContainer MaxWidth=MaxWidth.Small>
         @if (ShowError)
         {
-            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.EditStudentForm.ErrorText(StudentId)</MudAlert>
+            <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorText</MudAlert>
         }
 
         <MudText Typo="Typo.h3" GutterBottom>@Text.EditStudentForm.DisplayText(StudentId)</MudText>
@@ -65,6 +65,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        ErrorText = Text.EditStudentForm.ErrorText(StudentId);
         if (StudentId is not null)
         {
             Loading = true;
@@ -84,7 +85,6 @@
             }
             Loading = false;
         }
-        ErrorText = Text.EditStudentForm.ErrorText(StudentId);
     }
 
     internal async Task HandleValidSubmit()
