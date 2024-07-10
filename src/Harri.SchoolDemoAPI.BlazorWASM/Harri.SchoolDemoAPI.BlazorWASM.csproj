@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Harri.SchoolDemoApi.Client" Version="1.0.6" />
-    <PackageReference Include="Harri.SchoolDemoAPI.Models" Version="1.0.6" />
+    <PackageReference Include="Harri.SchoolDemoApi.Client" Version="1.0.7" />
+    <PackageReference Include="Harri.SchoolDemoAPI.Models" Version="1.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.3" PrivateAssets="all" />
     <PackageReference Include="MudBlazor" Version="6.19.1" />
