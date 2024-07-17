@@ -19,8 +19,8 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
-            QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
+    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None>
+        @*QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)*@
 
         <ToolBarContent>
             <MudSpacer />
@@ -42,12 +42,17 @@
         <PagerContent>
             <MudDataGridPager T=StudentDto PageSizeOptions=@(new int[] { 10, 15, 50, 100 }) />
         </PagerContent>
+        <LoadingContent>
+            <MudPaper>
+                <MudText>Students Loading</MudText>
+            </MudPaper>
+        </LoadingContent>
     </MudDataGrid>
     
 </MudContainer>
 
 @code {
-    List<StudentDto>? AllStudents { get; set; }
+    //List<StudentDto>? AllStudents { get; set; }
 
     [Parameter]
     public int? PageNumber { get; set; }
@@ -74,27 +79,28 @@
 
     private bool PageNumberNullInUrl { get; set; }
 
-    // Lifecycle properties
-    private bool Initialized { get; set; }
-
     private bool ParametersSet { get; set; }
 
     private bool RegisterEventHandlers { get; set; } = true;
 
-    protected override async Task OnInitializedAsync()
+    private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
         var studentsResponse = await _studentClient.GetStudentsRestResponse();
 
         if (studentsResponse.Data != null)
         {
-            AllStudents = studentsResponse.Data;
+            return new() 
+            { 
+                Items = studentsResponse.Data, 
+                TotalItems = studentsResponse.Data.Count
+            };
         }
         else
         {
             ShowError = true;
+            StateHasChanged();
+            return new();
         }
-
-        Initialized = true;
     }
 
     protected override void OnParametersSet()
@@ -123,7 +129,7 @@
 
     private void PagerStateChanged() 
     {
-        if (DataGrid is not null && Initialized && ParametersSet)
+        if (DataGrid is not null && ParametersSet)
         {
             //Set the URL to include page number which updates when the page is changed in the MudDataGridPager
             var pageNumber = DataGrid!.CurrentPage + 1;
