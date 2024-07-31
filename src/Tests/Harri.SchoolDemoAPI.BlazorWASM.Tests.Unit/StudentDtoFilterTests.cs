@@ -1,11 +1,6 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Filters;
 using Harri.SchoolDemoAPI.Models.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 {

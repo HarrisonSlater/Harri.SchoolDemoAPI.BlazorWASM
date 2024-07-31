@@ -1,22 +1,10 @@
-using AngleSharp.Dom;
 using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Pages;
 using Harri.SchoolDemoApi.Client;
 using Harri.SchoolDemoAPI.Models.Dto;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using MudBlazor;
 using MudBlazor.Services;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using AngleSharp.Text;
-using NUnit.Framework.Constraints;
-using System;
-using System.Threading;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
