@@ -1,16 +1,12 @@
 using AngleSharp.Dom;
 using FluentAssertions;
-using Harri.SchoolDemoAPI.BlazorWASM.Pages;
 using Harri.SchoolDemoApi.Client;
 using Harri.SchoolDemoAPI.Models.Dto;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using MudBlazor;
 using MudBlazor.Services;
 using System.Threading.Tasks;
 using Harri.SchoolDemoAPI.BlazorWASM.Components;
+using System.Linq;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
@@ -74,7 +70,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            textField.Change("Test Name");
+            textField.Input("Test Name");
 
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
@@ -95,8 +91,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            textField.Change("Test Name");
-            gpaField.Change(gpa);
+            textField.Input("Test Name");
+            gpaField.Input(gpa);
 
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
@@ -117,7 +113,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            textField.Change("Test Name");
+            textField.Input("Test Name");
 
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
@@ -130,6 +126,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         [Test]
         public async Task EditStudent_ForNewStudent_ShowsValidationErrorForName()
         {
+            // Arrange
             var editStudentForm = RenderComponent<EditStudentForm>();
 
             var textField = editStudentForm.Find(NameInputSelector);
@@ -138,8 +135,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
 
-            //textField.Change("");
+            // Act
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+
+            // Assert
+            editStudentForm.Find(SubmitButtonSelector).IsDisabled().Should().Be(true);
 
             var errorInputContainer = editStudentForm.Find(ErrorInputsSelector);
 
@@ -150,12 +150,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
         }
 
-        [TestCase("asdf")]
         [TestCase("0")]
         [TestCase("-1")]
         [TestCase("-3.55")]
         [TestCase("3.555")]
-        public async Task EditStudent_ForNewStudent_ShowsValidationErrorForNameAndGPA(string gpa)
+        public void EditStudent_ForNewStudent_ShowsValidationErrorForGPAAndDisablesButton(string gpa)
         {
             var editStudentForm = RenderComponent<EditStudentForm>();
 
@@ -164,19 +163,16 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             var gpaField = editStudentForm.Find(GpaInputSelector);
             gpaField.GetAttribute("value").Should().BeNullOrEmpty();
+            gpaField.Input(gpa);
 
-            gpaField.Change(gpa);
-            await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
+            var button = editStudentForm.Find(SubmitButtonSelector);
+            button.IsDisabled().Should().BeTrue();
 
             var errorInputContainers = editStudentForm.FindAll(ErrorInputsSelector);
 
-            errorInputContainers.Count.Should().Be(2);
-            foreach (var errorInputContainer in errorInputContainers)
-            {
-                var errorText = errorInputContainer.LastChild?.TextContent;
-
-                errorText.Should().NotBeNullOrWhiteSpace();
-            }
+            errorInputContainers.Count.Should().Be(1);
+            var errorText = errorInputContainers.Single().LastChild?.TextContent;
+            errorText.Should().NotBeNullOrWhiteSpace();
 
             _mockStudentApiClient.Verify(x => x.AddStudent(It.IsAny<NewStudentDto>()), Times.Never);
         }
@@ -201,7 +197,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             // Act
             var updatedName = "Test Name Updated";
-            textField.Change(updatedName);
+            textField.Input(updatedName);
 
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
@@ -233,7 +229,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             
             // Act
             var updatedName = "Test Name Updated";
-            textField.Change(updatedName);
+            textField.Input(updatedName);
+
 
             await editStudentForm.FindAndClickAsync(SubmitButtonSelector);
 
@@ -245,7 +242,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             var errorAlert = editStudentForm.Find(ErrorAlertSelector);
             errorAlert.Should().NotBeNull();
-
         }
 
         [Test]
@@ -265,9 +261,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             // Act
             var button = editStudentForm.Find(SubmitButtonSelector);
+            button.IsDisabled().Should().BeTrue();
+            gpaField.KeyDown(Key.Enter);
 
             // Assert
-            button.IsDisabled().Should().BeFalse();
+            button.IsDisabled().Should().BeTrue();
             _mockStudentApiClient.Verify(x => x.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()), Times.Never);
         }
 

@@ -35,7 +35,7 @@
                     <MudButton id="delete-student-button" OnClick="@(() => OpenDeleteDialog(StudentId.Value, Text.EditStudentForm.DeleteText(ExistingStudent?.Name, StudentId)))" 
                         Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Disabled=@(Loading) Class="ml-3">Delete</MudButton>
                 }
-                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading || IsFormChanged() || AnyFormErrors()) Class="ml-auto ma-4">Save</MudButton>
+                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading || !IsFormChanged() || AnyFormErrors()) Class="ml-auto ma-4">Save</MudButton>
                 @*<MudButton OnClick="Cancel" Variant="Variant.Filled" Color="Color.Error" Class="ml-4 ma-4">Cancel</MudButton>*@
 
             </MudCardActions>
@@ -96,7 +96,7 @@
     {
         if (ExistingStudent is null) return true;
 
-        return Student.Name == ExistingStudent?.Name && Student.GPA == ExistingStudent?.GPA;
+        return Student.Name != ExistingStudent?.Name || Student.GPA != ExistingStudent?.GPA;
     }
 
     internal async Task HandleValidSubmit()
