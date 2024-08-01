@@ -52,5 +52,5 @@ Scenario: Enter all invalid student data when editing
 	Given I am on the edit page for a student
 	When I remove the student's name
 	And enter a student GPA "2.999"
-	And click save
 	Then I should see a validation message for the Name and GPA
+	And the save button should be disabled

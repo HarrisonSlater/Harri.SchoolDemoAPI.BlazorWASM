@@ -34,12 +34,11 @@ Scenario: Create new student with name and GPA without saving
 	Then The students table should be empty
 
 # Negative
-
 Scenario: Enter an invalid student name when creating a new student
 	Given I am on the create new student page
 	When I enter a blank student name
-	And click save
 	Then I should see a validation message for the Name
+	And the save button should be disabled
 
 Scenario: Enter an invalid student GPA creating a new student
 	Given I am on the create new student page
