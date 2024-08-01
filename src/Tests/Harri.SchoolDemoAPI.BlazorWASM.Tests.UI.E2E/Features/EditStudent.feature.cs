@@ -296,7 +296,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Then("I should see a validation message for the Name and GPA", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 56
- testRunner.And("", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("the save button should be disabled", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();
