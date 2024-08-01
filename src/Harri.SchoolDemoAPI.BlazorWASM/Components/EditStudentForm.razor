@@ -7,7 +7,7 @@
 <PageTitle>@Text.EditStudentForm.DisplayText(StudentId)</PageTitle>
 
 <EditForm @ref=EditForm Model="@Student" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
+    <DataAnnotationsValidator/>
     <MudContainer MaxWidth=MaxWidth.Small>
         @if (ShowError)
         {
@@ -24,8 +24,8 @@
                 }
                 else
                 {
-                    <MudTextField id="student-name" Label="Name" @bind-Value="Student.Name" For="@(() => Student.Name)" />
-                    <MudNumericField id="student-gpa" Label="GPA" @bind-Value="Student.GPA" For="@(() => Student.GPA)" Min=0 />
+                    <MudTextField id="student-name" Label="Name" @bind-Value="Student.Name" For="@(() => Student.Name)" Immediate/>
+                    <MudNumericField id="student-gpa" Label="GPA" @bind-Value="Student.GPA" For="@(() => Student.GPA)" Min=0 Immediate />
                 }
             </MudCardContent>
             <MudCardActions>
@@ -35,7 +35,7 @@
                     <MudButton id="delete-student-button" OnClick="@(() => OpenDeleteDialog(StudentId.Value, Text.EditStudentForm.DeleteText(ExistingStudent?.Name, StudentId)))" 
                         Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Disabled=@(Loading) Class="ml-3">Delete</MudButton>
                 }
-                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading) Class="ml-auto ma-4">Save</MudButton>
+                <MudButton id="submit-button" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(DisableSubmit || Loading || !IsFormChanged() || AnyFormErrors()) Class="ml-auto ma-4">Save</MudButton>
                 @*<MudButton OnClick="Cancel" Variant="Variant.Filled" Color="Color.Error" Class="ml-4 ma-4">Cancel</MudButton>*@
 
             </MudCardActions>
@@ -58,7 +58,7 @@
 
     internal bool Loading { get; set; }
 
-    internal bool? IsFormUnModified => !EditForm?.EditContext?.IsModified();
+    //internal bool IsFormUnModified => !EditForm?.EditContext?.IsModified() ?? true;
 
     internal bool ShowError { get; set; }
     internal string? ErrorText { get; set; }
@@ -85,6 +85,18 @@
             }
             Loading = false;
         }
+    }
+
+    public bool AnyFormErrors()
+    {
+        return EditForm?.EditContext?.GetValidationMessages().Any() ?? false;
+    }
+
+    public bool IsFormChanged() 
+    {
+        if (ExistingStudent is null) return true;
+
+        return Student.Name != ExistingStudent?.Name || Student.GPA != ExistingStudent?.GPA;
     }
 
     internal async Task HandleValidSubmit()

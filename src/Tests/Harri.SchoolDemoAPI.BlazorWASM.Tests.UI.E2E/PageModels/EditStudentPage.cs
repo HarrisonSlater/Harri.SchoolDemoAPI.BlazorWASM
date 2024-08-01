@@ -145,5 +145,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         {
             await Assertions.Expect(StudentGPAInput).Not.ToBeEmptyAsync();
         }
+
+        public async Task AssertSaveButtonDisabled()
+        {
+            await Assertions.Expect(SaveButton).ToBeDisabledAsync();
+        }
     }
 }

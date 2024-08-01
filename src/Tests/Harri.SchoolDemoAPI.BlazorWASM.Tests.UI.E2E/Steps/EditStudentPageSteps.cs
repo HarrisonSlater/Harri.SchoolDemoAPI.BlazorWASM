@@ -116,7 +116,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [When("I enter a blank student name")]
         public async Task WhenIRemoveTheStudentsName()
         {
-            await _editStudentPage.EnterStudentName("");
+            await _editStudentPage.EnterStudentName(" ");
         }
 
         [Then("I should see a validation message for the Name")]
@@ -136,6 +136,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         {
             await _editStudentPage.ShouldHaveValidationErrorForName();
             await _editStudentPage.ShouldHaveValidationErrorForGPA();
+        }
+
+        [Then("the save button should be disabled")]
+        public async Task ThenTheSaveButtonShouldBeDisabled()
+        {
+            await Assertions.Expect(_editStudentPage.SaveButton).ToBeDisabledAsync();
         }
     }
 }
