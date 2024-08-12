@@ -7,7 +7,8 @@ Written in Blazor as a WASM standalone app using MudBlazor with a heavy focus on
 The backend .NET 8 REST API is a separate project here: [Harri.SchoolDemoAPI](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI)
 
 ## WIP
-So far the students pages are complete with in-depth tests covering the implemented functionality. 
+So far the students pages are functionally complete with in-depth tests covering the implemented functionality. 
+
 `The actual implementation of the blazor page for editing students and hooking into mudblazor needs heavy refactoring and cleanup`
 
 # Dependencies
