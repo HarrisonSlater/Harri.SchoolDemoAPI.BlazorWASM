@@ -4,7 +4,7 @@
 @using Harri.SchoolDemoAPI.BlazorWASM.Components.Alerts
 @using Harri.SchoolDemoAPI.BlazorWASM.Filters
 @inject NavigationManager NavigationManager
-@inject IStudentApiClient _studentClient
+@inject IStudentApi _studentClient
 
 <PageTitle>Students</PageTitle>
 
@@ -19,8 +19,7 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
-            QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
+    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None>
 
         <ToolBarContent>
             <MudSpacer />
@@ -47,7 +46,7 @@
 </MudContainer>
 
 @code {
-    List<StudentDto>? AllStudents { get; set; }
+    //PagedList<StudentDto>? AllStudents { get; set; }
 
     [Parameter]
     public int? PageNumber { get; set; }
@@ -83,16 +82,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var studentsResponse = await _studentClient.GetStudentsRestResponse();
 
-        if (studentsResponse.Data != null)
-        {
-            AllStudents = studentsResponse.Data;
-        }
-        else
-        {
-            ShowError = true;
-        }
+        // if (studentsResponse.Data != null)
+        // {
+        //     AllStudents = studentsResponse.Data;
+        // }
+        // else
+        // {
+        //     ShowError = true; 
+        // }
 
         Initialized = true;
     }
@@ -139,6 +137,25 @@
             }
         }
     }
+
+    private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
+    {
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(page: state.Page + 1, pageSize: state.PageSize);
+        if (studentsResponse?.Data is null)
+        {
+            ShowError = true;
+            return new GridData<StudentDto>();
+        }
+
+
+        //state.
+        return new GridData<StudentDto>()
+            {
+                Items = studentsResponse.Data.Items,
+                TotalItems = studentsResponse.Data.TotalCount
+            };
+    }
+
 
     private string GetQueryString()
     {
