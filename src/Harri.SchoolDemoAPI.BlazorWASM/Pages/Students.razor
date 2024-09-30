@@ -144,11 +144,10 @@
         if (studentsResponse?.Data is null)
         {
             ShowError = true;
+            StateHasChanged();
             return new GridData<StudentDto>();
         }
 
-
-        //state.
         return new GridData<StudentDto>()
             {
                 Items = studentsResponse.Data.Items,
