@@ -89,14 +89,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
         [Test]
         public void ViewStudents_ShowsErrorOnFail()
         {
             // Arrange
-            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse(null, null, null, null, null, null))
+            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse(null, null, null, null, 1, 15))
                 .Returns(Task.FromResult(new RestSharp.RestResponse<PagedList<StudentDto>>(new RestSharp.RestRequest())
                 {
                     Data = null
@@ -108,7 +108,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             studentsPage.WaitForElement(ErrorAlertSelector);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var successAlert = studentsPage.Find(SuccessAlertSelector);
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
         [Test]
@@ -150,9 +150,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var successAlert = studentsPage.Find(SuccessAlertSelector);
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
+        //TODO refactor and move any required tests into the E2E project
         [TestCase("Test Existing Student")]
         [TestCase("Student")]
         [TestCase("  ")]
@@ -172,9 +173,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
+        //TODO
         [TestCase("1", 1)]
         [TestCase("1.11", 1)]
         [TestCase("Test Existing Student 1", 1)]
@@ -201,9 +203,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeOnlyOneStudentInGrid(studentsPage, expectedStudentId);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
+        //TODO
         [TestCase("Test Existing Student 33")]
         [TestCase("asdfasdf")]
         public void ViewStudents_SearchFeatureShouldNotMatchAnyStudents(string searchString)
@@ -221,7 +224,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeNoStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, null), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, 1, 15), Times.Once);
         }
 
         private void ShouldSeeNoStudentsInGrid(IRenderedComponent<Students> studentsPage)
