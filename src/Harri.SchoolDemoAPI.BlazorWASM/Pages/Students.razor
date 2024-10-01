@@ -19,18 +19,39 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None>
+    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None 
+        Filterable FilterMode=DataGridFilterMode.ColumnFilterRow >
 
-        <ToolBarContent>
+       @*  <ToolBarContent>
             <MudSpacer />
             <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
                 AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
-        </ToolBarContent>
+        </ToolBarContent> *@
         <Columns>
-            <PropertyColumn Property="x => x.SId" />
-            <PropertyColumn Property="x => x.Name" />
+            <PropertyColumn Property="x => x.SId" Filterable=false/>
+            <PropertyColumn Property="x => x.Name" Title="Name">
+                <FilterTemplate>
+                    <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor#L4 -->
+                    <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor.cs#L89-->
+                    <MudStack Row="true">
+                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+@* 
+                <MudMenu Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" Dense="true">
+                            <MudMenuItem Style="" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
+                     @foreach (var o in operators)
+                    {
+                        if (!string.IsNullOrWhiteSpace(o))
+                        {
+                            <MudMenuItem Style="@chosenOperatorStyle(o)" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
+                        }
+                    } 
+                </MudMenu> *@
+                        <MudIconButton Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSearchString"></MudIconButton>
+                    </MudStack>
+                </FilterTemplate>
+            </PropertyColumn>
             <PropertyColumn Property="x => x.GPA" />
-            <TemplateColumn CellClass="d-flex justify-end mr-2">
+            <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
                     <MudStack Row>
                         <MudButton Class="student-edit-button" OnClick=@(() => GoToEditStudent(context.Item.SId)) Size=Size.Small Variant=Variant.Filled Color=Color.Primary StartIcon=@Icons.Material.Filled.Edit DisableElevation>Edit</MudButton>
@@ -69,6 +90,18 @@
 
     internal string? SearchString { get; set; }
 
+    internal async Task ClearSearchString() {
+        await NameFilterChanged("");
+    }
+
+    internal async Task NameFilterChanged(string newSearchString) {
+        SearchString = newSearchString;
+
+        NameFilterDefinition.Value = SearchString;
+        await DataGrid?.ReloadServerData();
+    }
+
+    internal FilterDefinition<StudentDto>? NameFilterDefinition; 
     private MudDataGrid<StudentDto>? DataGrid;
 
     private bool PageNumberNullInUrl { get; set; }
@@ -79,6 +112,8 @@
     private bool ParametersSet { get; set; }
 
     private bool RegisterEventHandlers { get; set; } = true;
+
+    private FilterDefinition<string> fd;
 
     protected override async Task OnInitializedAsync()
     {
@@ -104,13 +139,26 @@
         ParametersSet = true;
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (ParametersSet && RegisterEventHandlers)
         {
             RegisterEventHandlers = false;
 
             DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
+        }
+
+        if (firstRender)
+        {
+            NameFilterDefinition = new FilterDefinition<StudentDto>()
+            {
+                Column = DataGrid.RenderedColumns.ElementAt(1),
+                Id = Guid.NewGuid(),
+                Title = "Name",
+                Operator = "name contains",
+                Value = SearchString
+            };
+            await DataGrid.AddFilterAsync(NameFilterDefinition);
         }
     }
 
@@ -140,8 +188,21 @@
 
     private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
-        var studentsResponse = await _studentClient.GetStudentsRestResponse(page: state.Page + 1, pageSize: state.PageSize);
-        if (studentsResponse?.Data is null)
+        ShowError = false;
+        var filterDefinition = state.FilterDefinitions.Single();
+        var filterValue = filterDefinition.Value as string;
+
+        Console.WriteLine($"filterValue: {filterValue}");
+
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(name: filterValue, page: state.Page + 1, pageSize: state.PageSize);
+
+        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            //TODO show no students found message
+            StateHasChanged();
+            return new GridData<StudentDto>();
+        }
+        if (!studentsResponse.IsSuccessStatusCode)
         {
             ShowError = true;
             StateHasChanged();
