@@ -177,7 +177,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             var rowsDisplayed = await GetRowsDisplayed();
 
             var rows = Page.GetByRole(AriaRole.Row);
-            await Assertions.Expect(rows).ToHaveCountAsync(rowsDisplayed + 2); // + 2 includes header row and footer
+            await Assertions.Expect(rows).ToHaveCountAsync(rowsDisplayed + 2 + 1); // + 2 includes header row and footer. + 1 is for the filtering rows
 
             await AssertRowsAndGetCellData(sIds);
 
