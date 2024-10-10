@@ -31,7 +31,7 @@
             <PropertyColumn Property="x => x.SId">
                 <FilterTemplate>
                     <MudStack Row="true">
-                        <MudTextField T="int?" id="student-search-sid" Value="@SIdSearchString" ValueChanged="@SIdFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search id"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+                        <MudTextField T="int?" id="student-search-sid" Value="@SIdSearchInt" ValueChanged="@SIdFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search id"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
                         <MudIconButton Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
                     </MudStack>
                 </FilterTemplate>
@@ -96,7 +96,7 @@
     internal bool AddSuccessIdToHistory { get; set; }
 
     internal string? SearchString { get; set; }
-    internal int? SIdSearchString { get; set; }
+    internal int? SIdSearchInt { get; set; }
 
     internal async Task ClearSearchString() {
         await NameFilterChanged("");
@@ -109,19 +109,15 @@
     internal async Task NameFilterChanged(string newSearchString) {
         SearchString = newSearchString;
 
-        NameFilterDefinition.Value = SearchString;
         await DataGrid?.ReloadServerData();
     }
 
     internal async Task SIdFilterChanged(int? newSearchString) {
-        SIdSearchString = newSearchString;
+        SIdSearchInt = newSearchString;
 
-        SIdFilterDefinition.Value = SIdSearchString;
         await DataGrid?.ReloadServerData();
     }
 
-    internal FilterDefinition<StudentDto>? NameFilterDefinition; 
-    internal FilterDefinition<StudentDto>? SIdFilterDefinition; 
     private MudDataGrid<StudentDto>? DataGrid;
 
     private bool PageNumberNullInUrl { get; set; }
@@ -135,18 +131,8 @@
 
     private FilterDefinition<string> fd;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-
-        // if (studentsResponse.Data != null)
-        // {
-        //     AllStudents = studentsResponse.Data;
-        // }
-        // else
-        // {
-        //     ShowError = true; 
-        // }
-
         Initialized = true;
     }
 
@@ -159,35 +145,13 @@
         ParametersSet = true;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (ParametersSet && RegisterEventHandlers)
         {
             RegisterEventHandlers = false;
 
             DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
-        }
-
-        if (firstRender)
-        {
-            SIdFilterDefinition = new FilterDefinition<StudentDto>()
-            {
-                Column = DataGrid.RenderedColumns.ElementAt(0),
-                Id = Guid.NewGuid(),
-                Title = "SId",
-                Operator = "sId contains",
-                Value = SIdSearchString
-            };
-            NameFilterDefinition = new FilterDefinition<StudentDto>()
-            {
-                Column = DataGrid.RenderedColumns.ElementAt(1),
-                Id = Guid.NewGuid(),
-                Title = "Name",
-                Operator = "name contains",
-                Value = SearchString
-            };
-            await DataGrid.AddFilterAsync(NameFilterDefinition);
-            await DataGrid.AddFilterAsync(SIdFilterDefinition);
         }
     }
 
@@ -215,13 +179,12 @@
         }
     }
 
+    //TODO test in unit
     private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
         ShowError = false;
-        //var filterDefinition = state.FilterDefinitions.Single(x => x.Title == "Name");
-        //var filterValue = filterDefinition.Value as string;
-        var nameFilterValue = NameFilterDefinition!.Value as string;
-        var sIdFilterValue = SIdFilterDefinition!.Value as int?;
+        var nameFilterValue = SearchString;
+        var sIdFilterValue = SIdSearchInt;
 
         Console.WriteLine($"filterValue: {nameFilterValue}");
 
