@@ -64,7 +64,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         {
             await AStudentExists(name, gpa);
 
-            await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
+            await _studentsPage.SearchForStudentBySId(_createdTestStudent.StudentId);
 
             await _studentsPage.ClickEditOnStudent(_createdTestStudent.StudentId);
 

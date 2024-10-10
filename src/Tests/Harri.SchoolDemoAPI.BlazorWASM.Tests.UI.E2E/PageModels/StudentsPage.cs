@@ -13,13 +13,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
     {
         public ILocator RowsDisplayed => _page.Locator(".mud-table-pagination-select");
 
+        public ILocator TableLoading => _page.Locator("td.mud-table-loading");
         public ILocator Rows => _page.Locator(".mud-table-body tr.mud-table-row");
 
         public ILocator IdDataCells => _page.Locator("td[data-label=\"SId\"]");
         public ILocator NameDataCells => _page.Locator("td[data-label=\"Name\"]");
         public ILocator GPADataCells => _page.Locator("td[data-label=\"GPA\"]");
 
-        public ILocator StudentSearch => _page.Locator("#student-search");
+        public ILocator StudentSIdSearch => _page.Locator("#student-search-sid");
+        public ILocator StudentNameSearch => _page.Locator("#student-search");
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
         public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
@@ -78,11 +80,24 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return (id, name, gpa);
         }
 
-        public async Task SearchForStudent(string? searchString)
+        public async Task SearchForStudentBySId(string? searchString)
         {
             if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
 
-            await StudentSearch.FillAsync(searchString);
+            //TODO check hostname, validate this response is from the api and not this app itself
+            await Page.RunAndWaitForResponseAsync(() => StudentSIdSearch.FillAsync(searchString), r => r.Url.Contains($"students/?sId={searchString}"));
+
+            //TODO test this when the api is slow
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task SearchForStudentByName(string? searchString)
+        {
+            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
+
+            await StudentNameSearch.FillAsync(searchString);
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
 
         public async Task ClickEditOnStudent(string? studentId)

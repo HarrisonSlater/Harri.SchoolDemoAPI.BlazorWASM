@@ -28,13 +28,20 @@
                 AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
         </ToolBarContent> *@
         <Columns>
-            <PropertyColumn Property="x => x.SId" Filterable=false/>
+            <PropertyColumn Property="x => x.SId">
+                <FilterTemplate>
+                    <MudStack Row="true">
+                        <MudTextField T="int?" id="student-search-sid" Value="@SIdSearchString" ValueChanged="@SIdFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search id"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+                        <MudIconButton Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
+                    </MudStack>
+                </FilterTemplate>
+            </PropertyColumn>
             <PropertyColumn Property="x => x.Name" Title="Name">
                 <FilterTemplate>
                     <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor#L4 -->
                     <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor.cs#L89-->
                     <MudStack Row="true">
-                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search name"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
 @* 
                 <MudMenu Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" Dense="true">
                             <MudMenuItem Style="" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
@@ -89,9 +96,14 @@
     internal bool AddSuccessIdToHistory { get; set; }
 
     internal string? SearchString { get; set; }
+    internal int? SIdSearchString { get; set; }
 
     internal async Task ClearSearchString() {
         await NameFilterChanged("");
+    }
+
+    internal async Task ClearSIdSearchString() {
+        await SIdFilterChanged(null);
     }
 
     internal async Task NameFilterChanged(string newSearchString) {
@@ -101,7 +113,15 @@
         await DataGrid?.ReloadServerData();
     }
 
+    internal async Task SIdFilterChanged(int? newSearchString) {
+        SIdSearchString = newSearchString;
+
+        SIdFilterDefinition.Value = SIdSearchString;
+        await DataGrid?.ReloadServerData();
+    }
+
     internal FilterDefinition<StudentDto>? NameFilterDefinition; 
+    internal FilterDefinition<StudentDto>? SIdFilterDefinition; 
     private MudDataGrid<StudentDto>? DataGrid;
 
     private bool PageNumberNullInUrl { get; set; }
@@ -150,6 +170,14 @@
 
         if (firstRender)
         {
+            SIdFilterDefinition = new FilterDefinition<StudentDto>()
+            {
+                Column = DataGrid.RenderedColumns.ElementAt(0),
+                Id = Guid.NewGuid(),
+                Title = "SId",
+                Operator = "sId contains",
+                Value = SIdSearchString
+            };
             NameFilterDefinition = new FilterDefinition<StudentDto>()
             {
                 Column = DataGrid.RenderedColumns.ElementAt(1),
@@ -159,6 +187,7 @@
                 Value = SearchString
             };
             await DataGrid.AddFilterAsync(NameFilterDefinition);
+            await DataGrid.AddFilterAsync(SIdFilterDefinition);
         }
     }
 
@@ -189,12 +218,14 @@
     private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
         ShowError = false;
-        var filterDefinition = state.FilterDefinitions.Single();
-        var filterValue = filterDefinition.Value as string;
+        //var filterDefinition = state.FilterDefinitions.Single(x => x.Title == "Name");
+        //var filterValue = filterDefinition.Value as string;
+        var nameFilterValue = NameFilterDefinition!.Value as string;
+        var sIdFilterValue = SIdFilterDefinition!.Value as int?;
 
-        Console.WriteLine($"filterValue: {filterValue}");
+        Console.WriteLine($"filterValue: {nameFilterValue}");
 
-        var studentsResponse = await _studentClient.GetStudentsRestResponse(name: filterValue, page: state.Page + 1, pageSize: state.PageSize);
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: sIdFilterValue, name: nameFilterValue, page: state.Page + 1, pageSize: state.PageSize);
 
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {

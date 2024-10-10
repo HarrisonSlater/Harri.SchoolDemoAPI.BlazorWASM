@@ -102,12 +102,19 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [When("I search for student using the success alert ID")]
         public async Task WhenISearchForStudentUsingID()
         {
-            await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
+            await _studentsPage.SearchForStudentBySId(_createdTestStudent.StudentId);
         }
-        [When("I search for student {string}")]
+
+        [When("I search for student id {string}")]
         public async Task WhenISearchForStudent(string searchString)
         {
-            await _studentsPage.SearchForStudent(searchString);
+            await _studentsPage.SearchForStudentBySId(searchString);
+        }
+
+        [When("I search for student name {string}")]
+        public async Task WhenISearchForStudentName(string searchString)
+        {
+            await _studentsPage.SearchForStudentByName(searchString);
         }
 
         [Then("I should see the updated/same/new student with name {string}")]
