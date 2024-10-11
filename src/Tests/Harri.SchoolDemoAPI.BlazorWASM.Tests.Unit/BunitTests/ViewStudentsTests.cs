@@ -1,7 +1,7 @@
 using AngleSharp.Dom;
 using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Pages;
-using Harri.SchoolDemoApi.Client;
+using Harri.SchoolDemoAPI.Client;
 using Harri.SchoolDemoAPI.Models.Dto;
 using Moq;
 using MudBlazor.Services;
@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Harri.SchoolDemoAPI.Models.Enums;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
@@ -23,7 +24,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
         private const string ErrorAlertSelector = "#student-error-alert";
 
-        private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
+        private Mock<IStudentApi> _mockStudentApiClient = new Mock<IStudentApi>();
         private List<StudentDto>? _mockExistingStudents;
 
         private List<string?> _expectedSIds = [];
@@ -33,7 +34,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         [SetUp]
         public void SetUp()
         {
-            _mockStudentApiClient = new Mock<IStudentApiClient>();
+            _mockStudentApiClient = new Mock<IStudentApi>();
 
             Services.AddSingleton(_mockStudentApiClient.Object);
             Services.AddMudServices();
@@ -65,10 +66,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
                     GPA = 3.33m
                 }};
 
-            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse())
-                .Returns(Task.FromResult(new RestSharp.RestResponse<List<StudentDto>>(new RestSharp.RestRequest())
+            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), It.IsAny<int?>(), It.IsAny<int?>()))
+                .Returns(Task.FromResult(new RestSharp.RestResponse<PagedList<StudentDto>>(new RestSharp.RestRequest())
                 {
-                    Data = _mockExistingStudents
+                    IsSuccessStatusCode = true,
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = new PagedList<StudentDto>() { Items = _mockExistingStudents, Page = 1, PageSize = 10, TotalCount = 3 }
                 }));
             _expectedSIds = _mockExistingStudents.Select(x => x.SId.ToString()).ToList();
             _expectedNames = _mockExistingStudents.Select(x => x.Name).ToList();
@@ -89,15 +92,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once);
         }
 
         [Test]
         public void ViewStudents_ShowsErrorOnFail()
         {
             // Arrange
-            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse())
-                .Returns(Task.FromResult(new RestSharp.RestResponse<List<StudentDto>>(new RestSharp.RestRequest())
+
+            //
+            _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse(null, null, null, null, null, 1, 15))
+                .Returns(Task.FromResult(new RestSharp.RestResponse<PagedList<StudentDto>>(new RestSharp.RestRequest())
                 {
                     Data = null
                 }));
@@ -108,7 +113,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             studentsPage.WaitForElement(ErrorAlertSelector);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
         }
 
         [Test]
@@ -129,7 +134,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var successAlert = studentsPage.Find(SuccessAlertSelector);
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
         }
 
         [Test]
@@ -150,9 +155,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var successAlert = studentsPage.Find(SuccessAlertSelector);
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
         }
 
+        //TODO refactor and move any required tests into the E2E project
         [TestCase("Test Existing Student")]
         [TestCase("Student")]
         [TestCase("  ")]
@@ -172,75 +178,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
-        }
-
-        [TestCase("1", 1)]
-        [TestCase("1.11", 1)]
-        [TestCase("Test Existing Student 1", 1)]
-        [TestCase("2", 2)]
-        [TestCase("2.22", 2)]
-        [TestCase("Test Existing Student 2", 2)]
-        [TestCase("3", 3)]
-        [TestCase("3.33", 3)]
-        [TestCase("Test Existing Student 3", 3)]
-        public void ViewStudents_SearchFeatureShouldFilterOneStudentCorrectly(string searchString, int expectedStudentId)
-        {
-            // Arrange
-            SetUpMockExistingStudents();
-
-            var studentsPage = RenderComponent<Students>();
-            ShouldSeeExpectedStudentsInGrid(studentsPage);
-
-            // Act
-            var searchField = studentsPage.Find(SearchFieldSelector);
-            searchField.Input(searchString);
-
-            // Assert
-            ShouldSeeOnlyOneStudentInGrid(studentsPage, expectedStudentId);
-
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
-        }
-
-        [TestCase("Test Existing Student 33")]
-        [TestCase("asdfasdf")]
-        public void ViewStudents_SearchFeatureShouldNotMatchAnyStudents(string searchString)
-        {
-            // Arrange
-            SetUpMockExistingStudents();
-
-            var studentsPage = RenderComponent<Students>();
-            ShouldSeeExpectedStudentsInGrid(studentsPage);
-
-            // Act
-            var searchField = studentsPage.Find(SearchFieldSelector);
-            searchField.Input(searchString);
-
-            // Assert
-            ShouldSeeNoStudentsInGrid(studentsPage);
-
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(), Times.Once);
-        }
-
-        private void ShouldSeeNoStudentsInGrid(IRenderedComponent<Students> studentsPage)
-        {
-            var sids = studentsPage.FindAll(IdDataCellsSelector).ToList();
-            var names = studentsPage.FindAll(NameDataCellsSelector).ToList();
-            var gpas = studentsPage.FindAll(GPADataCellsSelector).ToList();
-
-            sids.Should().HaveCount(0);
-            names.Should().HaveCount(0);
-            gpas.Should().HaveCount(0);
-        }
-
-        private void ShouldSeeOnlyOneStudentInGrid(IRenderedComponent<Students> studentsPage, int studentId)
-        {
-            var expectedStudent = _mockExistingStudents?.Find(s => s.SId == studentId);
-            if (expectedStudent == null) throw new ArgumentException($"Invalid test studentId: {studentId}");
-
-            SelectorShouldHaveText(studentsPage, IdDataCellsSelector, [expectedStudent.SId.ToString()]);
-            SelectorShouldHaveText(studentsPage, NameDataCellsSelector, [expectedStudent.Name]);
-            SelectorShouldHaveText(studentsPage, GPADataCellsSelector, [expectedStudent.GPA.ToString()]);
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
         }
 
         private void ShouldSeeExpectedStudentsInGrid(IRenderedComponent<Students> studentsPage)

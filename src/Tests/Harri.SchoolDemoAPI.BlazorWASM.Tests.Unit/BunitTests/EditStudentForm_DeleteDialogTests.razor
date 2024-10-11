@@ -15,7 +15,7 @@
 
     public const string DeleteDialog = ".mud-dialog";
 
-    private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
+    private Mock<IStudentApi> _mockStudentApiClient = new Mock<IStudentApi>();
     private static int TestStudentId = 123;
 
     private IRenderedFragment? _renderedFragment;
@@ -25,7 +25,7 @@
     [SetUp]
     public void SetUp()
     {
-        _mockStudentApiClient = new Mock<IStudentApiClient>();
+        _mockStudentApiClient = new Mock<IStudentApi>();
         Services.AddSingleton(_mockStudentApiClient.Object);
         Services.AddMudServices();
 
@@ -81,17 +81,17 @@
 
     private static IEnumerable<TestCaseData> DeleteStudentTestCases()
     {
-        var successfulDelete = new RestResponse<bool>(new RestRequest())
+        var successfulDelete = new RestResponse(new RestRequest())
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 IsSuccessStatusCode = true
             };
-        var failedDelete = new RestResponse<bool>(new RestRequest())
+        var failedDelete = new RestResponse(new RestRequest())
             {
                 StatusCode = System.Net.HttpStatusCode.InternalServerError,
                 IsSuccessStatusCode = false
             };
-        var failedDeleteConflict = new RestResponse<bool>(new RestRequest())
+        var failedDeleteConflict = new RestResponse(new RestRequest())
             {
                 StatusCode = System.Net.HttpStatusCode.Conflict,
                 IsSuccessStatusCode = false
@@ -102,7 +102,7 @@
     }
 
     [TestCaseSource(nameof(DeleteStudentTestCases))]
-    public async Task EditStudent_DeleteExistingStudent_ShouldDelete(RestResponse<bool> mockedDeleteResponse, bool expectedDisableSubmit, bool expectedShowError, string expectedErrorText, string expectedUriEnding)
+    public async Task EditStudent_DeleteExistingStudent_ShouldDelete(RestResponse mockedDeleteResponse, bool expectedDisableSubmit, bool expectedShowError, string expectedErrorText, string expectedUriEnding)
     {
         // Arrange
         _mockStudentApiClient.Setup(client => client.DeleteStudentRestResponse(It.IsAny<int>()))
@@ -131,7 +131,7 @@
     public async Task EditStudent_DeleteExistingStudent_ShouldCancelCorrectly(bool showError, bool expectedDisableSubmit)
     {
         // Arrange
-        var successfulDelete = new RestResponse<bool>(new RestRequest())
+        var successfulDelete = new RestResponse(new RestRequest())
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 IsSuccessStatusCode = true

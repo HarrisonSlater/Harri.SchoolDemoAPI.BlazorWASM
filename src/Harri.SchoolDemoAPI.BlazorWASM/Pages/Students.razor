@@ -4,7 +4,7 @@
 @using Harri.SchoolDemoAPI.BlazorWASM.Components.Alerts
 @using Harri.SchoolDemoAPI.BlazorWASM.Filters
 @inject NavigationManager NavigationManager
-@inject IStudentApiClient _studentClient
+@inject IStudentApi _studentClient
 
 <PageTitle>Students</PageTitle>
 
@@ -19,19 +19,46 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
-            QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
+    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None 
+        Filterable FilterMode=DataGridFilterMode.ColumnFilterRow >
 
-        <ToolBarContent>
+       @*  <ToolBarContent>
             <MudSpacer />
             <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
                 AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
-        </ToolBarContent>
+        </ToolBarContent> *@
         <Columns>
-            <PropertyColumn Property="x => x.SId" />
-            <PropertyColumn Property="x => x.Name" />
+            <PropertyColumn Property="x => x.SId">
+                <FilterTemplate>
+                    <MudStack Row="true">
+                        <MudTextField T="int?" id="student-search-sid" Value="@SIdSearchInt" ValueChanged="@SIdFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search id"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+                        <MudIconButton Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
+                    </MudStack>
+                </FilterTemplate>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.Name" Title="Name">
+                <FilterTemplate>
+                    <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor#L4 -->
+                    <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor.cs#L89-->
+                    <MudStack Row="true">
+                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search name"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+@* 
+                <MudMenu Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" Dense="true">
+                            <MudMenuItem Style="" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
+                     @foreach (var o in operators)
+                    {
+                        if (!string.IsNullOrWhiteSpace(o))
+                        {
+                            <MudMenuItem Style="@chosenOperatorStyle(o)" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
+                        }
+                    } 
+                </MudMenu> *@
+                        <MudIconButton Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSearchString"></MudIconButton>
+                    </MudStack>
+                </FilterTemplate>
+            </PropertyColumn>
             <PropertyColumn Property="x => x.GPA" />
-            <TemplateColumn CellClass="d-flex justify-end mr-2">
+            <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
                     <MudStack Row>
                         <MudButton Class="student-edit-button" OnClick=@(() => GoToEditStudent(context.Item.SId)) Size=Size.Small Variant=Variant.Filled Color=Color.Primary StartIcon=@Icons.Material.Filled.Edit DisableElevation>Edit</MudButton>
@@ -47,7 +74,7 @@
 </MudContainer>
 
 @code {
-    List<StudentDto>? AllStudents { get; set; }
+    //PagedList<StudentDto>? AllStudents { get; set; }
 
     [Parameter]
     public int? PageNumber { get; set; }
@@ -69,6 +96,27 @@
     internal bool AddSuccessIdToHistory { get; set; }
 
     internal string? SearchString { get; set; }
+    internal int? SIdSearchInt { get; set; }
+
+    internal async Task ClearSearchString() {
+        await NameFilterChanged("");
+    }
+
+    internal async Task ClearSIdSearchString() {
+        await SIdFilterChanged(null);
+    }
+
+    internal async Task NameFilterChanged(string newSearchString) {
+        SearchString = newSearchString;
+
+        await DataGrid?.ReloadServerData();
+    }
+
+    internal async Task SIdFilterChanged(int? newSearchString) {
+        SIdSearchInt = newSearchString;
+
+        await DataGrid?.ReloadServerData();
+    }
 
     private MudDataGrid<StudentDto>? DataGrid;
 
@@ -81,19 +129,10 @@
 
     private bool RegisterEventHandlers { get; set; } = true;
 
-    protected override async Task OnInitializedAsync()
+    private FilterDefinition<string> fd;
+
+    protected override void OnInitialized()
     {
-        var studentsResponse = await _studentClient.GetStudentsRestResponse();
-
-        if (studentsResponse.Data != null)
-        {
-            AllStudents = studentsResponse.Data;
-        }
-        else
-        {
-            ShowError = true;
-        }
-
         Initialized = true;
     }
 
@@ -139,6 +178,38 @@
             }
         }
     }
+
+    //TODO test in unit
+    private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
+    {
+        ShowError = false;
+        var nameFilterValue = SearchString;
+        var sIdFilterValue = SIdSearchInt;
+
+        Console.WriteLine($"filterValue: {nameFilterValue}");
+
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: sIdFilterValue, name: nameFilterValue, page: state.Page + 1, pageSize: state.PageSize);
+
+        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            //TODO show no students found message
+            StateHasChanged();
+            return new GridData<StudentDto>();
+        }
+        if (!studentsResponse.IsSuccessStatusCode)
+        {
+            ShowError = true;
+            StateHasChanged();
+            return new GridData<StudentDto>();
+        }
+
+        return new GridData<StudentDto>()
+            {
+                Items = studentsResponse.Data.Items,
+                TotalItems = studentsResponse.Data.TotalCount
+            };
+    }
+
 
     private string GetQueryString()
     {
