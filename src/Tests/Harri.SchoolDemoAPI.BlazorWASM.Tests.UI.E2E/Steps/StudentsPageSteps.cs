@@ -111,7 +111,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.SearchForStudentBySId(searchString);
         }
 
-        [When("I search for student name {string}")]
+        [When("I search for student with name {string}")]
         public async Task WhenISearchForStudentName(string searchString)
         {
             await _studentsPage.SearchForStudentByName(searchString);

@@ -9,7 +9,7 @@ Scenario: Delete a student
 	When I click delete on the delete dialog
 	Then I should be redirected to the students page
 	And see a success alert for a deleted student
-	When I search for student "Tester Student To Delete"
+	When I search for student with name "Tester Student To Delete"
 	Then The students table should be empty
 
 Scenario: Cancel deleting a student
