@@ -1,8 +1,10 @@
 ﻿namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.TestContext
 {
+    // This is the object for storing test state about a created student
     public class CreatedTestStudent
     {
         private string? studentId;
+        private string? studentName;
 
         public string StudentId { 
             get 
@@ -11,6 +13,15 @@
                 return studentId;
             } 
             set => studentId = value;
+        }
+
+        public string StudentName { 
+            get 
+            {
+                if (studentName is null) throw new ArgumentException("CreatedTestStudent.StudentName has not been set by a previous step");
+                return studentName;
+            } 
+            set => studentName = value;
         }
     }
 }

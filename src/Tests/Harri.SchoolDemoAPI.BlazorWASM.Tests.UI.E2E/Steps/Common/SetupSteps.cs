@@ -48,6 +48,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
             await AStudentExists(name, gpa);
         }
 
+        [Given("A new student with a unique name exists")]
+        public async Task GivenANewStudentWithAUniqueNameExists()
+        {
+            var guidName = Guid.NewGuid().ToString();
+            await AStudentExists(guidName);
+        }
+
         [Given("I am on the edit page for a new student {string}")]
         public async Task GivenIAmOnTheEditPageForANewStudent(string name)
         {
@@ -88,6 +95,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
             await _editStudentPage.CreateNewStudent(name, gpa);
 
             _createdTestStudent.StudentId = await _studentsPage.GetSuccessAlertId();
+            _createdTestStudent.StudentName = name;
         }
 
         public async Task DeleteAStudent(string id)

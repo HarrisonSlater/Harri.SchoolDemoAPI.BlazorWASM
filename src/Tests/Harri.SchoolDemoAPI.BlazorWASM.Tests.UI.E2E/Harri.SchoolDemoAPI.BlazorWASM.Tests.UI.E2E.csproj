@@ -67,4 +67,8 @@
     </SpecFlowFeatureFiles>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Pagination\" />
+  </ItemGroup>
+
 </Project>

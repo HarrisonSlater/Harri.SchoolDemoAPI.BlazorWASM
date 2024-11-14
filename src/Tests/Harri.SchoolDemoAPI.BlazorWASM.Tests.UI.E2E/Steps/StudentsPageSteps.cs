@@ -30,6 +30,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [Given("I see a table full of students")]
+        [Given("I see a table full of students on page 1")]
         [Then("I see a table full of students")]
         [Then("I see a table full of students on page 1")]
         public async Task IShouldSeeATableFullOfStudents()
@@ -117,6 +118,18 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.SearchForStudentByName(searchString);
         }
 
+        [When("I search for the new student by name")]
+        public async Task WhenISearchForTheNewStudentByName()
+        {
+            await _studentsPage.SearchForStudentByName(_createdTestStudent.StudentName);
+        }
+
+        [When("I clear the student name filter")]
+        public async Task WhenIClearTheStudentNameFilter()
+        {
+            await _studentsPage.ClearNameSearch();
+        }
+
         [Then("I should see the updated/same/new student with name {string}")]
         public async Task ThenIShouldSeeTheCorrectStudent(string studentName)
         {
@@ -139,5 +152,26 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
 
             rowData.Should().ContainEquivalentOf(rowTuple);
         }
+
+        [Then("I should see only the updated/same/new student")]
+        public async Task ThenIShouldSeeTheCorrectStudent()
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+            
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, _createdTestStudent.StudentName, null);
+
+            rowData.Should().ContainSingle().And.ContainEquivalentOf(rowTuple);
+        }
+
+        [Then("I should see only students with the name {string}")]
+        public async Task ThenIShouldSeeOnlyStudentsWithTheName(string name)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            rowData.Should().AllSatisfy(x => x.Item2.Should().Contain(name));
+        }
+
     }
 }

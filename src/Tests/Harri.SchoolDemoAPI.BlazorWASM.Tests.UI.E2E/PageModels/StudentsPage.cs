@@ -22,6 +22,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public ILocator StudentSIdSearch => _page.Locator("#student-search-sid");
         public ILocator StudentNameSearch => _page.Locator("#student-search");
+        public ILocator StudentNameSearchClear => _page.Locator("#student-search-clear");
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
         public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
@@ -95,7 +96,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         {
             if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
 
-            await StudentNameSearch.FillAsync(searchString);
+            await Page.RunAndWaitForResponseAsync(() => StudentNameSearch.FillAsync(searchString), r => r.Url.Contains($"students/?name={searchString}"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task ClearNameSearch()
+        {
+            await Page.RunAndWaitForResponseAsync(() => StudentNameSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }

@@ -1,6 +1,6 @@
 ﻿@students
 Feature: View Students
-View all students and individual students
+View all students and individual students, including filtering
 
 Scenario: View different pages of students 
 	Given I am on the students page
@@ -14,7 +14,6 @@ Scenario: View different pages of students
 	When I click first page
 	Then I see page 1 again
 
-
 Scenario Outline: Go directly to a page of students
 	Given I go directly to the students page <page>
 	Then I should be on the students page
@@ -24,3 +23,35 @@ Scenario Outline: Go directly to a page of students
 	| page |
 	| 1    |
 	| 6    |
+
+# Filter scenarios
+@cleanupNewStudent
+Scenario: Filter students by exact name
+	Given A new student with a unique name exists
+	And I am on the students page
+	And I see a table full of students
+	When I search for the new student by name
+	Then I should see only the new student
+
+Scenario: Filter students by partial name
+	Given I am on the students page
+	And I see a table full of students
+	When I search for student with name "Gonzalez"
+	Then I should see only students with the name "Gonzalez"
+
+@cleanupNewStudent
+Scenario: Clear the name filter
+	Given A new student with a unique name exists
+	And I am on the students page
+	And I see a table full of students on page 1
+	When I search for the new student by name
+	Then I should see only the new student
+	When I clear the student name filter
+	Then I see page 1 again
+	
+# todo empty scenario
+
+
+#filter by exact ID
+# filter by id partial
+#Clearing id filter
