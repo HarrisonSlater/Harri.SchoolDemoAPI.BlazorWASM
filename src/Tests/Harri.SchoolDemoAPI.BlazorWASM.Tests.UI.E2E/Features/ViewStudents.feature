@@ -49,9 +49,17 @@ Scenario: Clear the name filter
 	When I clear the student name filter
 	Then I see page 1 again
 	
-# todo empty scenario
-
+Scenario: Enter a student name that does not match any students
+	Given I am on the students page
+	And I see a table full of students on page 1
+	When I search for student with name "a8e37ebe-23c7-4485-ac38-2cf21079b36f"
+	Then The students table should be empty
+	When I clear the student name filter
+	Then I see page 1 again
 
 #filter by exact ID
 # filter by id partial
 #Clearing id filter
+
+
+#Combo filter test
