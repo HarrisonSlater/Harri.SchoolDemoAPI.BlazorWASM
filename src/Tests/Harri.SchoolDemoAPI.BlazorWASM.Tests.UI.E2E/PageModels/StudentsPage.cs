@@ -6,6 +6,8 @@ using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Hooks;
+using System.Security.Policy;
+using System.Web;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 {
@@ -86,7 +88,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
 
             //TODO check hostname, validate this response is from the api and not this app itself
-            await Page.RunAndWaitForResponseAsync(() => StudentSIdSearch.FillAsync(searchString), r => r.Url.Contains($"students/?sId={searchString}"));
+            await Page.RunAndWaitForResponseAsync(() => StudentSIdSearch.FillAsync(searchString), r => r.Url.Contains($"students/?sId={Uri.EscapeDataString(searchString)}"));
 
             //TODO test this when the api is slow
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
@@ -96,7 +98,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         {
             if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
 
-            await Page.RunAndWaitForResponseAsync(() => StudentNameSearch.FillAsync(searchString), r => r.Url.Contains($"students/?name={searchString}"));
+            await Page.RunAndWaitForResponseAsync(() => StudentNameSearch.FillAsync(searchString), r => r.Url.Contains($"students/?name={Uri.EscapeDataString(searchString)}"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
