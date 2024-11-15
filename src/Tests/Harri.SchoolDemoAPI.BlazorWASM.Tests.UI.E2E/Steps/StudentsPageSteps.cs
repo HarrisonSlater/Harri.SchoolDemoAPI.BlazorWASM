@@ -124,6 +124,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.SearchForStudentByName(_createdTestStudent.StudentName);
         }
 
+        [When("I search for the new student by id")]
+        public async Task WhenISearchForTheNewStudentById()
+        {
+            await _studentsPage.SearchForStudentBySId(_createdTestStudent.StudentId);
+        }
+
         [When("I clear the student name filter")]
         public async Task WhenIClearTheStudentNameFilter()
         {

@@ -58,8 +58,18 @@ Scenario: Enter a student name that does not match any students
 	Then I see page 1 again
 
 #filter by exact ID
+
+@cleanupNewStudent
+Scenario: Filter students by exact id
+	Given A new student "Test Student - Filtering ID" exists
+	And I am on the students page
+	And I see a table full of students
+	When I search for the new student by name
+	Then I should see only the new student
+
 # filter by id partial
-#Clearing id filter
+# Clearing id filter
+# empty id results
 
 
 #Combo filter test
