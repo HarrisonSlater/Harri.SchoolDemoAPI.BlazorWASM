@@ -23,8 +23,10 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator GPADataCells => _page.Locator("td[data-label=\"GPA\"]");
 
         public ILocator StudentSIdSearch => _page.Locator("#student-search-sid");
+        public ILocator StudentSIdSearchClear => _page.Locator("#student-search-sid-clear");
         public ILocator StudentNameSearch => _page.Locator("#student-search");
         public ILocator StudentNameSearchClear => _page.Locator("#student-search-clear");
+
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
         public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
@@ -106,6 +108,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public async Task ClearNameSearch()
         {
             await Page.RunAndWaitForResponseAsync(() => StudentNameSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task ClearIdSearch()
+        {
+            await Page.RunAndWaitForResponseAsync(() => StudentSIdSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }

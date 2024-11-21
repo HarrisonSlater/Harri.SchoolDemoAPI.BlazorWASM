@@ -32,7 +32,7 @@
                 <FilterTemplate>
                     <MudStack Row="true">
                         <MudTextField T="int?" id="student-search-sid" Value="@SIdSearchInt" ValueChanged="@SIdFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search id"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
-                        <MudIconButton Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
+                        <MudIconButton id="student-search-sid-clear" Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
                     </MudStack>
                 </FilterTemplate>
             </PropertyColumn>

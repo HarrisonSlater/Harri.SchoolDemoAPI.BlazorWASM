@@ -136,6 +136,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.ClearNameSearch();
         }
 
+        [When("I clear the student id filter")]
+        public async Task WhenIClearTheStudentIdFilter()
+        {
+            await _studentsPage.ClearIdSearch();
+        }
+
         [Then("I should see the updated/same/new student with name {string}")]
         public async Task ThenIShouldSeeTheCorrectStudent(string studentName)
         {
@@ -177,6 +183,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             var rowData = await _studentsPage.GetAllRowData();
 
             rowData.Should().AllSatisfy(x => x.Item2.Should().Contain(name));
+        }
+
+        [Then("I should see only students containing the id {string}")]
+        public async Task ThenIShouldSeeOnlyStudentsContainingTheId(string id)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            rowData.Should().AllSatisfy(x => x.Item1.Should().Contain(id));
         }
 
     }
