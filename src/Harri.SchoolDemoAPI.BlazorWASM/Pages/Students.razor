@@ -19,19 +19,22 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None 
-        Filterable FilterMode=DataGridFilterMode.ColumnFilterRow >
+    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
+                 Filterable FilterMode=DataGridFilterMode.ColumnFilterRow>
 
-       @*  <ToolBarContent>
-            <MudSpacer />
-            <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
-                AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
+        @*  <ToolBarContent>
+        <MudSpacer />
+        <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
+        AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
         </ToolBarContent> *@
         <Columns>
             <PropertyColumn Property="x => x.SId">
                 <FilterTemplate>
                     <MudStack Row="true">
-                        <MudTextField T="int?" id="student-search-sid" Value="@SIdSearchInt" ValueChanged="@SIdFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search id"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
+                        @* Both ValueChanged and OnDebounceIntervalElapsed are needed here to respond to hte input event, for validation and triggering server data reload. if you miss the debounce one, error messages will not be shown correctly
+                            If you miss the value changed one then if you type and press enter/tab faster than the DebounceInterval nothing will happen
+                        *@
+                        <MudTextField T="string" id="student-search-sid" Value="@SIdSearchString" ValueChanged="@SIdFilterChanged" OnDebounceIntervalElapsed="@SIdFilterChanged" ErrorText="Test error" Error="SIdError" FullWidth="true" Margin="@Margin.Dense" DebounceInterval="500.0" Placeholder="Search id" /> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@
                         <MudIconButton id="student-search-sid-clear" Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
                     </MudStack>
                 </FilterTemplate>
@@ -41,18 +44,18 @@
                     <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor#L4 -->
                     <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor.cs#L89-->
                     <MudStack Row="true">
-                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search name"/> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@ 
-@* 
-                <MudMenu Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" Dense="true">
-                            <MudMenuItem Style="" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
-                     @foreach (var o in operators)
-                    {
+                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search name" /> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@
+                        @*
+                        <MudMenu Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" Dense="true">
+                        <MudMenuItem Style="" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
+                        @foreach (var o in operators)
+                        {
                         if (!string.IsNullOrWhiteSpace(o))
                         {
-                            <MudMenuItem Style="@chosenOperatorStyle(o)" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
+                        <MudMenuItem Style="@chosenOperatorStyle(o)" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
                         }
-                    } 
-                </MudMenu> *@
+                        }
+                        </MudMenu> *@
                         <MudIconButton id="student-search-clear" Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSearchString"></MudIconButton>
                     </MudStack>
                 </FilterTemplate>
@@ -70,7 +73,7 @@
             <MudDataGridPager T=StudentDto PageSizeOptions=@(new int[] { 10, 15, 50, 100 }) />
         </PagerContent>
     </MudDataGrid>
-    
+
 </MudContainer>
 
 @code {
@@ -96,27 +99,57 @@
     internal bool AddSuccessIdToHistory { get; set; }
 
     internal string? SearchString { get; set; }
+    internal string? SIdSearchString { get; set; }
     internal int? SIdSearchInt { get; set; }
+    internal bool SIdError { get; set; }
+    //internal MudTextField<string>? SIdSearchStringRef { get; set; }
 
-    internal async Task ClearSearchString() {
+
+    internal int? ParseInt(string str) //TODO Move to helper
+    {
+        int i;
+        if (int.TryParse(str, out i))
+        {
+            return i;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    internal async Task ClearSearchString()
+    {
         await NameFilterChanged("");
     }
 
-    internal async Task ClearSIdSearchString() {
+    internal async Task ClearSIdSearchString()
+    {
         await SIdFilterChanged(null);
     }
 
-    internal async Task NameFilterChanged(string newSearchString) {
+    internal async Task NameFilterChanged(string newSearchString)
+    {
         SearchString = newSearchString;
 
         await DataGrid?.ReloadServerData();
     }
 
-    internal async Task SIdFilterChanged(int? newSearchString) {
-        SIdSearchInt = newSearchString;
+    internal async Task SIdFilterChanged(string newSearchString)
+    {
+        SIdSearchString = newSearchString;
+        SIdSearchInt = ParseInt(newSearchString);
+        if (SIdSearchInt is null && !string.IsNullOrEmpty(newSearchString))
+        {
+            SIdError = true;
+            return; // Don't reset input field when typing text by accident
+        }
+
+        SIdError = false;
 
         await DataGrid?.ReloadServerData();
     }
+
 
     private MudDataGrid<StudentDto>? DataGrid;
 
@@ -128,8 +161,6 @@
     private bool ParametersSet { get; set; }
 
     private bool RegisterEventHandlers { get; set; } = true;
-
-    private FilterDefinition<string> fd;
 
     protected override void OnInitialized()
     {
@@ -160,7 +191,7 @@
         NavigationManager.NavigateTo($"/students/{sid}", replace: false);
     }
 
-    private void PagerStateChanged() 
+    private void PagerStateChanged()
     {
         if (DataGrid is not null && Initialized && ParametersSet)
         {
