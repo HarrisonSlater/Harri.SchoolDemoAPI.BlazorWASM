@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Harri.SchoolDemoAPI.Models.Enums;
+using Bunit.Extensions;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
@@ -212,8 +213,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            //_mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
-
             studentsPage.WaitForAssertion(() => {
                 _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), null, null, null, null, 1, 15), Times.Exactly(2));
             });
@@ -225,6 +224,40 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             studentsPage.Instance.SIdSearchString.Should().Be(searchString);
         }
 
+        [TestCase("invalid")]
+        [TestCase("101f")]
+        [TestCase("10 1")]
+        public void ViewStudents_SearchFeature_ShouldHaveErrors_WhenFilteringBySId(string invalidSearchString)
+        {
+            // Arrange
+            SetUpMockExistingStudents();
+
+            var studentsPage = RenderComponent<Students>();
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            // Act
+            var searchField = studentsPage.Find(StudentSearchSIdSelector);
+            searchField.Input(invalidSearchString);
+
+            // Assert
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            studentsPage.WaitForAssertion(() => {
+                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), null, null, null, null, 1, 15), Times.Exactly(1));
+            });
+
+            studentsPage.WaitForState(() => studentsPage.Instance.SIdError);
+
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+
+            studentsPage.Instance.SIdError.Should().BeTrue();
+            studentsPage.FindAll(ErrorInputsSelector).Should().ContainSingle();
+            studentsPage.Instance.SIdSearchInt.Should().BeNull();
+            studentsPage.Instance.SIdSearchString.Should().Be(invalidSearchString);
+
+            //TOdo assert error message
+        }
 
         private void ShouldSeeExpectedStudentsInGrid(IRenderedComponent<Students> studentsPage)
         {
