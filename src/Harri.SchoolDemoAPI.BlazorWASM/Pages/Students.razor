@@ -34,7 +34,7 @@
                         @* Both ValueChanged and OnDebounceIntervalElapsed are needed here to respond to hte input event, for validation and triggering server data reload. if you miss the debounce one, error messages will not be shown correctly
                             If you miss the value changed one then if you type and press enter/tab faster than the DebounceInterval nothing will happen
                         *@
-                        <MudTextField T="string" id="student-search-sid" Value="@SIdSearchString" ValueChanged="@SIdFilterChanged" OnDebounceIntervalElapsed="@SIdFilterChanged" ErrorText="Test error" FullWidth="true" Margin="@Margin.Dense" DebounceInterval="500.0" Placeholder="Search id" /> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@
+                        <MudTextField T="string" id="student-search-sid" Value="@SIdSearchString" ValueChanged="@SIdFilterChanged" OnDebounceIntervalElapsed="@SIdFilterChanged" ErrorText="Test error" FullWidth="true" Error="@SIdError" Margin="@Margin.Dense" DebounceInterval="500.0" Placeholder="Search id" /> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@
                         <MudIconButton id="student-search-sid-clear" Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
                     </MudStack>
                 </FilterTemplate>
