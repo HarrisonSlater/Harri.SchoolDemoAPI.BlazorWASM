@@ -20,7 +20,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         public const string IdDataCellsSelector = "td[data-label=\"SId\"]";
         public const string NameDataCellsSelector = "td[data-label=\"Name\"]";
         public const string GPADataCellsSelector = "td[data-label=\"GPA\"]";
-        public const string SearchFieldSelector = "#student-search";
+
+        public const string StudentSearchNameSelector = "#student-search";
+        public const string StudentSearchNameSelectorClear = "#student-search";
+
+        public const string StudentSearchSIdSelector = "#student-search-sid";
+        public const string StudentSearchSIdSelectorClear = "#student-search-sid";
+
+        private const string ErrorInputsSelector = ".mud-input-control.mud-input-error";
 
         private const string ErrorAlertSelector = "#student-error-alert";
 
@@ -158,9 +165,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
         }
 
-        //TODO refactor and move any required tests into the E2E project
         [TestCase("Test Existing Student")]
-        [TestCase("Student")]
         [TestCase("  ")]
         [TestCase("")]
         public void ViewStudents_SearchFeatureShouldMatchAllStudents(string searchString)
@@ -172,14 +177,54 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
             // Act
-            var searchField = studentsPage.Find(SearchFieldSelector);
+            var searchField = studentsPage.Find(StudentSearchNameSelector);
             searchField.Input(searchString);
 
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
+            studentsPage.WaitForAssertion(() =>
+            {
+                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Exactly(2));
+            });
+
+            studentsPage.Instance.SearchString.Should().Be(searchString);
         }
+
+        //Search feature input validation
+        [TestCase("10", 10)]
+        [TestCase("1024", 1024)]
+        [TestCase("", null)]
+        [TestCase(" ", null)]
+        public void ViewStudents_SearchFeature_ShouldHaveNoErrors_WhenFilteringBySId(string searchString, int? parsedInt)
+        {
+            // Arrange
+            SetUpMockExistingStudents();
+
+            var studentsPage = RenderComponent<Students>();
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            // Act
+            var searchField = studentsPage.Find(StudentSearchSIdSelector);
+            searchField.Input(searchString);
+            //searchField.Change(searchString);
+
+            // Assert
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            //_mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
+
+            studentsPage.WaitForAssertion(() => {
+                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), null, null, null, null, 1, 15), Times.Exactly(2));
+            });
+
+            ShouldSeeExpectedStudentsInGrid(studentsPage);
+
+            studentsPage.FindAll(ErrorInputsSelector).Should().BeEmpty();
+            studentsPage.Instance.SIdSearchInt.Should().Be(parsedInt);
+            studentsPage.Instance.SIdSearchString.Should().Be(searchString);
+        }
+
 
         private void ShouldSeeExpectedStudentsInGrid(IRenderedComponent<Students> studentsPage)
         {

@@ -50,6 +50,8 @@ Scenario: Enter a student name that does not match any students
 	When I clear the student name filter
 	Then I see page 1 again
 
+#TODO name length validation?
+
 # SId
 @cleanupNewStudent
 Scenario: Filter students by exact id
@@ -77,5 +79,5 @@ Scenario: Enter a student ID that does not match any students
 	When I clear the student id filter
 	Then I see page 1 again
 
-#TODO Filter input errors
+#TODO Filter input errors plus unit
 #Combo filter test
