@@ -13,6 +13,8 @@
             public static string InvalidStudentId(string id) => $"Student with ID '{id}' does not exist";
 
             public static string ErrorText => "Failed to retrieve students. Please refresh the page.";
+            public static string SIdFilterErrorText => "Invalid SId. SId must be a number";
+
         }
 
         public static class EditStudentForm
