@@ -77,8 +77,6 @@
 </MudContainer>
 
 @code {
-    //PagedList<StudentDto>? AllStudents { get; set; }
-
     [Parameter]
     public int? PageNumber { get; set; }
 
@@ -103,21 +101,6 @@
     internal string? SIdSearchString { get; set; }
     internal int? SIdSearchInt { get; set; }
     internal bool SIdError { get; set; }
-    //internal MudTextField<string>? SIdSearchStringRef { get; set; }
-
-
-    internal int? ParseInt(string str) //TODO Move to helper
-    {
-        int i;
-        if (int.TryParse(str, out i))
-        {
-            return i;
-        }
-        else
-        {
-            return null;
-        }
-    }
 
     internal async Task ClearSearchString()
     {
@@ -139,7 +122,7 @@
     internal async Task SIdFilterChanged(string newSearchString)
     {
         SIdSearchString = newSearchString;
-        SIdSearchInt = ParseInt(newSearchString);
+        SIdSearchInt = InputHelper.ParseInt(newSearchString);
         if (SIdSearchInt is null && !string.IsNullOrWhiteSpace(newSearchString))
         {
             SIdError = true;
@@ -150,7 +133,6 @@
 
         await DataGrid?.ReloadServerData();
     }
-
 
     private MudDataGrid<StudentDto>? DataGrid;
 
@@ -236,10 +218,10 @@
         }
 
         return new GridData<StudentDto>()
-            {
-                Items = studentsResponse.Data.Items,
-                TotalItems = studentsResponse.Data.TotalCount
-            };
+        {
+            Items = studentsResponse.Data.Items,
+            TotalItems = studentsResponse.Data.TotalCount
+        };
     }
 
 
