@@ -252,11 +252,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
 
             studentsPage.Instance.SIdError.Should().BeTrue();
-            studentsPage.FindAll(ErrorInputsSelector).Should().ContainSingle();
+
+            var errorMessages = studentsPage.FindAll(ErrorInputsSelector);
+            errorMessages.Should().ContainSingle();
+            errorMessages.Single().Text().Should().Be(Text.StudentsPage.SIdFilterErrorText);
+
             studentsPage.Instance.SIdSearchInt.Should().BeNull();
             studentsPage.Instance.SIdSearchString.Should().Be(invalidSearchString);
-
-            //TOdo assert error message
         }
 
         private void ShouldSeeExpectedStudentsInGrid(IRenderedComponent<Students> studentsPage)
