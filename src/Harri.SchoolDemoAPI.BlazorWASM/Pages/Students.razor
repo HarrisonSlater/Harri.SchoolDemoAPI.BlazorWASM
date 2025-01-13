@@ -98,9 +98,11 @@
 
     internal string? SearchString { get; set; }
 
+    //TODO refactor into separate component
     internal string? SIdSearchString { get; set; }
     internal int? SIdSearchInt { get; set; }
     internal bool SIdError { get; set; }
+    //internal bool SIdErrorMessage { get; set; }
 
     internal async Task ClearSearchString()
     {
@@ -123,10 +125,14 @@
     {
         SIdSearchString = newSearchString;
         SIdSearchInt = InputHelper.ParseInt(newSearchString);
-        if (SIdSearchInt is null && !string.IsNullOrWhiteSpace(newSearchString))
+        if (!string.IsNullOrWhiteSpace(newSearchString))
         {
-            SIdError = true;
-            return; // Don't reset input field when typing text by accident
+            if (SIdSearchInt is null)
+            {
+                SIdError = true;
+                return; // Don't reset input field when typing text by accident
+            }
+            //TODO refactor SID filter into separate component and bind iwht model with validation atttributes to automatically handle aerrors
         }
 
         SIdError = false;
