@@ -2,6 +2,7 @@
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Filters
 {
+    [Obsolete]
     public static class StudentDtoFilter
     {
         public static Func<StudentDto, bool> QuickFilterFor(string? searchString) => x =>
