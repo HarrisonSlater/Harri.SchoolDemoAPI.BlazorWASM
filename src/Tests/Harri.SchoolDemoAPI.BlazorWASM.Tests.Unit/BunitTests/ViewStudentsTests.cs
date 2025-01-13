@@ -226,6 +226,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
         [TestCase("invalid")]
         [TestCase("101f")]
+        [TestCase("-1")] //TODO negative fail case
         [TestCase("10 1")]
         public void ViewStudents_SearchFeature_ShouldHaveErrors_WhenFilteringBySId(string invalidSearchString)
         {
