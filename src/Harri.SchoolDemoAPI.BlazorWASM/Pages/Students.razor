@@ -29,36 +29,8 @@
         </ToolBarContent> *@
         <Columns>
             <PropertyColumn Property="x => x.SId">
-                <FilterTemplate>
-                    <MudStack Row="true">
-                        @* Both ValueChanged and OnDebounceIntervalElapsed are needed here to respond to hte input event, for validation and triggering server data reload. if you miss the debounce one, error messages will not be shown correctly
-                            If you miss the value changed one then if you type and press enter/tab faster than the DebounceInterval nothing will happen
-                        *@
-                        <MudTextField T="string" id="student-search-sid" Value="@SIdSearchString" ValueChanged="@SIdFilterChanged" OnDebounceIntervalElapsed="@SIdFilterChanged" ErrorText="@Text.StudentsPage.SIdFilterErrorText" FullWidth="true" Error="@SIdError" Margin="@Margin.Dense" DebounceInterval="500.0" Placeholder="Search id" /> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@
-                        <MudIconButton id="student-search-sid-clear" Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSIdSearchString"></MudIconButton>
-                    </MudStack>
-                </FilterTemplate>
             </PropertyColumn>
             <PropertyColumn Property="x => x.Name" Title="Name">
-                <FilterTemplate>
-                    <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor#L4 -->
-                    <!-- https://github.com/MudBlazor/MudBlazor/blob/24c0c4b1dcd358e7ce071c1b14eab751a91632df/src/MudBlazor/Components/DataGrid/FilterHeaderCell.razor.cs#L89-->
-                    <MudStack Row="true">
-                        <MudTextField T="string" id="student-search" Value="@SearchString" ValueChanged="@NameFilterChanged" FullWidth="true" Margin="@Margin.Dense" Immediate="true" DebounceInterval="500.0" Placeholder="Search name" /> @* ValueChanged="@StringValueChangedAsync"Placeholder="@Localizer[LanguageResource.MudDataGrid_FilterValue]" *@
-                        @*
-                        <MudMenu Icon="@Icons.Material.Filled.FilterAlt" Size="@Size.Small" Dense="true">
-                        <MudMenuItem Style="" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
-                        @foreach (var o in operators)
-                        {
-                        if (!string.IsNullOrWhiteSpace(o))
-                        {
-                        <MudMenuItem Style="@chosenOperatorStyle(o)" OnClick="@(async () => await ChangeOperatorAsync(o))">@Localizer[FilterOperator.GetTranslationKeyByOperatorName(o)]</MudMenuItem>
-                        }
-                        }
-                        </MudMenu> *@
-                        <MudIconButton id="student-search-clear" Class="align-self-center" Icon="@Icons.Material.Filled.FilterAltOff" Size="@Size.Small" OnClick="@ClearSearchString"></MudIconButton>
-                    </MudStack>
-                </FilterTemplate>
             </PropertyColumn>
             <PropertyColumn Property="x => x.GPA" />
             <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
@@ -203,10 +175,18 @@
     private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
         ShowError = false;
-        var nameFilterValue = SearchString;
-        var sIdFilterValue = SIdSearchInt;
+        var nameFilter= state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "Name");
+        var sIdFilter= state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "SId");
 
-        Console.WriteLine($"filterValue: {nameFilterValue}");
+        var nameFilterValueType = nameFilter?.Value?.GetType();
+        var sIdFilterValueType = sIdFilter?.Value?.GetType();
+        Console.WriteLine($"nameFilterValueType {nameFilterValueType}");
+        Console.WriteLine($"sIdFilterValueType  {sIdFilterValueType}");
+
+        var nameFilterValue = (string?)nameFilter?.Value;
+        int? sIdFilterValue = sIdFilter?.Value == null ? null : Convert.ToInt32((double?)sIdFilter?.Value); //All defaults filters tread any number as a double
+
+        Console.WriteLine($"filterValue: {nameFilter?.Value}");
 
         var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: sIdFilterValue, name: nameFilterValue, page: state.Page + 1, pageSize: state.PageSize);
 
