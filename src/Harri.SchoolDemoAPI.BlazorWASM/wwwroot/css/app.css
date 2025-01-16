@@ -105,12 +105,11 @@ code {
 
 /* Overrides to disable the default datagrid filter buttons (which are not used) */
 /* It would be better to not render these components at all but that requires a custom mud blazor FilterTemplate which is not a simple solution */
-
-.mud-data-grid .mud-table-head .mud-table-row .mud-input-numeric-spin {
+.mud-data-grid .mud-table-head .mud-table-row .filter-disable-operators .mud-input-numeric-spin {
     display: none !important;
 }
 
-.mud-data-grid .mud-table-head .mud-table-row .mud-menu {
+.mud-data-grid .mud-table-head .mud-table-row .filter-disable-operators .mud-menu {
     display: none !important;
 }
 
