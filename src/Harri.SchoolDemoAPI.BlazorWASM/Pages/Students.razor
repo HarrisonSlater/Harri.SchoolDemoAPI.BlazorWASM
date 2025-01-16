@@ -30,7 +30,7 @@
         <Columns>
             <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" />
             <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" />
-            <PropertyColumn Property="x => x.GPA" />
+            <PropertyColumn Property="x => x.GPA" FilterOperators=GPAFilterOperators/>
             <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
                     <MudStack Row>
@@ -65,6 +65,14 @@
     public int CurrentPage { get; set; }
 
     internal bool AddSuccessIdToHistory { get; set; }
+
+    public static HashSet<string> GPAFilterOperators = new HashSet<string>()
+    {
+        FilterOperator.Number.GreaterThan,
+        FilterOperator.Number.Equal,
+        FilterOperator.Number.LessThan,
+        FilterOperator.Number.Empty
+    };
 
     //internal string? SearchString { get; set; }
 
