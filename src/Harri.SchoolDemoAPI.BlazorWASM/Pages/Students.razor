@@ -3,6 +3,8 @@
 @page "/students/page/{PageNumber:int}"
 @using Harri.SchoolDemoAPI.BlazorWASM.Components.Alerts
 @using Harri.SchoolDemoAPI.BlazorWASM.Filters
+@using System.Text.Json
+@using System.Text.Json.Nodes
 @inject NavigationManager NavigationManager
 @inject IStudentApi _studentClient
 
@@ -13,7 +15,7 @@
 
     @if (ShowError)
     {
-        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.StudentsPage.ErrorText</MudAlert>
+        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorMessage</MudAlert>
     }
     <StudentAlert Severity=Severity.Success id="student-success-alert" Class="mb-4" Message=Text.StudentsPage.SuccessMessage StudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
@@ -28,7 +30,7 @@
         AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
         </ToolBarContent> *@
         <Columns>
-            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" />
+            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" /> @* TODO remove css disable here? *@
             <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" />
             <PropertyColumn Property="x => x.GPA" FilterOperators=GPAFilterOperators/>
             <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
@@ -61,6 +63,9 @@
     public string? DeleteStudentIdAlert { get; set; }
 
     internal bool ShowError { get; set; }
+    internal string ErrorMessage { get; set; } = DefaultErrorMessage;
+
+    private static string DefaultErrorMessage => Text.StudentsPage.ErrorText;
 
     public int CurrentPage { get; set; }
 
@@ -84,20 +89,20 @@
     */
     //internal bool SIdErrorMessage { get; set; }
 
-        /*
-        internal async Task ClearSearchString()
-        {
-        await NameFilterChanged("");
-        }
+    /*
+    internal async Task ClearSearchString()
+    {
+    await NameFilterChanged("");
+    }
 
-        internal async Task ClearSIdSearchString()
-        {
-        await SIdFilterChanged(null);
+    internal async Task ClearSIdSearchString()
+    {
+    await SIdFilterChanged(null);
     }
 
     internal async Task NameFilterChanged(string newSearchString)
-    {
-    SearchString = newSearchString;
+        {
+        SearchString = newSearchString;
 
         await DataGrid?.ReloadServerData();
         }
@@ -105,20 +110,20 @@
         internal async Task SIdFilterChanged(string newSearchString)
         {
         SIdSearchString = newSearchString;
-            SIdSearchInt = InputHelper.ParseInt(newSearchString);
-                if (!string.IsNullOrWhiteSpace(newSearchString))
-                {
-                if (SIdSearchInt is null)
-                {
-                SIdError = true;
-                return; // Don't reset input field when typing text by accident
-            }
-            //TODO refactor SID filter into separate component and bind iwht model with validation atttributes to automatically handle aerrors
-        }
+        SIdSearchInt = InputHelper.ParseInt(newSearchString);
+        if (!string.IsNullOrWhiteSpace(newSearchString))
+        {
+        if (SIdSearchInt is null)
+        {
+        SIdError = true;
+        return; // Don't reset input field when typing text by accident
+    }
+    //TODO refactor SID filter into separate component and bind iwht model with validation atttributes to automatically handle aerrors
+    }
 
-        SIdError = false;
+    SIdError = false;
 
-        await DataGrid?.ReloadServerData();
+    await DataGrid?.ReloadServerData();
     }
     */
 
@@ -194,7 +199,7 @@
         var gpaFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "GPA");
 
         var filterContext1 = sIdFilter?.Column?.FilterContext;
-        
+
         //sIdFilter.Column.
         /*
         var nameFilterValueType = nameFilter?.Value?.GetType();
@@ -209,7 +214,9 @@
 
         Console.WriteLine($"filterValue: {nameFilter?.Value}");
 
-        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: ParsedSIdFilter, name: ParsedNameFilter, gpaQuery: new GPAQueryDto() { GPA = new() { Gt = ParsedGPAFilter } }, page: state.Page + 1, pageSize: state.PageSize);
+        //TODO operators
+        var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = ParsedGPAFilter } };
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: ParsedSIdFilter, name: ParsedNameFilter, gpaQuery: ParsedGPAFilter is null ? null : gpaQuery, page: state.Page + 1, pageSize: state.PageSize);
 
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -217,14 +224,26 @@
             StateHasChanged();
             return new GridData<StudentDto>();
         }
+        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        {
+            //Parse error text programatically,  TODO update rest client + api response types
+            Console.WriteLine(studentsResponse.Content);
+            var error = JsonNode.Parse(studentsResponse.Content);
+            ShowError = true;
+            ErrorMessage = error["errors"]?.ToJsonString(); // TODO Needs error message content from rest api / local validation
+            StateHasChanged();
+            return new GridData<StudentDto>();
+        }
         if (!studentsResponse.IsSuccessStatusCode)
         {
-            var filterContext = sIdFilter?.Column?.FilterContext;
+            //var filterContext = sIdFilter?.Column?.FilterContext;
             ShowError = true;
+            ErrorMessage = DefaultErrorMessage;
             StateHasChanged();
             return new GridData<StudentDto>();
         }
 
+        ShowError = false;
         return new GridData<StudentDto>()
         {
             Items = studentsResponse.Data.Items,

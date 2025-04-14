@@ -11,6 +11,10 @@ using System.Linq;
 using System;
 using Harri.SchoolDemoAPI.Models.Enums;
 using Bunit.Extensions;
+using Bunit;
+using Harri.SchoolDemoAPI.BlazorWASM.Layout;
+using MudBlazor.Interop;
+using MudBlazor;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
@@ -46,11 +50,24 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient = new Mock<IStudentApi>();
 
             Services.AddSingleton(_mockStudentApiClient.Object);
-            Services.AddMudServices();
 
-            JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
+            Services.AddMudServices();
+            JSInterop.Mode = JSRuntimeMode.Loose; // Ignores mudblazor JS calls
+
+            /*JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
             JSInterop.SetupVoid("mudPopover.connect", _ => true);
             JSInterop.SetupVoid("mudPopover.initialize", _ => true);
+            */
+
+            /*
+            JSInterop.SetupVoid("mudElementRef.getBoundingClientRect", _ => true);
+            JSInterop.Setup<BoundingClientRect>("mudElementRef.getBoundingClientRect", _ => true);
+            JSInterop.Setup<int>("mudpopoverHelper.countProviders");
+            JSInterop.SetupVoid("watchDarkThemeMedia", _ => true);
+            */
+
+
+            TestContext!.RenderTree.Add<MainLayout>();
         }
 
         private List<StudentDto>? SetUpMockExistingStudents()
@@ -101,7 +118,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once);
+            VerifyDefaultGetStudentsRestResponseCalled();
         }
 
         [Test]
@@ -122,7 +139,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             studentsPage.WaitForElement(ErrorAlertSelector);
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
+            VerifyDefaultGetStudentsRestResponseCalled();
         }
 
         [Test]
@@ -143,7 +160,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var successAlert = studentsPage.Find(SuccessAlertSelector);
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
+            VerifyDefaultGetStudentsRestResponseCalled();
         }
 
         [Test]
@@ -164,7 +181,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             var successAlert = studentsPage.Find(SuccessAlertSelector);
             successAlert.TextContent.Should().Contain(studentSuccessId.ToString());
 
-            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(null, null, null, null, null, 1, 15), Times.Once);
+            VerifyDefaultGetStudentsRestResponseCalled();
         }
 
         [TestCase("Test Existing Student")]
@@ -198,7 +215,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         [TestCase("1024", 1024)]
         [TestCase("", null)]
         [TestCase(" ", null)]
-        public void ViewStudents_SearchFeature_ShouldHaveNoErrors_WhenFilteringBySId(string searchString, int? parsedInt)
+        public void ViewStudents_SearchFeature_ShouldFilterBySId(string searchString, int? parsedInt)
         {
             // Arrange
             SetUpMockExistingStudents();
@@ -215,7 +232,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
             studentsPage.WaitForAssertion(() => {
-                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), null, null, null, null, 1, 15), Times.Exactly(2));
+                VerifyDefaultGetStudentsRestResponseCalled(Times.Exactly(2));
             });
 
             ShouldSeeExpectedStudentsInGrid(studentsPage);
@@ -225,10 +242,16 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             studentsPage.Instance.ParsedSIdFilter.Should().Be(parsedInt);
         }
 
-        [TestCase("invalid")]
-        [TestCase("101f")]
+        // Impossible input test cases, auto corrected, no error
+        //[TestCase("", null)]
+        //[TestCase(" ", null)]
+        //[TestCase("10 1")]
+        //[TestCase("invalid")]
+        //[TestCase("101f")]
+        //[TestCase("-1")] //TODO negative fail case
+
+        // Error message is shown
         [TestCase("-1")] //TODO negative fail case
-        [TestCase("10 1")]
         public void ViewStudents_SearchFeature_ShouldHaveErrors_WhenFilteringBySId(string invalidSearchString)
         {
             // Arrange
@@ -245,7 +268,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             ShouldSeeExpectedStudentsInGrid(studentsPage);
 
             studentsPage.WaitForAssertion(() => {
-                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), null, null, null, null, 1, 15), Times.Exactly(1));
+                VerifyDefaultGetStudentsRestResponseCalled();
             });
 
             //studentsPage.WaitForState(() => studentsPage.Instance.DataGrid.FilterDefinitions.Any(x => x.Column.FilterContext.));
@@ -263,6 +286,15 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             studentsPage.Instance.ParsedSIdFilter.Should().BeNull();
             // TODO
             //studentsPage.Instance.ParsedNameFilter.Should().Be(invalidSearchString);
+        }
+
+
+
+        private void VerifyDefaultGetStudentsRestResponseCalled(Times? times = null)
+        {
+            if (times is null) times = Times.Once();
+
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), null, null, null, null, 1, 15), times.Value);
         }
 
         private void ShouldSeeExpectedStudentsInGrid(IRenderedComponent<Students> studentsPage)
