@@ -40,6 +40,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             Services.AddMudServices();
 
             JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
+            JSInterop.SetupVoid("mudKeyInterceptor.disconnect", _ => true);
             JSInterop.SetupVoid("mudPopover.connect", _ => true);
             JSInterop.SetupVoid("mudPopover.initialize", _ => true);
         }
