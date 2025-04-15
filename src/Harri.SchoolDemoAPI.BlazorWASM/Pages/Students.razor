@@ -23,12 +23,6 @@
 
     <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
                  Filterable FilterMode=DataGridFilterMode.ColumnFilterRow>
-
-        @*  <ToolBarContent>
-        <MudSpacer />
-        <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
-        AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
-        </ToolBarContent> *@
         <Columns>
             <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" /> @* TODO remove css disable here? enable numeric spin?*@
             <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" />
@@ -78,54 +72,6 @@
         FilterOperator.Number.LessThan,
         FilterOperator.Number.Empty
     };
-
-    //internal string? SearchString { get; set; }
-
-    //TODO refactor into separate component
-    /*
-    internal string? SIdSearchString { get; set; }
-    internal int? SIdSearchInt { get; set; }
-    internal bool SIdError { get; set; }
-    */
-    //internal bool SIdErrorMessage { get; set; }
-
-    /*
-    internal async Task ClearSearchString()
-    {
-    await NameFilterChanged("");
-    }
-
-    internal async Task ClearSIdSearchString()
-    {
-    await SIdFilterChanged(null);
-    }
-
-    internal async Task NameFilterChanged(string newSearchString)
-        {
-        SearchString = newSearchString;
-
-        await DataGrid?.ReloadServerData();
-        }
-
-        internal async Task SIdFilterChanged(string newSearchString)
-        {
-        SIdSearchString = newSearchString;
-        SIdSearchInt = InputHelper.ParseInt(newSearchString);
-        if (!string.IsNullOrWhiteSpace(newSearchString))
-        {
-        if (SIdSearchInt is null)
-        {
-        SIdError = true;
-        return; // Don't reset input field when typing text by accident
-    }
-    //TODO refactor SID filter into separate component and bind iwht model with validation atttributes to automatically handle aerrors
-    }
-
-    SIdError = false;
-
-    await DataGrid?.ReloadServerData();
-    }
-    */
 
     internal MudDataGrid<StudentDto>? DataGrid;
 
@@ -201,7 +147,6 @@
         ParsedSIdFilter = sIdFilter?.Value == null ? null : Convert.ToInt32((double?)sIdFilter?.Value); //All defaults MudBlazor filters treat any number as a double
         ParsedGPAFilter = gpaFilter?.Value == null ? null : Convert.ToDecimal((double?)gpaFilter?.Value); 
 
-        //Console.WriteLine($"filterValue: {nameFilter?.Value}");
 
         //TODO operators
         var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = ParsedGPAFilter } };
@@ -225,7 +170,6 @@
         }
         if (!studentsResponse.IsSuccessStatusCode)
         {
-            //var filterContext = sIdFilter?.Column?.FilterContext;
             ShowError = true;
             ErrorMessage = DefaultErrorMessage;
             StateHasChanged();
