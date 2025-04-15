@@ -30,9 +30,9 @@
         AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
         </ToolBarContent> *@
         <Columns>
-            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" /> @* TODO remove css disable here? *@
+            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" /> @* TODO remove css disable here? enable numeric spin?*@
             <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" />
-            <PropertyColumn Property="x => x.GPA" FilterOperators=GPAFilterOperators/>
+            <PropertyColumn Property="x => x.GPA" Class="filter-input-gpa" FilterOperators=GPAFilterOperators />
             <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
                     <MudStack Row>
@@ -190,29 +190,18 @@
     internal int? ParsedSIdFilter { get; set; }
     internal decimal? ParsedGPAFilter { get; set; }
 
-    //TODO test in unit
-    private async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
+    internal async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
         ShowError = false;
         var nameFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "Name");
         var sIdFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "SId");
         var gpaFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "GPA");
 
-        var filterContext1 = sIdFilter?.Column?.FilterContext;
-
-        //sIdFilter.Column.
-        /*
-        var nameFilterValueType = nameFilter?.Value?.GetType();
-        var sIdFilterValueType = sIdFilter?.Value?.GetType();
-        Console.WriteLine($"nameFilterValueType {nameFilterValueType}");
-        Console.WriteLine($"sIdFilterValueType  {sIdFilterValueType}");
-        */
-
         ParsedNameFilter = (string?)nameFilter?.Value;
         ParsedSIdFilter = sIdFilter?.Value == null ? null : Convert.ToInt32((double?)sIdFilter?.Value); //All defaults MudBlazor filters treat any number as a double
         ParsedGPAFilter = gpaFilter?.Value == null ? null : Convert.ToDecimal((double?)gpaFilter?.Value); 
 
-        Console.WriteLine($"filterValue: {nameFilter?.Value}");
+        //Console.WriteLine($"filterValue: {nameFilter?.Value}");
 
         //TODO operators
         var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = ParsedGPAFilter } };
@@ -250,7 +239,6 @@
             TotalItems = studentsResponse.Data.TotalCount
         };
     }
-
 
     private string GetQueryString()
     {
