@@ -132,25 +132,17 @@
         }
     }
 
-    internal string? ParsedNameFilter { get; set; }
-    internal int? ParsedSIdFilter { get; set; }
-    internal decimal? ParsedGPAFilter { get; set; }
+    internal StudentSearchFilters? Filters { get; set; } 
 
     internal async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
     {
         ShowError = false;
-        var nameFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "Name");
-        var sIdFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "SId");
-        var gpaFilter = state.FilterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "GPA");
 
-        ParsedNameFilter = (string?)nameFilter?.Value;
-        ParsedSIdFilter = sIdFilter?.Value == null ? null : Convert.ToInt32((double?)sIdFilter?.Value); //All defaults MudBlazor filters treat any number as a double
-        ParsedGPAFilter = gpaFilter?.Value == null ? null : Convert.ToDecimal((double?)gpaFilter?.Value); 
-
+        Filters = new StudentSearchFilters(state.FilterDefinitions);
 
         //TODO operators
-        var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = ParsedGPAFilter } };
-        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: ParsedSIdFilter, name: ParsedNameFilter, gpaQuery: ParsedGPAFilter is null ? null : gpaQuery, page: state.Page + 1, pageSize: state.PageSize);
+        var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = Filters.ParsedGPAFilter } };
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: Filters.ParsedSIdFilter, name: Filters.ParsedNameFilter, gpaQuery: Filters.ParsedGPAFilter is null ? null : gpaQuery, page: state.Page + 1, pageSize: state.PageSize);
 
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -179,7 +171,7 @@
         ShowError = false;
         return new GridData<StudentDto>()
         {
-            Items = studentsResponse.Data.Items,
+            Items = studentsResponse.Data.Items, //TODO check data length
             TotalItems = studentsResponse.Data.TotalCount
         };
     }

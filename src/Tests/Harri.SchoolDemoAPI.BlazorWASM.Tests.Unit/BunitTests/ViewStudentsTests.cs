@@ -211,7 +211,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
                 _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Exactly(2));
             });
 
-            studentsPage.Instance.ParsedNameFilter.Should().Be(searchString);
+            studentsPage.Instance.Filters!.ParsedNameFilter.Should().Be(searchString);
         }
 
         //Search feature filters correctly call back end
@@ -232,7 +232,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             AssertGetStudentsRestResponseCalled(studentsPage, () => VerifyGetStudentsRestResponseCalledWithSId());
 
-            studentsPage.Instance.ParsedSIdFilter.Should().Be(parsedInt);
+            studentsPage.Instance.Filters!.ParsedSIdFilter.Should().Be(parsedInt);
         }
 
         // Impossible input with default mudblazor filter
@@ -262,7 +262,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             AssertGetStudentsRestResponseCalled(studentsPage, () => VerifyGetStudentsRestResponseCalledWithName());
 
-            studentsPage.Instance.ParsedNameFilter.Should().Be(searchString);
+            studentsPage.Instance.Filters!.ParsedNameFilter.Should().Be(searchString);
         }
 
         [TestCase("3.95", 3.95d)]
@@ -282,8 +282,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             // Assert
             AssertGetStudentsRestResponseCalled(studentsPage, () => VerifyGetStudentsRestResponseCalledWithGPA());
 
-            studentsPage.Instance.ParsedGPAFilter.Should().Be(parsedGPA);
+            studentsPage.Instance.Filters!.ParsedGPAFilter.Should().Be(parsedGPA);
         }
+
 
         private void AssertGetStudentsRestResponseCalled(IRenderedComponent<Students> studentsPage, Action extraVerify)
         {
