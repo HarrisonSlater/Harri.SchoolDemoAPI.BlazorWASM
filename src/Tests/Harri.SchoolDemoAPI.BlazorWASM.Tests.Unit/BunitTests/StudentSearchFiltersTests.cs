@@ -17,25 +17,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
     {
         private StudentSearchFilters _studentSearchFilters;
 
-        [SetUp]
-        public void SetUp()
-        {
-            //_mockStudentApiClient = new Mock<IStudentApi>();
-
-            //Services.AddSingleton(_mockStudentApiClient.Object);
-
-            //Services.AddMudServices();
-            //JSInterop.Mode = JSRuntimeMode.Loose; // Ignore mudblazor JS calls
-
-            //TestContext!.RenderTree.Add<MainLayout>();
-        }
-
         private PropertyColumn<T1, T2> RenderPropertyColumn<T1, T2>(Expression e)
         {
-            var c = RenderComponent<PropertyColumn<T1, T2>>(parameters => parameters.Add(p => p.Property, e)).Instance;
-
-
-            return c;
+            return RenderComponent<PropertyColumn<T1, T2>>(parameters => parameters.Add(p => p.Property, e)).Instance;
         }
 
         [Test]
