@@ -132,8 +132,13 @@
         ShowError = false;
         Filters = filters;
 
-        //TODO operators
-        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: filters.ParsedSIdFilter, name: filters.ParsedNameFilter, gpaQuery: GetGPAQueryDto(filters), page: state.Page + 1, pageSize: state.PageSize);
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(
+            sId: filters.ParsedSIdFilter,
+            name: filters.ParsedNameFilter,
+            gpaQuery: GetGPAQueryDto(filters), 
+            page: state.Page + 1, 
+            pageSize: state.PageSize
+        );
 
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
