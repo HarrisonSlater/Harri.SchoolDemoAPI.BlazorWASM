@@ -18,15 +18,16 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator TableLoading => _page.Locator("td.mud-table-loading");
         public ILocator Rows => _page.Locator(".mud-table-body tr.mud-table-row");
 
-        public ILocator IdDataCells => _page.Locator("td[data-label=\"SId\"]");
+        public ILocator IdDataCells => _page.Locator("td[data-label=\"Student ID\"]");
         public ILocator NameDataCells => _page.Locator("td[data-label=\"Name\"]");
         public ILocator GPADataCells => _page.Locator("td[data-label=\"GPA\"]");
 
-        public ILocator StudentSIdSearch => _page.Locator("#student-search-sid");
-        public ILocator StudentSIdSearchClear => _page.Locator("#student-search-sid-clear");
-        public ILocator StudentNameSearch => _page.Locator("#student-search");
-        public ILocator StudentNameSearchClear => _page.Locator("#student-search-clear");
+        public ILocator StudentSIdSearch => _page.Locator(".filter-input-sid input");
+        public ILocator StudentSIdSearchClear => _page.Locator(".filter-input-sid button[aria-label=\"Clear Filter\"]");
+        public ILocator StudentNameSearch => _page.Locator(".filter-input-student-name input");
+        public ILocator StudentNameSearchClear => _page.Locator(".filter-input-student-name button[aria-label=\"Clear Filter\"]");
 
+        //TODO GPA tests
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
         public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
@@ -76,7 +77,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         private async Task<(string?, string?, string?)> GetRowData(ILocator row)
         {
-            var id = await row.Locator("td[data-label=\"SId\"]").TextContentAsync();
+            var id = await row.Locator("td[data-label=\"Student ID\"]").TextContentAsync();
             var name = await row.Locator("td[data-label=\"Name\"]").TextContentAsync();
             var gpa = await row.Locator("td[data-label=\"GPA\"]").TextContentAsync();
 
@@ -211,6 +212,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             var rowsDisplayed = await GetRowsDisplayed();
 
             var rows = Page.GetByRole(AriaRole.Row);
+
             await Assertions.Expect(rows).ToHaveCountAsync(rowsDisplayed + 2 + 1); // + 2 includes header row and footer. + 1 is for the filtering rows
 
             await AssertRowsAndGetCellData(sIds);
