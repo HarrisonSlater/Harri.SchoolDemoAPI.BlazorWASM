@@ -168,8 +168,10 @@
     }
 
     /// <returns>
-    /// Mapping from <see cref="Constants.SearchFilters.Students.GPAFilterOperators"/> to <see cref="Harri.SchoolDemoAPI.Models.Dto.GPAQueryDto"/>
+    /// Mapping from MudBlazor operators to SchoolDemoApi Query DTO
     /// </returns>
+    /// <see cref="Constants.SearchFilters.Students.GPAFilterOperators" />
+    /// <see cref="Harri.SchoolDemoAPI.Models.Dto.GPAQueryDto" />
     private GPAQueryDto? GetGPAQueryDto(StudentSearchFilters filters)
     {
         if (filters.ParsedGPAFilter is null && filters.GPAFilter?.Operator != FilterOperator.Number.Empty) return null;
