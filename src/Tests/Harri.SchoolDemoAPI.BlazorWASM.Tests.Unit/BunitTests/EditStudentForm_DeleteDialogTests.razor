@@ -28,8 +28,7 @@
         _mockStudentApiClient = new Mock<IStudentApi>();
         Services.AddSingleton(_mockStudentApiClient.Object);
         Services.AddMudServices();
-
-        SetUpMudBlazorJSMocks();
+        JSInterop.Mode = JSRuntimeMode.Loose; // Ignore mudblazor JS calls
 
         SetUpMockExistingStudent();
 
@@ -40,17 +39,6 @@
         _dialogProvider = _renderedFragment.FindComponent<MudDialogProvider>();
 
         AssertTextAndNameNotNullOrEmpty(_editStudentForm);
-    }
-
-    private void SetUpMudBlazorJSMocks()
-    {
-        JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
-        JSInterop.SetupVoid("mudPopover.connect", _ => true);
-        JSInterop.SetupVoid("mudPopover.initialize", _ => true);
-        JSInterop.SetupVoid("mudElementRef.saveFocus", _ => true);
-        JSInterop.SetupVoid("mudScrollManager.lockScroll", _ => true);
-        JSInterop.SetupVoid("mudScrollManager.unlockScroll", _ => true);
-        JSInterop.Setup<int>("mudpopoverHelper.countProviders");
     }
 
     private StudentDto SetUpMockExistingStudent()
