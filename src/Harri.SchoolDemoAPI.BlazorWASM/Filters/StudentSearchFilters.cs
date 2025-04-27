@@ -5,9 +5,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Filters
 {
     public class StudentSearchFilters
     {
-        public IFilterDefinition<StudentDto> NameFilter { get; set; }
-        public IFilterDefinition<StudentDto> SIdFilter { get; set; }
-        public IFilterDefinition<StudentDto> GPAFilter { get; set; }
+        public IFilterDefinition<StudentDto>? NameFilter { get; set; }
+        public IFilterDefinition<StudentDto>? SIdFilter { get; set; }
+        public IFilterDefinition<StudentDto>? GPAFilter { get; set; }
 
         public string? ParsedNameFilter { get; set; }
         public int? ParsedSIdFilter { get; set; }
@@ -15,7 +15,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Filters
 
         public StudentSearchFilters(ICollection<IFilterDefinition<StudentDto>> filterDefinitions)
         {
-
             NameFilter = filterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "Name");
             SIdFilter = filterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "SId");
             GPAFilter = filterDefinitions.SingleOrDefault(x => x?.Column?.PropertyName == "GPA");
@@ -24,5 +23,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Filters
             ParsedSIdFilter = SIdFilter?.Value == null ? null : Convert.ToInt32((double?)SIdFilter?.Value); //All default MudBlazor filters treat any number as a double
             ParsedGPAFilter = GPAFilter?.Value == null ? null : Convert.ToDecimal((double?)GPAFilter?.Value); 
         }
+
+        internal StudentSearchFilters() { }
     }
 }

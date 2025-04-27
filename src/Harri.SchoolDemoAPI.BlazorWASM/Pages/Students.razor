@@ -5,6 +5,7 @@
 @using Harri.SchoolDemoAPI.BlazorWASM.Filters
 @using System.Text.Json
 @using System.Text.Json.Nodes
+@using Harri.SchoolDemoAPI.BlazorWASM;
 @inject NavigationManager NavigationManager
 @inject IStudentApi _studentClient
 
@@ -21,12 +22,12 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=ServerReload Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
+    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=@((state) => ServerReload(state, new StudentSearchFilters(state.FilterDefinitions))) Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
                  Filterable FilterMode=DataGridFilterMode.ColumnFilterRow>
         <Columns>
             <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" /> @* TODO remove css disable here? enable numeric spin?*@
             <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" />
-            <PropertyColumn Property="x => x.GPA" Class="filter-input-gpa" FilterOperators=GPAFilterOperators />
+            <PropertyColumn Property="x => x.GPA" Class="filter-input-gpa" FilterOperators=Constants.SearchFilters.Students.GPAFilterOperators />
             <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
                     <MudStack Row>
@@ -64,14 +65,6 @@
     public int CurrentPage { get; set; }
 
     internal bool AddSuccessIdToHistory { get; set; }
-
-    public static HashSet<string> GPAFilterOperators = new HashSet<string>()
-    {
-        FilterOperator.Number.GreaterThan,
-        FilterOperator.Number.Equal,
-        FilterOperator.Number.LessThan,
-        FilterOperator.Number.Empty
-    };
 
     internal MudDataGrid<StudentDto>? DataGrid;
 
@@ -134,20 +127,19 @@
 
     internal StudentSearchFilters? Filters { get; set; } 
 
-    internal async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state)
+    internal async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state, StudentSearchFilters filters)
     {
         ShowError = false;
-
-        Filters = new StudentSearchFilters(state.FilterDefinitions);
+        Filters = filters;
 
         //TODO operators
-        var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = Filters.ParsedGPAFilter } };
-        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: Filters.ParsedSIdFilter, name: Filters.ParsedNameFilter, gpaQuery: Filters.ParsedGPAFilter is null ? null : gpaQuery, page: state.Page + 1, pageSize: state.PageSize);
+        var gpaQuery = new GPAQueryDto() { GPA = new() { Gt = filters.ParsedGPAFilter } };
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(sId: filters.ParsedSIdFilter, name: filters.ParsedNameFilter, gpaQuery: filters.ParsedGPAFilter is null ? null : gpaQuery, page: state.Page + 1, pageSize: state.PageSize);
 
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             //TODO show no students found message
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
             return new GridData<StudentDto>();
         }
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -156,15 +148,15 @@
             Console.WriteLine(studentsResponse.Content);
             var error = JsonNode.Parse(studentsResponse.Content);
             ShowError = true;
-            ErrorMessage = error["errors"]?.ToJsonString(); // TODO Needs error message content from rest api / local validation
-            StateHasChanged();
+            ErrorMessage = error["errors"]?.ToJsonString(); // TODO Needs error message content from IStudentApi / local validation
+            await InvokeAsync(StateHasChanged);
             return new GridData<StudentDto>();
         }
         if (!studentsResponse.IsSuccessStatusCode)
         {
             ShowError = true;
             ErrorMessage = DefaultErrorMessage;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
             return new GridData<StudentDto>();
         }
 
