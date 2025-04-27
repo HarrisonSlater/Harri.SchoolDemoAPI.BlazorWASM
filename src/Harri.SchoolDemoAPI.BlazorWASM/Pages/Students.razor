@@ -183,7 +183,7 @@
             FilterOperator.Number.Empty => new GPAQueryDto() { GPA = new() { IsNull = true } },
             FilterOperator.Number.GreaterThan => new GPAQueryDto() { GPA = new() { Gt = filters.ParsedGPAFilter } },
             FilterOperator.Number.LessThan => new GPAQueryDto() { GPA = new() { Lt = filters.ParsedGPAFilter } },
-            _ => throw new ArgumentOutOfRangeException(nameof(filters.GPAFilter.Operator), $"Unexpected GPAFilter.Operator value: {filters.GPAFilter.Operator}"),
+            _ => throw new ArgumentOutOfRangeException(nameof(filters.GPAFilter.Operator), $"Unexpected GPAFilter.Operator value: {filters.GPAFilter?.Operator}"),
         };
     }
 
