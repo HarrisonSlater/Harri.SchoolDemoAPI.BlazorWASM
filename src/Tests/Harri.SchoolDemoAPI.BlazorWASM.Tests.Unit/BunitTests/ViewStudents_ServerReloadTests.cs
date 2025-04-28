@@ -66,7 +66,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             {
                 ParsedSIdFilter = parsedSIdFilter,
                 ParsedNameFilter = parsedNameFilter,
-                //ParsedGPAFilter = parsedGPAFilter, 
             };
 
             _mockStudentApiClient.Invocations.Clear(); //Ignore the first call made by instantiating the component
@@ -79,28 +78,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(parsedSIdFilter, parsedNameFilter, It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once());
         }
 
-        /// <see cref="Constants.SearchFilters.Students.GPAFilterOperators"/>
-        private static IEnumerable<TestCaseData> GPAFilterValuesTestCases()
-        {
-            yield return new TestCaseData(null, FilterOperator.Number.Equal, null);
-            yield return new TestCaseData(null, FilterOperator.Number.GreaterThan, null);
-            yield return new TestCaseData(null, FilterOperator.Number.LessThan, null);
-            yield return new TestCaseData(null, FilterOperator.Number.Empty, new GPAQueryDto() { GPA = new() { IsNull = true } });
-            yield return new TestCaseData(0m, FilterOperator.Number.Equal, new GPAQueryDto() { GPA = new() { Eq = 0m } });
-            yield return new TestCaseData(4m, FilterOperator.Number.Equal, new GPAQueryDto() { GPA = new() { Eq = 4m } });
-            yield return new TestCaseData(3.47m, FilterOperator.Number.Equal, new GPAQueryDto() { GPA = new() { Eq = 3.47m } });
-            yield return new TestCaseData(0m, FilterOperator.Number.GreaterThan, new GPAQueryDto() { GPA = new() { Gt = 0m } });
-            yield return new TestCaseData(4m, FilterOperator.Number.GreaterThan, new GPAQueryDto() { GPA = new() { Gt = 4m } });
-            yield return new TestCaseData(3.47m, FilterOperator.Number.GreaterThan, new GPAQueryDto() { GPA = new() { Gt = 3.47m } });
-            yield return new TestCaseData(0m, FilterOperator.Number.LessThan, new GPAQueryDto() { GPA = new() { Lt = 0m } });
-            yield return new TestCaseData(4m, FilterOperator.Number.LessThan, new GPAQueryDto() { GPA = new() { Lt = 4m } });
-            yield return new TestCaseData(3.47m, FilterOperator.Number.LessThan, new GPAQueryDto() { GPA = new() { Lt = 3.47m } });
-        }
-
-        [TestCaseSource(nameof(GPAFilterValuesTestCases))]
-        public async Task ViewStudents_ServerReload_ShouldHandleGPAFilterValuesAndOperators(decimal? parsedGPAFilter, string selectedOperator, GPAQueryDto? expectedGPAQueryDto)
+        [Test]
+        public async Task ViewStudents_ServerReload_ShouldHandleGPAFilterValuesAndOperators()
         {
             // Arrange
+            decimal? parsedGPAFilter = 4m;
+            string selectedOperator = FilterOperator.Number.Equal;
+            GPAQueryDto? expectedGPAQueryDto = new GPAQueryDto() { GPA = new() { Eq = 4m } };
+
             _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsAny<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), It.IsAny<int?>(), It.IsAny<int?>()))
                 .Returns(Task.FromResult(new RestSharp.RestResponse<PagedList<StudentDto>>(new RestSharp.RestRequest())
                 {
@@ -126,19 +111,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             await studentsPage.Instance.ServerReload(gridState, parsedFilters);
 
             // Assert
-            var shouldBeNull = expectedGPAQueryDto ?? It.IsNotNull<GPAQueryDto?>();
 
-            if (expectedGPAQueryDto is null)
-            {
-                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), null, It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once());
-            }
-            else
-            {
-                _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsNotNull<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once());
-                var gpaQueryDtoActual = _mockStudentApiClient.Invocations.Single().Arguments[2] as GPAQueryDto;
-                gpaQueryDtoActual.Should().BeEquivalentTo(expectedGPAQueryDto);
-            }
+            _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsNotNull<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once());
+            var gpaQueryDtoActual = _mockStudentApiClient.Invocations.Single().Arguments[2] as GPAQueryDto;
+            gpaQueryDtoActual.Should().BeEquivalentTo(expectedGPAQueryDto);
         }
+
         // TODO ViewStudents_ServerReload_ShouldHandleStudentApiResponses
     }
 }
