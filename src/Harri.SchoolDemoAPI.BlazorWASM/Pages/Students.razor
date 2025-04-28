@@ -25,8 +25,8 @@
     <MudDataGrid T=StudentDto @ref=DataGrid ServerData=@((state) => ServerReload(state, new StudentSearchFilters(state.FilterDefinitions))) Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
                  Filterable FilterMode=DataGridFilterMode.ColumnFilterRow>
         <Columns>
-            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" /> @* TODO remove css disable here? enable numeric spin?*@
-            <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" />
+            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" FilterOperators=Constants.SearchFilters.Students.SIdOperators /> 
+            <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" FilterOperators=Constants.SearchFilters.Students.NameOperators />
             <PropertyColumn Property="x => x.GPA" Class="filter-input-gpa" FilterOperators=Constants.SearchFilters.Students.GPAFilterOperators />
             <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
@@ -165,6 +165,8 @@
         }
 
         ShowError = false;
+        await InvokeAsync(StateHasChanged);
+
         return new GridData<StudentDto>()
         {
             Items = studentsResponse.Data.Items, //TODO check data length
@@ -177,7 +179,7 @@
     /// </returns>
     /// <see cref="Constants.SearchFilters.Students.GPAFilterOperators" />
     /// <see cref="Harri.SchoolDemoAPI.Models.Dto.GPAQueryDto" />
-    private GPAQueryDto? GetGPAQueryDto(StudentSearchFilters filters)
+    public static GPAQueryDto? GetGPAQueryDto(StudentSearchFilters filters)
     {
         if (filters.ParsedGPAFilter is null && filters.GPAFilter?.Operator != FilterOperator.Number.Empty) return null;
 

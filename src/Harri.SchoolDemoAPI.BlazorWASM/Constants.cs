@@ -26,6 +26,16 @@ namespace Harri.SchoolDemoAPI.BlazorWASM
                     FilterOperator.Number.Empty
                 };
 
+                // SId and Name operators are set in case something goes wrong with the css disable class 'filter-disable-operators'
+                public static readonly HashSet<string> SIdOperators = new HashSet<string>()
+                {
+                    FilterOperator.Number.Equal
+                };
+
+                public static readonly HashSet<string> NameOperators = new HashSet<string>()
+                {
+                    FilterOperator.String.Contains
+                };
             }
         }
 
