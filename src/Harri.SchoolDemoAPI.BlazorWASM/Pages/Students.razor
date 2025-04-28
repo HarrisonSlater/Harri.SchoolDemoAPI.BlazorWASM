@@ -150,8 +150,8 @@
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
             //Parse error text programatically,  TODO update rest client + api response types
-            Console.WriteLine(studentsResponse.Content);
             var error = JsonNode.Parse(studentsResponse.Content);
+
             ShowError = true;
             ErrorMessage = error["errors"]?.ToJsonString(); 
             await InvokeAsync(StateHasChanged);
