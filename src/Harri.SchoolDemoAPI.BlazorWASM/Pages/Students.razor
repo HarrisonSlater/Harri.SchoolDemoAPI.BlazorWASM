@@ -131,7 +131,6 @@
     {
         Filters = filters;
         ShowError = false;
-        await InvokeAsync(StateHasChanged);
 
         var studentsResponse = await _studentClient.GetStudentsRestResponse(
             sId: filters.ParsedSIdFilter,
@@ -168,6 +167,7 @@
             return new GridData<StudentDto>();
         }
 
+        await InvokeAsync(StateHasChanged); // Refreshing state here ensures displayed errors are hidden after refreshing the data grid
         return new GridData<StudentDto>()
         {
             Items = studentsResponse.Data.Items,
