@@ -112,7 +112,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             await studentsPage.Instance.ServerReload(gridState, parsedFilters);
 
             // Assert
-
             _mockStudentApiClient.Verify(x => x.GetStudentsRestResponse(It.IsAny<int?>(), It.IsAny<string?>(), It.IsNotNull<GPAQueryDto?>(), It.IsAny<SortOrder?>(), It.IsAny<string?>(), 1, 15), Times.Once());
             var gpaQueryDtoActual = _mockStudentApiClient.Invocations.Single().Arguments[2] as GPAQueryDto;
             gpaQueryDtoActual.Should().BeEquivalentTo(expectedGPAQueryDto);

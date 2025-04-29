@@ -5,6 +5,7 @@ using Harri.SchoolDemoAPI.Models.Dto;
 using Moq;
 using MudBlazor;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 {
@@ -49,6 +50,34 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 
             // Assert
             gpaQueryDto.Should().BeEquivalentTo(expectedGPAQueryDt);
+        }
+
+        private static IEnumerable<TestCaseData> GPAFilterAllOperatorsTestCases()
+        {
+            foreach (var gpaOperator in Constants.SearchFilters.Students.GPAFilterOperators)
+            {
+                yield return new TestCaseData(gpaOperator);
+            }
+        }
+
+        [TestCaseSource(nameof(GPAFilterAllOperatorsTestCases))]
+        public void GetGPAQueryDto_ShouldHandleAllOperators(string? gpaOperator)
+        {
+            // Arrange
+            var mockFilterDefinition = new Mock<IFilterDefinition<StudentDto>>();
+            mockFilterDefinition.Setup(x => x.Operator).Returns(gpaOperator);
+            var parsedFilters = new StudentSearchFilters()
+            {
+                ParsedGPAFilter = 4,
+                GPAFilter = mockFilterDefinition.Object
+            };
+
+            // Act
+
+            var action = () => SearchFilterOperatorMappings.GetGPAQueryDto(parsedFilters);
+
+            // Assert
+            action.Should().NotThrow();
         }
     }
 }

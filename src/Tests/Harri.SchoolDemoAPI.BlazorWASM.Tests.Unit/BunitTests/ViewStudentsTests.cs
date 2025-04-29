@@ -130,7 +130,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         {
             // Arrange
 
-            //
             _mockStudentApiClient.Setup(client => client.GetStudentsRestResponse(null, null, null, null, null, 1, 15))
                 .Returns(Task.FromResult(new RestSharp.RestResponse<PagedList<StudentDto>>(new RestSharp.RestRequest())
                 {
@@ -214,7 +213,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             studentsPage.Instance.Filters!.ParsedNameFilter.Should().Be(searchString);
         }
 
-        //Search feature filters correctly call back end
         [TestCase("10", 10)]
         [TestCase("1024", 1024)]
         public void ViewStudents_SearchFeature_ShouldFilterBySId(string searchString, int? parsedInt)
@@ -285,7 +283,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             studentsPage.Instance.Filters!.ParsedGPAFilter.Should().Be(parsedGPA);
         }
 
-
+        // Search feature filters should correctly call back end
         private void AssertGetStudentsRestResponseCalled(IRenderedComponent<Students> studentsPage, Action extraVerify)
         {
             ShouldSeeExpectedStudentsInGrid(studentsPage);
