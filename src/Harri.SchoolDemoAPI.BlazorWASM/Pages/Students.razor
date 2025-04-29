@@ -141,6 +141,9 @@
             pageSize: state.PageSize
         );
 
+        // Console.WriteLine(studentsResponse.StatusCode);
+        // Console.WriteLine(studentsResponse.IsSuccessStatusCode);
+
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             //TODO show no students found message
@@ -150,14 +153,14 @@
         if (studentsResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
             //Parse error text programatically,  TODO update rest client + api response types
-            var error = JsonNode.Parse(studentsResponse.Content);
+            var error = JsonNode.Parse(studentsResponse?.Content ?? "null");
 
             ShowError = true;
-            ErrorMessage = error["errors"]?.ToJsonString(); 
+            ErrorMessage = error?["errors"]?.ToJsonString() ?? DefaultErrorMessage; 
             await InvokeAsync(StateHasChanged);
             return new GridData<StudentDto>();
         }
-        if (!studentsResponse.IsSuccessStatusCode)
+        if (!studentsResponse.IsSuccessStatusCode || studentsResponse.Data is null)
         {
             ShowError = true;
             ErrorMessage = DefaultErrorMessage;
@@ -167,7 +170,7 @@
 
         return new GridData<StudentDto>()
         {
-            Items = studentsResponse.Data.Items, //TODO check data length
+            Items = studentsResponse.Data.Items,
             TotalItems = studentsResponse.Data.TotalCount
         };
     }
