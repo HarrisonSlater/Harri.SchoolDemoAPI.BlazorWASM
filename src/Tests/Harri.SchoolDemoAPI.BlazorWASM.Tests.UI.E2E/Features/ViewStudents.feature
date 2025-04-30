@@ -78,9 +78,6 @@ Scenario: Enter a student ID that does not match any students
 	Then I see page 1 again
 
 # GPA
-
-# is null scenario
-# not null scenario
 @cleanupNewStudent
 Scenario: Filter students by exact GPA
 	Given A new student "Test Student - GPA" with GPA "0.51" exists
@@ -110,5 +107,24 @@ Scenario: Enter a student GPA that does not match any students
 	Then The students table should be empty
 	When I clear the student GPA filter
 	Then I see page 1 again
+
+@cleanupNewStudent
+Scenario: Filter students by 'is empty' GPA
+	Given A new student "Test Student - GPA Null" exists
+	And I am on the students page
+	And I see a table full of students
+	When I search for the new student by name
+	And I set the student GPA filter to 'is empty'
+	Then I should see the same student with name "Test Student - GPA Null"
+
+@cleanupNewStudent
+Scenario: Filter students by 'is not empty' GPA
+	Given A new student "Test Student - GPA Not Null" with GPA "2.33" exists
+	And I am on the students page
+	And I see a table full of students
+	When I search for the new student by name
+	And I set the student GPA filter to 'is not empty'
+	Then I should see the same student with name "Test Student - GPA Not Null" and GPA "2.33"
+
 #TODO Filter input errors (-1) 
 #TODO Combo filter test

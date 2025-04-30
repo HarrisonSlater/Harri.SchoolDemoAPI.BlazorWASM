@@ -173,6 +173,19 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.ClearGPASearch();
         }
 
+        [When("I set the student GPA filter to 'is empty'")]
+        //[When("I set the student GPA filter to 'is not empty'")]
+        public async Task WhenISetTheStudentGPAFiltertoIsEmpty()
+        {
+            await _studentsPage.SearchForStudentByGPAIsEmpty();
+        }
+
+        [When("I set the student GPA filter to 'is not empty'")]
+        public async Task WhenISetTheStudentGPAFiltertoIsNotEmpty()
+        {
+            await _studentsPage.SearchForStudentByGPAIsNotEmpty();
+        }
+
         [Then("I should see the updated/same/new student with name {string}")]
         public async Task ThenIShouldSeeTheCorrectStudent(string studentName)
         {

@@ -146,6 +146,24 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
 
+        public async Task SearchForStudentByGPAIsEmpty()
+        {
+            await StudentGPASearchFilterDropDownButton.ClickAsync();
+
+            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchFilterDropDownItems.Nth(3).ClickAsync(), r => r.Url.Contains($"GPA.isNull=True"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task SearchForStudentByGPAIsNotEmpty()
+        {
+            await StudentGPASearchFilterDropDownButton.ClickAsync();
+
+            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchFilterDropDownItems.Nth(4).ClickAsync(), r => r.Url.Contains($"GPA.isNull=False"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
         public async Task ClearIdSearch()
         {
             await Page.RunAndWaitForResponseAsync(() => StudentSIdSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
