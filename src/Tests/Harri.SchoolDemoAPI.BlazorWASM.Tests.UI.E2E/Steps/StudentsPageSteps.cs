@@ -174,7 +174,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [When("I set the student GPA filter to 'is empty'")]
-        //[When("I set the student GPA filter to 'is not empty'")]
         public async Task WhenISetTheStudentGPAFiltertoIsEmpty()
         {
             await _studentsPage.SearchForStudentByGPAIsEmpty();
@@ -241,30 +240,23 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         [Then("I should see only students with the GPA {string}")]
         public async Task ThenIShouldSeeOnlyStudentsWithTheGPA(string gpa)
         {
-            await IShouldSeeATableWithAtLeastOneStudent();
-            var rowData = await _studentsPage.GetAllRowData();
-
-            rowData.Should().AllSatisfy(x => x.Item3.Should().Be(gpa));
+            await AssertAllGPAs(gpa, (actual, expectation) => actual.Should().Be(expectation));
         }
 
-        //TODO cleanup
         [Then("I should see only students with a GPA greater than {string}")]
         public async Task ThenIShouldSeeOnlyStudentsWithAGPAGreaterThan(string gpa)
         {
-            await IShouldSeeATableWithAtLeastOneStudent();
-            var rowData = await _studentsPage.GetAllRowData();
-
-            rowData.Should().AllSatisfy(x => {
-                var parsedActual = decimal.Parse(x.Item3!);
-                var parsedExpectation = decimal.Parse(gpa);
-
-                parsedActual.Should().BeGreaterThan(parsedExpectation);
-            });
+            await AssertAllGPAs(gpa, (actual, expectation) => actual.Should().BeGreaterThan(expectation));
         }
 
         [Then("I should see only students with a GPA less than {string}")]
         public async Task ThenIShouldSeeOnlyStudentsWithAGPALessThan(string gpa)
         {
+            await AssertAllGPAs(gpa, (actual, expectation) => actual.Should().BeLessThan(expectation));
+        }
+
+        private async Task AssertAllGPAs(string gpa, Action<decimal, decimal> assert)
+        {
             await IShouldSeeATableWithAtLeastOneStudent();
             var rowData = await _studentsPage.GetAllRowData();
 
@@ -272,7 +264,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
                 var parsedActual = decimal.Parse(x.Item3!);
                 var parsedExpectation = decimal.Parse(gpa);
 
-                parsedActual.Should().BeLessThan(parsedExpectation);
+                assert.Invoke(parsedActual, parsedExpectation);
             });
         }
     }
