@@ -55,6 +55,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
             await AStudentExists(guidName);
         }
 
+        [Given("A new student with a unique name and GPA {string} exists")]
+        public async Task GivenANewStudentWithAUniqueNameAndGPAExists(string gpa)
+        {
+            var guidName = Guid.NewGuid().ToString();
+            await AStudentExists(guidName, gpa);
+        }
+
         [Given("I am on the edit page for a new student {string}")]
         public async Task GivenIAmOnTheEditPageForANewStudent(string name)
         {

@@ -150,4 +150,16 @@ Scenario: Enter a student GPA that is invalid
 	Then I see page 1 again
 	And I should not see any filter input validation errors
 
-#TODO Combo filter test
+# All filters test
+@cleanupNewStudent
+Scenario: Filter students by exact name, SId, and GPA
+	Given A new student with a unique name and GPA "3.41" exists
+	And I am on the students page
+	And I see a table full of students
+	When I search for the new student by name
+	Then I should see only the new student
+	When I search for the new student by id
+	Then I should see only the new student
+	When I search for student with GPA "3.41"
+	Then I should see only the new student
+

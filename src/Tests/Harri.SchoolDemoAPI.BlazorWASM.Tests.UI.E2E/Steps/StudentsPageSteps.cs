@@ -214,7 +214,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await IShouldSeeATableWithAtLeastOneStudent();
             var rowData = await _studentsPage.GetAllRowData();
             
-            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, _createdTestStudent.StudentName, null);
+            var rowTuple = new Tuple<string?, string?, string?>(_createdTestStudent.StudentId, _createdTestStudent.StudentName, _createdTestStudent.StudentGPA);
 
             rowData.Should().ContainSingle().And.ContainEquivalentOf(rowTuple);
         }
