@@ -27,7 +27,14 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator StudentNameSearch => _page.Locator(".filter-input-student-name input");
         public ILocator StudentNameSearchClear => _page.Locator(".filter-input-student-name button[aria-label=\"Clear Filter\"]");
 
-        //TODO GPA tests
+        public ILocator StudentGPASearch => _page.Locator(".filter-input-gpa.filter-header-cell");
+        public ILocator StudentGPASearchInput => StudentGPASearch.Locator("input");
+        public ILocator StudentGPASearchFilterDropDownButton => StudentGPASearch.Locator(".mud-menu button.mud-icon-button");
+        public ILocator StudentGPASearchFilterDropDownItems => _page.Locator(".mud-popover-open .mud-list .mud-menu-item");
+
+
+        public ILocator StudentGPASearchClear => _page.Locator(".filter-input-gpa button[aria-label=\"Clear Filter\"]");
+
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
         public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
@@ -106,9 +113,35 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
 
-        public async Task ClearNameSearch()
+        public async Task SearchForStudentByGPA(string? searchString)
         {
-            await Page.RunAndWaitForResponseAsync(() => StudentNameSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
+            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
+
+            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchInput.FillAsync(searchString), r => r.Url.Contains($"students/?GPA.eq={Uri.EscapeDataString(searchString)}"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task SearchForStudentByGPAGreaterThan(string? searchString)
+        {
+            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
+
+            await StudentGPASearchFilterDropDownButton.ClickAsync();
+            await StudentGPASearchFilterDropDownItems.Nth(1).ClickAsync(); //TODO find operator by text not index
+
+            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchInput.FillAsync(searchString), r => r.Url.Contains($"students/?GPA.gt={Uri.EscapeDataString(searchString)}"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task SearchForStudentByGPALessThan(string? searchString)
+        {
+            if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
+
+            await StudentGPASearchFilterDropDownButton.ClickAsync();
+            await StudentGPASearchFilterDropDownItems.Nth(2).ClickAsync(); //TODO find operator by text not index
+
+            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchInput.FillAsync(searchString), r => r.Url.Contains($"students/?GPA.lt={Uri.EscapeDataString(searchString)}"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
@@ -116,6 +149,20 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public async Task ClearIdSearch()
         {
             await Page.RunAndWaitForResponseAsync(() => StudentSIdSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task ClearNameSearch()
+        {
+            await Page.RunAndWaitForResponseAsync(() => StudentNameSearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
+
+            await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
+        }
+
+        public async Task ClearGPASearch()
+        {
+            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchClear.ClickAsync(), r => r.Url.Contains($"students/"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }

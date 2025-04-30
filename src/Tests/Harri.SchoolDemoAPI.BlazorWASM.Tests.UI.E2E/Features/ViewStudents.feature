@@ -50,8 +50,6 @@ Scenario: Enter a student name that does not match any students
 	When I clear the student name filter
 	Then I see page 1 again
 
-#TODO name length validation?
-
 # SId
 @cleanupNewStudent
 Scenario: Filter students by exact id
@@ -79,5 +77,38 @@ Scenario: Enter a student ID that does not match any students
 	When I clear the student id filter
 	Then I see page 1 again
 
-#TODO Filter input errors plus unit
-#Combo filter test
+# GPA
+
+# is null scenario
+# not null scenario
+@cleanupNewStudent
+Scenario: Filter students by exact GPA
+	Given A new student "Test Student - GPA" with GPA "0.51" exists
+	And I am on the students page
+	And I see a table full of students
+	When I search for the new student by GPA
+	Then I should see the same student with name "Test Student - GPA" and GPA "0.51"
+	And I should see only students with the GPA "0.51"
+
+# filter by partial
+Scenario: Filter students by greater than/less than GPA
+	Given I am on the students page
+	And I see a table full of students
+	When I search for student with GPA greater than "2"
+	Then I should see only students with a GPA greater than "2"
+	When I clear the student GPA filter
+	And I search for student with GPA less than "2"
+	Then I should see only students with a GPA less than "2"
+	When I clear the student GPA filter
+	Then I see page 1 again
+
+# empty results
+Scenario: Enter a student GPA that does not match any students
+	Given I am on the students page
+	And I see a table full of students on page 1
+	When I search for student with GPA "5"
+	Then The students table should be empty
+	When I clear the student GPA filter
+	Then I see page 1 again
+#TODO Filter input errors (-1) 
+#TODO Combo filter test

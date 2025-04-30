@@ -20,8 +20,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM
             {
                 public static readonly HashSet<string> GPAFilterOperators = new HashSet<string>()
                 {
-                    FilterOperator.Number.GreaterThan,
                     FilterOperator.Number.Equal,
+                    FilterOperator.Number.GreaterThan,
                     FilterOperator.Number.LessThan,
                     FilterOperator.Number.Empty, 
                     FilterOperator.Number.NotEmpty // TODO test

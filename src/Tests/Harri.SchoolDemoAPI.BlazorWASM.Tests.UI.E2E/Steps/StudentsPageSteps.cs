@@ -118,6 +118,24 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.SearchForStudentByName(searchString);
         }
 
+        [When("I search for student with GPA {string}")]
+        public async Task WhenISearchForStudentByGPA(string searchString)
+        {
+            await _studentsPage.SearchForStudentByGPA(searchString);
+        }
+
+        [When("I search for student with GPA greater than {string}")]
+        public async Task WhenISearchForStudentByGPAGreaterThan(string searchString)
+        {
+            await _studentsPage.SearchForStudentByGPAGreaterThan(searchString);
+        }
+
+        [When("I search for student with GPA less than {string}")]
+        public async Task WhenISearchForStudentByGPALessThan(string searchString)
+        {
+            await _studentsPage.SearchForStudentByGPALessThan(searchString);
+        }
+
         [When("I search for the new student by name")]
         public async Task WhenISearchForTheNewStudentByName()
         {
@@ -130,6 +148,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             await _studentsPage.SearchForStudentBySId(_createdTestStudent.StudentId);
         }
 
+        [When("I search for the new student by GPA")]
+
+        public async Task WhenISearchForTheNewStudentByGPA()
+        {
+            await _studentsPage.SearchForStudentByGPA(_createdTestStudent.StudentGPA);
+        }
+
         [When("I clear the student name filter")]
         public async Task WhenIClearTheStudentNameFilter()
         {
@@ -140,6 +165,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         public async Task WhenIClearTheStudentIdFilter()
         {
             await _studentsPage.ClearIdSearch();
+        }
+
+        [When("I clear the student GPA filter")]
+        public async Task WhenIClearTheStudentGPAFilter()
+        {
+            await _studentsPage.ClearGPASearch();
         }
 
         [Then("I should see the updated/same/new student with name {string}")]
@@ -194,5 +225,42 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
             rowData.Should().AllSatisfy(x => x.Item1.Should().Contain(id));
         }
 
+        [Then("I should see only students with the GPA {string}")]
+        public async Task ThenIShouldSeeOnlyStudentsWithTheGPA(string gpa)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            rowData.Should().AllSatisfy(x => x.Item3.Should().Be(gpa));
+        }
+
+        //TODO cleanup
+        [Then("I should see only students with a GPA greater than {string}")]
+        public async Task ThenIShouldSeeOnlyStudentsWithAGPAGreaterThan(string gpa)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            rowData.Should().AllSatisfy(x => {
+                var parsedActual = decimal.Parse(x.Item3!);
+                var parsedExpectation = decimal.Parse(gpa);
+
+                parsedActual.Should().BeGreaterThan(parsedExpectation);
+            });
+        }
+
+        [Then("I should see only students with a GPA less than {string}")]
+        public async Task ThenIShouldSeeOnlyStudentsWithAGPALessThan(string gpa)
+        {
+            await IShouldSeeATableWithAtLeastOneStudent();
+            var rowData = await _studentsPage.GetAllRowData();
+
+            rowData.Should().AllSatisfy(x => {
+                var parsedActual = decimal.Parse(x.Item3!);
+                var parsedExpectation = decimal.Parse(gpa);
+
+                parsedActual.Should().BeLessThan(parsedExpectation);
+            });
+        }
     }
 }

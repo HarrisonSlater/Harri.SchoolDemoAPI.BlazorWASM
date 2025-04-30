@@ -96,6 +96,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
 
             _createdTestStudent.StudentId = await _studentsPage.GetSuccessAlertId();
             _createdTestStudent.StudentName = name;
+            _createdTestStudent.StudentGPA = gpa;
         }
 
         public async Task DeleteAStudent(string id)

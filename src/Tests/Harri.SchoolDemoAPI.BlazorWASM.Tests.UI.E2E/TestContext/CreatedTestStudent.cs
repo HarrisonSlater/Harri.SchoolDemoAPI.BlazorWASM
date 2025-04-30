@@ -5,6 +5,7 @@
     {
         private string? studentId;
         private string? studentName;
+        private string? studentGPA;
 
         public string StudentId { 
             get 
@@ -22,6 +23,14 @@
                 return studentName;
             } 
             set => studentName = value;
+        }
+
+        public string? StudentGPA { 
+            get 
+            {
+                return studentGPA;
+            } 
+            set => studentGPA = value;
         }
     }
 }
