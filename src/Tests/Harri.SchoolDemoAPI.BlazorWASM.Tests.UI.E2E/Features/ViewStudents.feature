@@ -50,6 +50,7 @@ Scenario: Enter a student name that does not match any students
 	When I clear the student name filter
 	Then I see page 1 again
 
+
 # SId
 @cleanupNewStudent
 Scenario: Filter students by exact id
@@ -76,6 +77,7 @@ Scenario: Enter a student ID that does not match any students
 	Then The students table should be empty
 	When I clear the student id filter
 	Then I see page 1 again
+
 
 # GPA
 @cleanupNewStudent

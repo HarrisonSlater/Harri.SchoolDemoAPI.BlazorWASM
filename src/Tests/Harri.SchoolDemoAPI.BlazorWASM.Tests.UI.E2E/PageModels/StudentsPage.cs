@@ -30,7 +30,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator StudentGPASearch => _page.Locator(".filter-input-gpa.filter-header-cell");
         public ILocator StudentGPASearchInput => StudentGPASearch.Locator("input");
         public ILocator StudentGPASearchFilterDropDownButton => StudentGPASearch.Locator(".mud-menu button.mud-icon-button");
-        public ILocator StudentGPASearchFilterDropDownItems => _page.Locator(".mud-popover-open .mud-list .mud-menu-item");
 
 
         public ILocator StudentGPASearchClear => _page.Locator(".filter-input-gpa button[aria-label=\"Clear Filter\"]");
@@ -42,11 +41,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public PaginationActions Pagination { get; set; }
         public AlertActions Alerts { get; set; }
+        public FilterOperatorActions GPAFilterActions { get; set; }
 
         public StudentsPage(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config) : base(page, baseUrlSetting, config)
         {
             Pagination = new PaginationActions(page);
             Alerts = new AlertActions(page);
+            GPAFilterActions = new FilterOperatorActions(page);
         }
 
         public async Task<int> GetRowsDisplayed()
@@ -127,7 +128,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
 
             await StudentGPASearchFilterDropDownButton.ClickAsync();
-            await StudentGPASearchFilterDropDownItems.Nth(1).ClickAsync(); //TODO find operator by text not index
+            await GPAFilterActions.ClickGreaterThanAsync();
+
 
             await Page.RunAndWaitForResponseAsync(() => StudentGPASearchInput.FillAsync(searchString), r => r.Url.Contains($"students/?GPA.gt={Uri.EscapeDataString(searchString)}"));
 
@@ -139,7 +141,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             if (searchString is null) throw new ArgumentException($"{nameof(searchString)} cannot be null");
 
             await StudentGPASearchFilterDropDownButton.ClickAsync();
-            await StudentGPASearchFilterDropDownItems.Nth(2).ClickAsync(); //TODO find operator by text not index
+            await GPAFilterActions.ClickLessThanAsync();
 
             await Page.RunAndWaitForResponseAsync(() => StudentGPASearchInput.FillAsync(searchString), r => r.Url.Contains($"students/?GPA.lt={Uri.EscapeDataString(searchString)}"));
 
@@ -150,7 +152,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         {
             await StudentGPASearchFilterDropDownButton.ClickAsync();
 
-            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchFilterDropDownItems.Nth(3).ClickAsync(), r => r.Url.Contains($"GPA.isNull=True"));
+            await Page.RunAndWaitForResponseAsync(() => GPAFilterActions.ClickIsEmpty(), r => r.Url.Contains($"GPA.isNull=True"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
@@ -159,7 +161,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         {
             await StudentGPASearchFilterDropDownButton.ClickAsync();
 
-            await Page.RunAndWaitForResponseAsync(() => StudentGPASearchFilterDropDownItems.Nth(4).ClickAsync(), r => r.Url.Contains($"GPA.isNull=False"));
+            await Page.RunAndWaitForResponseAsync(() => GPAFilterActions.ClickIsNotEmpty(), r => r.Url.Contains($"GPA.isNull=False"));
 
             await Assertions.Expect(TableLoading).Not.ToBeAttachedAsync();
         }
