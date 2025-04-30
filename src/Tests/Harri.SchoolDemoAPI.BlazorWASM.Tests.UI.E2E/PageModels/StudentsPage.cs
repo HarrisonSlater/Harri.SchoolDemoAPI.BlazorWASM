@@ -30,14 +30,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
         public ILocator StudentGPASearch => _page.Locator(".filter-input-gpa.filter-header-cell");
         public ILocator StudentGPASearchInput => StudentGPASearch.Locator("input");
         public ILocator StudentGPASearchFilterDropDownButton => StudentGPASearch.Locator(".mud-menu button.mud-icon-button");
-
-
         public ILocator StudentGPASearchClear => _page.Locator(".filter-input-gpa button[aria-label=\"Clear Filter\"]");
 
         public ILocator StudentEditButton => _page.Locator(".student-edit-button");
         public ILocator StudentSuccessAlert => _page.Locator("#student-success-alert");
         public ILocator StudentEditSuccessAlert => _page.Locator("#student-edit-success-alert");
         public ILocator StudentDeleteAlert => _page.Locator("#student-delete-alert");
+        public ILocator StudentErrorAlert => _page.Locator("#student-error-alert");
 
         public PaginationActions Pagination { get; set; }
         public AlertActions Alerts { get; set; }
@@ -225,6 +224,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             return await StudentDeleteAlert.TextContentAsync();
         }
 
+        public async Task<string?> GetErrorAlert()
+        {
+            await Assertions.Expect(StudentErrorAlert).ToBeVisibleAsync();
+            return await StudentErrorAlert.TextContentAsync();
+        }
+
         public async Task<string> GetSuccessAlertId()
         {
             return Alerts.ExtractIdFromAlert(await GetSuccessAlert());
@@ -285,6 +290,11 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
             await AssertRowsAndGetCellData(sIds);
 
             return await AssertRowsAndGetCellData(names);
+        }
+
+        public async Task AssertNoErrorAlert()
+        {
+            await Assertions.Expect(StudentErrorAlert).Not.ToBeVisibleAsync();
         }
     }
 }

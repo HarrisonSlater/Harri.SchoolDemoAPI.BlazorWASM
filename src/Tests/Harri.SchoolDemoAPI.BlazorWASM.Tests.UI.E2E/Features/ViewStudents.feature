@@ -129,5 +129,25 @@ Scenario: Filter students by 'is not empty' GPA
 	And I set the student GPA filter to 'is not empty'
 	Then I should see the same student with name "Test Student - GPA Not Null" and GPA "2.33"
 
-#TODO Filter input errors (-1) 
+#Input error scenarios
+Scenario: Enter a student ID that is invalid
+	Given I am on the students page
+	And I see a table full of students on page 1
+	When I search for student id "-1"
+	Then I should see a filter input validation error 
+	Then The students table should be empty
+	When I clear the student id filter
+	Then I see page 1 again
+	And I should not see any filter input validation errors
+
+Scenario: Enter a student GPA that is invalid
+	Given I am on the students page
+	And I see a table full of students on page 1
+	When I search for student with GPA "-1"
+	Then I should see a filter input validation error 
+	Then The students table should be empty
+	When I clear the student GPA filter
+	Then I see page 1 again
+	And I should not see any filter input validation errors
+
 #TODO Combo filter test

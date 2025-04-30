@@ -267,5 +267,19 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
                 assert.Invoke(parsedActual, parsedExpectation);
             });
         }
+
+        [Then("I should see a filter input validation error")]
+        public async Task IShouldSeeAFilterInputValidationMessage()
+        {
+            var errorMessage = await _studentsPage.GetErrorAlert();
+
+            errorMessage.Should().NotBeNullOrEmpty();
+        }
+
+        [Then("I should not see any filter input validation errors")]
+        public async Task IShouldNotSeeAFilterInputValidationMessage()
+        {
+            await _studentsPage.AssertNoErrorAlert();
+        }
     }
 }
