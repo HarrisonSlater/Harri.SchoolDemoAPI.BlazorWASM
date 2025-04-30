@@ -89,7 +89,7 @@ Scenario: Filter students by exact GPA
 	Then I should see the same student with name "Test Student - GPA" and GPA "0.51"
 	And I should see only students with the GPA "0.51"
 
-# filter by partial
+# filter by greater than/less than
 Scenario: Filter students by greater than/less than GPA
 	Given I am on the students page
 	And I see a table full of students
@@ -110,6 +110,7 @@ Scenario: Enter a student GPA that does not match any students
 	When I clear the student GPA filter
 	Then I see page 1 again
 
+#is null / is not null
 @cleanupNewStudent
 Scenario: Filter students by 'is empty' GPA
 	Given A new student "Test Student - GPA Null" exists

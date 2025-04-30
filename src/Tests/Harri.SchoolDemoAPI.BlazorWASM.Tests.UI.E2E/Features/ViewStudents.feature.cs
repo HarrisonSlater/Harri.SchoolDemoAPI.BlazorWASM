@@ -465,7 +465,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("I clear the student GPA filter", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 99
- testRunner.And("I search for student with GPA less than \"2\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I search for student with GPA less than \"3\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 100
  testRunner.Then("I should see only students with a GPA less than \"2\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
@@ -528,7 +528,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "cleanupNewStudent"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Filter students by \'is empty\' GPA", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 114
+#line 115
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -538,22 +538,22 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 115
+#line 116
  testRunner.Given("A new student \"Test Student - GPA Null\" exists", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 116
+#line 117
  testRunner.And("I am on the students page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 117
+#line 118
  testRunner.And("I see a table full of students", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 118
+#line 119
  testRunner.When("I search for the new student by name", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 119
+#line 120
  testRunner.And("I set the student GPA filter to \'is empty\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 120
+#line 121
  testRunner.Then("I should see the same student with name \"Test Student - GPA Null\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -569,7 +569,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "cleanupNewStudent"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Filter students by \'is not empty\' GPA", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 123
+#line 124
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -579,22 +579,22 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 124
+#line 125
  testRunner.Given("A new student \"Test Student - GPA Not Null\" with GPA \"2.33\" exists", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 125
+#line 126
  testRunner.And("I am on the students page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 126
+#line 127
  testRunner.And("I see a table full of students", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 127
+#line 128
  testRunner.When("I search for the new student by name", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 128
+#line 129
  testRunner.And("I set the student GPA filter to \'is not empty\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 129
+#line 130
  testRunner.Then("I should see the same student with name \"Test Student - GPA Not Null\" and GPA \"2." +
                         "33\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
