@@ -22,7 +22,7 @@
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid ServerData=@((state) => ServerReload(state, new StudentSearchFilters(state.FilterDefinitions))) Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
+    <MudDataGrid SortMode="SortMode.Single" T=StudentDto @ref=DataGrid ServerData=@((state) => ServerReload(state, new StudentSearchFilters(state.FilterDefinitions))) Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
                  Filterable FilterMode=DataGridFilterMode.ColumnFilterRow>
         <Columns>
             <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" FilterOperators=Constants.SearchFilters.Students.SIdOperators /> 

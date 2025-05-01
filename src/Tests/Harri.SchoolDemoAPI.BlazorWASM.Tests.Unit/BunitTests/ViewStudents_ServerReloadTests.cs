@@ -26,7 +26,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
     [TestFixture]
     public class ViewStudents_ServerReloadTests : BunitTestContext
     {
-        private Mock<IStudentApi> _mockStudentApiClient;
+        private Mock<IStudentApi>? _mockStudentApiClient;
 
         [SetUp]
         public void SetUp()
