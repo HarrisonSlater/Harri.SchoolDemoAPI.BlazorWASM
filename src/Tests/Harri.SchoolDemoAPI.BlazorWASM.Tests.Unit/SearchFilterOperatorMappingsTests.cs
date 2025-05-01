@@ -12,7 +12,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
     [TestFixture]
     public class SearchFilterOperatorMappingsTests
     {
-
         /// <see cref="Constants.SearchFilters.Students.GPAFilterOperators"/>
         private static IEnumerable<TestCaseData> GPAFilterValuesTestCases()
         {
@@ -81,7 +80,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             };
 
             // Act
-
             var action = () => SearchFilterOperatorMappings.GetGPAQueryDto(parsedFilters);
 
             // Assert
