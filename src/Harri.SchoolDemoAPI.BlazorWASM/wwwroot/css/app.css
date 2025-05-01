@@ -103,13 +103,14 @@ code {
     color: #c02d76;
 }
 
-/* Overrides to disable the default datagrid filter buttons (which are not used) */
-/* It would be better to not render these components at all but that requires a custom mud blazor FilterTemplate which is not a simple solution */
+/* Overrides to disable the default datagrid filter buttons (which are not used in some cases) */
+/* It would be better to not render these components at all but that requires a custom mud blazor FilterTemplate which is not as simple a solution */
 .mud-data-grid .mud-table-head .mud-table-row .filter-disable-operators .mud-input-numeric-spin {
     display: none !important;
 }
 
-.mud-data-grid .mud-table-head .mud-table-row .filter-disable-operators .mud-menu {
+
+.mud-data-grid .mud-table-head .mud-table-row .filter-disable-operators .mud-menu :nth-child(1) {
     display: none !important;
 }
 
