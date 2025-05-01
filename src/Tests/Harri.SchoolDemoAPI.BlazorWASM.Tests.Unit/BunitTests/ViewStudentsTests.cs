@@ -27,15 +27,12 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         public const string NameDataCellsSelector = "td[data-label=\"Name\"]";
         public const string GPADataCellsSelector = "td[data-label=\"GPA\"]";
 
-
         //These filters are selected via class because MudBlazor doesn't seem to have a way to set id's for the default filter implementation
         public const string StudentSearchSIdSelector = ".filter-input-sid.filter-header-cell input";
 
         public const string StudentSearchNameSelector = ".filter-input-student-name.filter-header-cell input";
-        //public const string StudentSearchNameSelectorClear = ".filter-input-student-name.filter-header-cell input";
 
         public const string StudentSearchGPASelector = ".filter-input-gpa.filter-header-cell input";
-        //public const string StudentSearchSIdSelectorClear = ".filter-input-student-name.filter-header-cell input";
 
         private const string ErrorInputsSelector = ".mud-input-control.mud-input-error";
 
@@ -57,19 +54,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             Services.AddMudServices();
             JSInterop.Mode = JSRuntimeMode.Loose; // Ignores mudblazor JS calls
-
-            /*JSInterop.SetupVoid("mudKeyInterceptor.connect", _ => true);
-            JSInterop.SetupVoid("mudPopover.connect", _ => true);
-            JSInterop.SetupVoid("mudPopover.initialize", _ => true);
-            */
-
-            /*
-            JSInterop.SetupVoid("mudElementRef.getBoundingClientRect", _ => true);
-            JSInterop.Setup<BoundingClientRect>("mudElementRef.getBoundingClientRect", _ => true);
-            JSInterop.Setup<int>("mudpopoverHelper.countProviders");
-            JSInterop.SetupVoid("watchDarkThemeMedia", _ => true);
-            */
-
 
             TestContext!.RenderTree.Add<MainLayout>();
         }
@@ -232,17 +216,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             studentsPage.Instance.Filters!.ParsedSIdFilter.Should().Be(parsedInt);
         }
-
-        // Impossible input with default mudblazor filter
-        /*
-        TODO test in UI tests
-         * 
-         * [TestCase("")]
-        [TestCase(" ")]
-        [TestCase("10 1")]
-        [TestCase("invalid")]
-        [TestCase("101f")]
-        */
 
         [TestCase("Test Student")]
         public void ViewStudents_SearchFeature_ShouldFilterByName(string searchString)
