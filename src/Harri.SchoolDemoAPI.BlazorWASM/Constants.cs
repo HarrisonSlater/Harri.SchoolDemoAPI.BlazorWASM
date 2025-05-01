@@ -24,7 +24,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM
                     FilterOperator.Number.GreaterThan,
                     FilterOperator.Number.LessThan,
                     FilterOperator.Number.Empty, 
-                    FilterOperator.Number.NotEmpty // TODO test
+                    FilterOperator.Number.NotEmpty
                 };
 
                 // SId and Name operators are set in case something goes wrong with the css disable class 'filter-disable-operators'

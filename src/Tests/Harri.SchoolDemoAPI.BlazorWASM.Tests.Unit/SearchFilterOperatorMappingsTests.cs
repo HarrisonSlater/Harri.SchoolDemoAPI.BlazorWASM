@@ -19,13 +19,21 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
             yield return new TestCaseData(null, FilterOperator.Number.Equal, null);
             yield return new TestCaseData(null, FilterOperator.Number.GreaterThan, null);
             yield return new TestCaseData(null, FilterOperator.Number.LessThan, null);
+
             yield return new TestCaseData(null, FilterOperator.Number.Empty, new GPAQueryDto() { GPA = new() { IsNull = true } });
+            yield return new TestCaseData(1m, FilterOperator.Number.Empty, new GPAQueryDto() { GPA = new() { IsNull = true } });
+
+            yield return new TestCaseData(null, FilterOperator.Number.NotEmpty, new GPAQueryDto() { GPA = new() { IsNull = false } });
+            yield return new TestCaseData(1m, FilterOperator.Number.NotEmpty, new GPAQueryDto() { GPA = new() { IsNull = false } });
+
             yield return new TestCaseData(0m, FilterOperator.Number.Equal, new GPAQueryDto() { GPA = new() { Eq = 0m } });
             yield return new TestCaseData(4m, FilterOperator.Number.Equal, new GPAQueryDto() { GPA = new() { Eq = 4m } });
             yield return new TestCaseData(3.47m, FilterOperator.Number.Equal, new GPAQueryDto() { GPA = new() { Eq = 3.47m } });
+
             yield return new TestCaseData(0m, FilterOperator.Number.GreaterThan, new GPAQueryDto() { GPA = new() { Gt = 0m } });
             yield return new TestCaseData(4m, FilterOperator.Number.GreaterThan, new GPAQueryDto() { GPA = new() { Gt = 4m } });
             yield return new TestCaseData(3.47m, FilterOperator.Number.GreaterThan, new GPAQueryDto() { GPA = new() { Gt = 3.47m } });
+
             yield return new TestCaseData(0m, FilterOperator.Number.LessThan, new GPAQueryDto() { GPA = new() { Lt = 0m } });
             yield return new TestCaseData(4m, FilterOperator.Number.LessThan, new GPAQueryDto() { GPA = new() { Lt = 4m } });
             yield return new TestCaseData(3.47m, FilterOperator.Number.LessThan, new GPAQueryDto() { GPA = new() { Lt = 3.47m } });
