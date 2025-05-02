@@ -66,8 +66,6 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
                 new FilterDefinition<StudentDto>() { Value = gpa, Column = RenderPropertyColumn<StudentDto, decimal?>((StudentDto x) => x.GPA)},
             };
 
-            //c.FilterContext.FilterDefinition.Value = ;
-
             // Act
             _studentSearchFilters = new StudentSearchFilters(filterDefinitions);
 
