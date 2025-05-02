@@ -3,8 +3,11 @@
 @page "/students/page/{PageNumber:int}"
 @using Harri.SchoolDemoAPI.BlazorWASM.Components.Alerts
 @using Harri.SchoolDemoAPI.BlazorWASM.Filters
+@using System.Text.Json
+@using System.Text.Json.Nodes
+@using Harri.SchoolDemoAPI.BlazorWASM;
 @inject NavigationManager NavigationManager
-@inject IStudentApiClient _studentClient
+@inject IStudentApi _studentClient
 
 <PageTitle>Students</PageTitle>
 
@@ -13,25 +16,19 @@
 
     @if (ShowError)
     {
-        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@Text.StudentsPage.ErrorText</MudAlert>
+        <MudAlert id="student-error-alert" Severity="Severity.Error" Variant="Variant.Filled">@ErrorMessage</MudAlert>
     }
     <StudentAlert Severity=Severity.Success id="student-success-alert" Class="mb-4" Message=Text.StudentsPage.SuccessMessage StudentId=@SuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Success id="student-edit-success-alert" Class="mb-4" Message=Text.StudentsPage.EditSuccessMessage StudentId=@EditSuccessfulStudentId CloseCallback=CloseSuccessAlert />
     <StudentAlert Severity=Severity.Warning id="student-delete-alert" Class="mb-4" Message=Text.StudentsPage.DeleteSuccessMessage StudentId=@DeleteStudentIdAlert CloseCallback=CloseSuccessAlert />
 
-    <MudDataGrid T=StudentDto @ref=DataGrid Items=AllStudents Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
-            QuickFilter=StudentDtoFilter.QuickFilterFor(SearchString)>
-
-        <ToolBarContent>
-            <MudSpacer />
-            <MudTextField @bind-Value=SearchString id="student-search" Placeholder="Search" Adornment=Adornment.Start Immediate
-                AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
-        </ToolBarContent>
+    <MudDataGrid SortMode="SortMode.Single" T=StudentDto @ref=DataGrid ServerData=@((state) => ServerReload(state, new StudentSearchFilters(state.FilterDefinitions))) Hover=true Striped=true Dense=true RowsPerPage=15 CurrentPage=CurrentPage Breakpoint=Breakpoint.None
+                 Filterable FilterMode=DataGridFilterMode.ColumnFilterRow>
         <Columns>
-            <PropertyColumn Property="x => x.SId" />
-            <PropertyColumn Property="x => x.Name" />
-            <PropertyColumn Property="x => x.GPA" />
-            <TemplateColumn CellClass="d-flex justify-end mr-2">
+            <PropertyColumn Property="x => x.SId" Title="Student ID" Class="filter-input-sid filter-disable-operators" FilterOperators=Constants.SearchFilters.Students.SIdOperators /> 
+            <PropertyColumn Property="x => x.Name" Title="Name" Class="filter-input-student-name filter-disable-operators" FilterOperators=Constants.SearchFilters.Students.NameOperators />
+            <PropertyColumn Property="x => x.GPA" Class="filter-input-gpa" FilterOperators=Constants.SearchFilters.Students.GPAFilterOperators />
+            <TemplateColumn CellClass="d-flex justify-end mr-2" Filterable=false>
                 <CellTemplate>
                     <MudStack Row>
                         <MudButton Class="student-edit-button" OnClick=@(() => GoToEditStudent(context.Item.SId)) Size=Size.Small Variant=Variant.Filled Color=Color.Primary StartIcon=@Icons.Material.Filled.Edit DisableElevation>Edit</MudButton>
@@ -43,12 +40,10 @@
             <MudDataGridPager T=StudentDto PageSizeOptions=@(new int[] { 10, 15, 50, 100 }) />
         </PagerContent>
     </MudDataGrid>
-    
+
 </MudContainer>
 
 @code {
-    List<StudentDto>? AllStudents { get; set; }
-
     [Parameter]
     public int? PageNumber { get; set; }
 
@@ -63,14 +58,15 @@
     public string? DeleteStudentIdAlert { get; set; }
 
     internal bool ShowError { get; set; }
+    internal string ErrorMessage { get; set; } = DefaultErrorMessage;
+
+    private static string DefaultErrorMessage => Text.StudentsPage.ErrorText;
 
     public int CurrentPage { get; set; }
 
     internal bool AddSuccessIdToHistory { get; set; }
 
-    internal string? SearchString { get; set; }
-
-    private MudDataGrid<StudentDto>? DataGrid;
+    internal MudDataGrid<StudentDto>? DataGrid;
 
     private bool PageNumberNullInUrl { get; set; }
 
@@ -81,19 +77,8 @@
 
     private bool RegisterEventHandlers { get; set; } = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var studentsResponse = await _studentClient.GetStudentsRestResponse();
-
-        if (studentsResponse.Data != null)
-        {
-            AllStudents = studentsResponse.Data;
-        }
-        else
-        {
-            ShowError = true;
-        }
-
         Initialized = true;
     }
 
@@ -121,7 +106,7 @@
         NavigationManager.NavigateTo($"/students/{sid}", replace: false);
     }
 
-    private void PagerStateChanged() 
+    private void PagerStateChanged()
     {
         if (DataGrid is not null && Initialized && ParametersSet)
         {
@@ -138,6 +123,56 @@
                 PageNumberNullInUrl = false;
             }
         }
+    }
+
+    internal StudentSearchFilters? Filters { get; set; } 
+
+    internal async Task<GridData<StudentDto>> ServerReload(GridState<StudentDto> state, StudentSearchFilters filters)
+    {
+        Filters = filters;
+        ShowError = false;
+
+        var studentsResponse = await _studentClient.GetStudentsRestResponse(
+            sId: filters.ParsedSIdFilter,
+            name: filters.ParsedNameFilter,
+            gpaQuery: SearchFilterOperatorMappings.GetGPAQueryDto(filters), 
+            page: state.Page + 1, 
+            pageSize: state.PageSize
+        );
+
+        // Console.WriteLine(studentsResponse.StatusCode);
+        // Console.WriteLine(studentsResponse.IsSuccessStatusCode);
+
+        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            //TODO show no students found message
+            await InvokeAsync(StateHasChanged);
+            return new GridData<StudentDto>();
+        }
+        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        {
+            //Parse error text programatically,  TODO update rest client + api response types
+            var error = JsonNode.Parse(studentsResponse?.Content ?? "null");
+
+            ShowError = true;
+            ErrorMessage = error?["errors"]?.ToJsonString() ?? DefaultErrorMessage; 
+            await InvokeAsync(StateHasChanged);
+            return new GridData<StudentDto>();
+        }
+        if (!studentsResponse.IsSuccessStatusCode || studentsResponse.Data is null)
+        {
+            ShowError = true;
+            ErrorMessage = DefaultErrorMessage;
+            await InvokeAsync(StateHasChanged);
+            return new GridData<StudentDto>();
+        }
+
+        await InvokeAsync(StateHasChanged); // Refreshing state here ensures displayed errors are hidden after refreshing the data grid
+        return new GridData<StudentDto>()
+        {
+            Items = studentsResponse.Data.Items,
+            TotalItems = studentsResponse.Data.TotalCount
+        };
     }
 
     private string GetQueryString()

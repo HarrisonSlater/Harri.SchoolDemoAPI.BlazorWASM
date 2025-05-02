@@ -1,10 +1,10 @@
 using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Pages;
-using Harri.SchoolDemoApi.Client;
 using Harri.SchoolDemoAPI.Models.Dto;
 using Moq;
 using MudBlazor.Services;
 using System.Threading.Tasks;
+using Harri.SchoolDemoAPI.Client;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 {
@@ -22,13 +22,13 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
         public const string ErrorText = ".mud-input-helper-text";
 
-        private Mock<IStudentApiClient> _mockStudentApiClient = new Mock<IStudentApiClient>();
+        private Mock<IStudentApi> _mockStudentApiClient = new Mock<IStudentApi>();
         private StudentDto? _existingStudent;
 
         [SetUp]
         public void SetUp()
         {
-            _mockStudentApiClient = new Mock<IStudentApiClient>();
+            _mockStudentApiClient = new Mock<IStudentApi>();
 
             SetUpMockStudent();
 

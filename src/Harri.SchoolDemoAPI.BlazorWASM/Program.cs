@@ -1,5 +1,5 @@
 using Harri.SchoolDemoAPI.BlazorWASM;
-using Harri.SchoolDemoApi.Client;
+using Harri.SchoolDemoAPI.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -16,7 +16,7 @@ if (url is null)
 }
 
 var uri = new Uri(url);
-builder.Services.AddSingleton<IStudentApiClient>(sp => new StudentApiClient(new HttpClient() { BaseAddress = uri }));
+builder.Services.AddSingleton<IStudentApi>(sp => new StudentApiClient(new HttpClient() { BaseAddress = uri }));
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();

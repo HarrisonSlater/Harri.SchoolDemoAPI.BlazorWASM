@@ -199,7 +199,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Then("I should not see a success alert", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 33
- testRunner.When("I search for student \"Tester StudentE2E-2 Not Saved\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I search for student with name \"Tester StudentE2E-2 Not Saved\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 34
  testRunner.Then("The students table should be empty", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Harri.SchoolDemoAPI.BlazorWASM.Filters;
 using Harri.SchoolDemoAPI.Models.Dto;
+using System;
 
 namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
 {
@@ -26,6 +27,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit
         [TestCase("1010", false)]
         [TestCase("10111", false)]
         [TestCase("4.43", false)]
+        [Obsolete]
         public void QuickFilterFor_ShouldFilterAsExpected(string searchString, bool expectedResult)
         {
             // Arrange

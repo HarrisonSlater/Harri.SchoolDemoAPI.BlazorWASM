@@ -30,7 +30,7 @@ Scenario: Create new student with name and GPA without saving
 	And I enter a student GPA "0.59"
 	And navigate to the students page
 	Then I should not see a success alert
-	When I search for student "Tester StudentE2E-2 Not Saved"
+	When I search for student with name "Tester StudentE2E-2 Not Saved"
 	Then The students table should be empty
 
 # Negative

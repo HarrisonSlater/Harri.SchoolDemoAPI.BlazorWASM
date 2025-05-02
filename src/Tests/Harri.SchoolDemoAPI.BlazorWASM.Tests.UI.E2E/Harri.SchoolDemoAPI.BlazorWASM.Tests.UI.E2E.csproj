@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Pagination\**" />
+    <EmbeddedResource Remove="Features\Pagination\**" />
+    <None Remove="Features\Pagination\**" />
+    <SpecFlowFeatureFiles Remove="Features\Pagination\**" />
+    <SpecFlowObsoleteCodeBehindFiles Remove="Features\Pagination\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="appsettings.json" />
   </ItemGroup>
 

@@ -115,7 +115,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         [When("(I )search for the new/updated student")]
         public async Task ISearchForTheNewStudent()
         {
-            await _studentsPage.SearchForStudent(_createdTestStudent.StudentId);
+            await _studentsPage.SearchForStudentBySId(_createdTestStudent.StudentId);
         }
     }
 }

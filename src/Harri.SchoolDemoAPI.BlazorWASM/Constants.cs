@@ -1,4 +1,7 @@
-﻿namespace Harri.SchoolDemoAPI.BlazorWASM
+﻿using Harri.SchoolDemoAPI.BlazorWASM.Filters;
+using MudBlazor;
+
+namespace Harri.SchoolDemoAPI.BlazorWASM
 {
     public static class Constants
     {
@@ -10,5 +13,32 @@
 
             public const string InvalidStudentId = "invalidStudentId";
         }
+
+        public static class SearchFilters
+        {
+            public static class Students
+            {
+                public static readonly HashSet<string> GPAFilterOperators = new HashSet<string>()
+                {
+                    FilterOperator.Number.Equal,
+                    FilterOperator.Number.GreaterThan,
+                    FilterOperator.Number.LessThan,
+                    FilterOperator.Number.Empty, 
+                    FilterOperator.Number.NotEmpty
+                };
+
+                // SId and Name operators are set in case something goes wrong with the css disable class 'filter-disable-operators'
+                public static readonly HashSet<string> SIdOperators = new HashSet<string>()
+                {
+                    FilterOperator.Number.Equal
+                };
+
+                public static readonly HashSet<string> NameOperators = new HashSet<string>()
+                {
+                    FilterOperator.String.Contains
+                };
+            }
+        }
+
     }
 }
