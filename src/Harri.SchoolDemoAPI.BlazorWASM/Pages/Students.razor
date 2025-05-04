@@ -70,10 +70,8 @@
 
     private bool PageNumberNullInUrl { get; set; }
 
-    // Lifecycle properties
 
 
-    //private bool RegisterEventHandlers { get; set; } = true;
 
     protected override void OnParametersSet()
     {
@@ -87,7 +85,6 @@
     {
         if (firstRender)
         {
-            //RegisterEventHandlers = false;
 
             DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
