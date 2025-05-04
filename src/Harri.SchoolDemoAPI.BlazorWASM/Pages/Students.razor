@@ -71,16 +71,9 @@
     private bool PageNumberNullInUrl { get; set; }
 
     // Lifecycle properties
-    private bool Initialized { get; set; }
 
-    private bool ParametersSet { get; set; }
 
-    private bool RegisterEventHandlers { get; set; } = true;
-
-    protected override void OnInitialized()
-    {
-        Initialized = true;
-    }
+    //private bool RegisterEventHandlers { get; set; } = true;
 
     protected override void OnParametersSet()
     {
@@ -88,27 +81,21 @@
 
         PageNumber = PageNumber ?? 1;
         CurrentPage = (PageNumber.Value) - 1;
-        ParametersSet = true;
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (ParametersSet && RegisterEventHandlers)
+        if (firstRender)
         {
-            RegisterEventHandlers = false;
+            //RegisterEventHandlers = false;
 
             DataGrid!.PagerStateHasChangedEvent += () => PagerStateChanged();
         }
     }
 
-    private void GoToEditStudent(int? sid)
-    {
-        NavigationManager.NavigateTo($"/students/{sid}", replace: false);
-    }
-
     private void PagerStateChanged()
     {
-        if (DataGrid is not null && Initialized && ParametersSet)
+        if (DataGrid is not null) 
         {
             //Set the URL to include page number which updates when the page is changed in the MudDataGridPager
             var pageNumber = DataGrid!.CurrentPage + 1;
@@ -123,6 +110,11 @@
                 PageNumberNullInUrl = false;
             }
         }
+    }
+
+    private void GoToEditStudent(int? sid)
+    {
+        NavigationManager.NavigateTo($"/students/{sid}", replace: false);
     }
 
     internal StudentSearchFilters? Filters { get; set; } 
