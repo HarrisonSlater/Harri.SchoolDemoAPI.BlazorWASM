@@ -132,7 +132,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         private static IEnumerable<TestCaseData> StudentApiResponseTestCases()
         {
             yield return new TestCaseData(GetTestRestResponse(HttpStatusCode.OK), false, 3);
-            yield return new TestCaseData(GetTestRestResponse(HttpStatusCode.NotFound, false), false, 0);
+            yield return new TestCaseData(GetTestRestResponse(HttpStatusCode.NoContent, false), false, 0);
             yield return new TestCaseData(GetTestRestResponse(HttpStatusCode.BadRequest, false), true, 0);
             yield return new TestCaseData(GetTestRestResponse(HttpStatusCode.InternalServerError, false), true, 0);
 
