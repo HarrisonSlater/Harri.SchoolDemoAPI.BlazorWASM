@@ -129,7 +129,7 @@
         // Console.WriteLine(studentsResponse.StatusCode);
         // Console.WriteLine(studentsResponse.IsSuccessStatusCode);
 
-        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (studentsResponse.StatusCode == System.Net.HttpStatusCode.NoContent)
         {
             //TODO show no students found message
             await InvokeAsync(StateHasChanged);
