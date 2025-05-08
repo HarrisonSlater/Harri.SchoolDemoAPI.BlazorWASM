@@ -269,6 +269,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [Then("I should see a filter input validation error")]
+        [Then("I should see an error alert")]
         public async Task IShouldSeeAFilterInputValidationMessage()
         {
             var errorMessage = await _studentsPage.GetErrorAlert();
@@ -277,6 +278,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps
         }
 
         [Then("I should not see any filter input validation errors")]
+        [Then("I should not see an error alert")]
         public async Task IShouldNotSeeAFilterInputValidationMessage()
         {
             await _studentsPage.AssertNoErrorAlert();
