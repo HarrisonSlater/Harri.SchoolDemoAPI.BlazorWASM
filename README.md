@@ -7,21 +7,20 @@ The backend .NET 8 REST API is a separate project here: [Harri.SchoolDemoAPI](ht
 ## 🚧 Work In Progress - UI
 So far the students pages are complete with in-depth Bunit and Playwright tests covering the implemented functionality
 
-
-
-
 # Running the app
 To point to a local Harri.SchoolDemoAPI instance:
 
-Set `StudentDemoAPIUrl` in [appsettings.json](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI.BlazorWASM/blob/main/src/Harri.SchoolDemoAPI.BlazorWASM/wwwroot/appsettings.json)
+1. Set `StudentDemoAPIUrl` in [`wwwroot/appsettings.json`](/src/Harri.SchoolDemoAPI.BlazorWASM/wwwroot/appsettings.json) (defaults to `http://localhost:8080`).
+2. Ensure the backend API and database is running (see [running from container instructions](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI#running-from-container)).
+3. From the project root:
+   ```bash
+   dotnet run --project src/Harri.SchoolDemoAPI.BlazorWASM/Harri.SchoolDemoAPI.BlazorWASM.csproj
+   ```
 
- By default `StudentDemoAPIUrl` points to http://localhost:8080 
-
-To set up and run the REST API and SQL DB locally see the [running from container instructions](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI#running-from-container)
 # Nuget packages used
 - [MudBlazor](https://mudblazor.com/)
 - [Harri.SchoolDemoAPI](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI)
-- 
+  
 ## Tests
 - [NUnit](https://github.com/nunit/nunit)
 - [FluentAssertions](https://github.com/fluentassertions/fluentassertions)
