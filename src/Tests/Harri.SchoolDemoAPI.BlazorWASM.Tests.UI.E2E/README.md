@@ -7,8 +7,6 @@ End-to-end UI tests for the Harri School Demo Blazor WebAssembly Admin UI, writt
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
 - [Running Tests](#running-tests)
-  - [Command Line](#command-line)
-  - [Visual Studio](#visual-studio)
 ## Prerequisites
 
 - .NET 8 SDK
@@ -33,14 +31,14 @@ Set `"headless": false` for running the tests in a full browser
 dotnet test src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj
 ```
 
-## Debugging
+### Debugging
 
-### Visual Studio
+#### Visual Studio
 
 1. Under **Test > Configure Run Settings**, select `debug.runsettings` to enable `PWDEBUG`.
 2. Run the UI E2E tests in **Debug** mode to launch full browser windows.
 
-### Command Line
+#### Command Line
 
 1. For debugging step by step enable the playwright debug environment variable
 
