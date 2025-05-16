@@ -1,22 +1,62 @@
-﻿These tests are written using BDD (cucumber via specflow) and the page object model pattern
+# Harri.SchoolDemoAPI.BlazorWASM UI E2E Tests
 
-'Action' classes encapsulate common UI actions across multiple pages
+End-to-end UI tests for the Harri School Demo Blazor WebAssembly Admin UI, written with SpecFlow (Cucumber) and Playwright, following BDD and the Page Object Model pattern.
 
-Any tests that create a new student will use a @cleanupNewStudent tag 
-which will be deleted after a test run in CleanupNewStudentHook.cs
+## Table of Contents
 
-The tests have been written with the goal of many instances of the tests being run 
-simultaneously against a single database, as might be the case in a shared CI environment.
-These tests should not depend on any specific pre-existing data other than the fact that multiple pages of students should be present
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+- [Running Tests](#running-tests)
+  - [Command Line](#command-line)
+  - [Visual Studio](#visual-studio)
+## Prerequisites
 
-# Running the Playwright UI Tests
-When debugging the UI.E2E tests in visual studio choose debug.runsettings in the project directory under Test > Configure Run Settings which configures environment variable PWDEBUG
-Or when running on the command line set the environment variable explicitly:
+- .NET 8 SDK
+- Playwright CLI (`dotnet tool install --global Microsoft.Playwright.CLI` + `playwright install`)
+- A running instance of the [Harri.SchoolDemoAPI.BlazorWASM](https://github.com/HarrisonSlater/Harri.SchoolDemoAPI.BlazorWASM) (default URL: `https://localhost:7144`)
 
+## Configuration
+
+- **SchoolDemoBaseUrl** in `appsettings.json` points to the app base URL.
+- **specflow.actions.json** (default in the test project root):
+  ```json
+  {
+    "headless": true
+  }
+  ```
+Set `"headless": false` for running the tests in a full browser
+
+## Running Tests
+
+```bash
+# Run all UI E2E tests
+dotnet test src/Tests/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E/Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.csproj
+```
+
+## Debugging
+
+### Visual Studio
+
+1. Under **Test > Configure Run Settings**, select `debug.runsettings` to enable `PWDEBUG`.
+2. Run the UI E2E tests in **Debug** mode to launch full browser windows.
+
+### Command Line
+
+1. For debugging step by step enable the playwright debug environment variable
+
+```
 $env:PWDEBUG=1
+```
 
-dotnet test
+## Tags & Cleanup
 
-Also set "headless": false in specflow.actions.json to launch the full browser for debugging
+- Scenarios tagged `@cleanupNewStudent` will delete new students created.
+- `CleanupNewStudentHook.cs` removes these test records after each scenario.
 
- By default SchoolDemoBaseUrl in appsettings.json points to https://localhost:7144
+## Test Data
+
+Tests assume only that multiple pages of students exist; they do **not** depend on specific pre-populated records.
+
+## Parallel Execution
+
+Tests are designed for parallel execution against a single shared database, suitable for CI environments.
