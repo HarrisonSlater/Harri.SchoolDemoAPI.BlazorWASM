@@ -14,6 +14,9 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
     /// These tests are written entirely in C#.
     /// Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating-basic-tests-in-cs-files
     /// </summary>
+
+    //TODO update tests for rowVersion
+
     [TestFixture]
     public class EditStudentFormTests : BunitTestContext
     {
@@ -197,8 +200,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
         {
             // Arrange
             var mockExistingStudent = SetUpMockExistingStudent();
-            _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()))
-                .Returns(Task.FromResult((bool?)true));
+            _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>(), null))
+                .Returns(Task.FromResult(true));
 
             var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
 
@@ -218,18 +221,17 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(
                 x => x.UpdateStudent(123, It.Is<UpdateStudentDto>(
                     dto => dto.Name == updatedName &&
-                    dto.GPA == mockExistingStudent.GPA)
+                    dto.GPA == mockExistingStudent.GPA), null
                 ), Times.Once);
         }
 
         [TestCase(false)]
-        [TestCase(null)]
-        public async Task EditStudent_ForExistingStudent_ShowsErrorOnFailToUpdate(bool? updateStudentResponse)
+        public async Task EditStudent_ForExistingStudent_ShowsErrorOnFailToUpdate(bool updateStudentResponse)
         {
             // Arrange
             var mockExistingStudent = SetUpMockExistingStudent();
 
-            _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()))
+            _mockStudentApiClient.Setup(client => client.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>(), null))
                 .Returns(Task.FromResult(updateStudentResponse));
 
             var editStudentForm = RenderComponent<EditStudentForm>(parameters => parameters.Add(s => s.StudentId, 123));
@@ -251,7 +253,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
             _mockStudentApiClient.Verify(
                 x => x.UpdateStudent(123, It.Is<UpdateStudentDto>(
                     dto => dto.Name == updatedName &&
-                    dto.GPA == mockExistingStudent.GPA)
+                    dto.GPA == mockExistingStudent.GPA), null
                 ), Times.Once);
 
             var errorAlert = editStudentForm.Find(ErrorAlertSelector);
@@ -280,7 +282,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.Unit.BunitTests
 
             // Assert
             button.IsDisabled().Should().BeTrue();
-            _mockStudentApiClient.Verify(x => x.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>()), Times.Never);
+            _mockStudentApiClient.Verify(x => x.UpdateStudent(It.IsAny<int>(), It.IsAny<UpdateStudentDto>(), null), Times.Never);
         }
 
         [Test]

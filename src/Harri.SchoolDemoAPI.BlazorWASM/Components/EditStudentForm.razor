@@ -135,9 +135,9 @@
             Name = Student.Name,
             GPA = Student.GPA
         };
-        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent);
+        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent, null);
 
-        if (response is null or false)
+        if (response is false)
         {
             DisableSubmit = false;
             ShowError = true;
