@@ -71,9 +71,6 @@
             Loading = true;
             ExistingStudent = await _studentClient.GetStudent(StudentId.Value);
             var response = await _studentClient.GetStudentRestResponse(StudentId.Value);
-            //var etag = response.Headers.Single(x => string.Equals(x.Name, "etag", StringComparison.CurrentCultureIgnoreCase));
-            //Console.WriteLine(etag);
-            //Console.WriteLine(RowVersion);
 
             if (ExistingStudent is not null)
             {
