@@ -70,6 +70,11 @@
         {
             Loading = true;
             ExistingStudent = await _studentClient.GetStudent(StudentId.Value);
+            var response = await _studentClient.GetStudentRestResponse(StudentId.Value);
+            //var etag = response.Headers.Single(x => string.Equals(x.Name, "etag", StringComparison.CurrentCultureIgnoreCase));
+            //Console.WriteLine(etag);
+            //Console.WriteLine(RowVersion);
+
             if (ExistingStudent is not null)
             {
                 Student = new NewStudentDto()
@@ -135,7 +140,7 @@
             Name = Student.Name,
             GPA = Student.GPA
         };
-        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent, null);
+        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent, ExistingStudent?.RowVersion!);
 
         if (response is false)
         {

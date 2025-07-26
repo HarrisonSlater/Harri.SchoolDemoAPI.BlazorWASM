@@ -2,6 +2,7 @@
 Feature: DeleteStudent
 Delete individual students
 
+#TODO add a conditional cleanup here (only when the test fails, before performing its own delete action)
 Scenario: Delete a student
 	Given I am on the edit page for a new student "Tester Student To Delete"
 	When I click delete
