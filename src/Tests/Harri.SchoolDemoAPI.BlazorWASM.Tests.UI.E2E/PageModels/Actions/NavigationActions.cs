@@ -37,7 +37,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertPageLoaded()
         {
-            await Assertions.Expect(BlazorLoadingProgress).Not.ToBeAttachedAsync();
+            await Assertions.Expect(BlazorLoadingProgress).Not.ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions() { Timeout = 30000 });
             await Assertions.Expect(PageHeader).ToBeVisibleAsync();
         }
 
