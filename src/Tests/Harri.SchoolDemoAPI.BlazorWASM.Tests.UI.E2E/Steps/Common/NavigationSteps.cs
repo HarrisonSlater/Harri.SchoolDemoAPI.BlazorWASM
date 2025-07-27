@@ -100,6 +100,7 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.Steps.Common
         public async Task GivenIAmOnTheEditPageForAStudent()
         {
             await GivenIAmOnTheStudentsPage();
+            await _studentsPage.AssertStudentPageIsVisible();
 
             await _studentsPage.ClickEditOnTheFirstStudent();
 

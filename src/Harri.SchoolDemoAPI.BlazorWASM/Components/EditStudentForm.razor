@@ -70,6 +70,8 @@
         {
             Loading = true;
             ExistingStudent = await _studentClient.GetStudent(StudentId.Value);
+            var response = await _studentClient.GetStudentRestResponse(StudentId.Value);
+
             if (ExistingStudent is not null)
             {
                 Student = new NewStudentDto()
@@ -135,9 +137,9 @@
             Name = Student.Name,
             GPA = Student.GPA
         };
-        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent);
+        var response = await _studentClient.UpdateStudent(StudentId!.Value, existingStudent, ExistingStudent?.RowVersion!);
 
-        if (response is null or false)
+        if (response is false)
         {
             DisableSubmit = false;
             ShowError = true;

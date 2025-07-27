@@ -16,7 +16,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         private readonly IPage _page;
 
-        private ILocator PageHeader => _page.Locator("header.mud-appbar .mud-toolbar");
+        private ILocator PageHeader => _page.Locator("header.mud-appbar .mud-toolbar h5:has-text(\"Application\")");
+        private ILocator BlazorLoadingProgress => _page.Locator(".loading-progress");
 
         public NavigationActions(IPage page, SchoolDemoBaseUrlSetting baseUrlSetting, PlaywrightConfiguration config)
         {
@@ -36,7 +37,8 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertPageLoaded()
         {
-            await Assertions.Expect(PageHeader).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions() { Timeout = _config.DefaultTimeout * 1000 });
+            await Assertions.Expect(BlazorLoadingProgress).Not.ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions() { Timeout = 30000 });
+            await Assertions.Expect(PageHeader).ToBeVisibleAsync();
         }
 
         public async Task GoToStudentsPage()
@@ -100,22 +102,22 @@ namespace Harri.SchoolDemoAPI.BlazorWASM.Tests.UI.E2E.PageModels
 
         public async Task AssertStudentsPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/page/(\\d+)"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/page/(\\d+)"));
         }
 
         public async Task AssertCreateNewStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/new$"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/new$"));
         }
 
         public async Task AssertEditStudentPageUrlIsCorrect()
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/(\\d+)$"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex("^.*students/(\\d+)$"));
         }
 
         public async Task AssertEditStudentPageUrlIsCorrect(string id)
         {
-            await Assertions.Expect(_page).ToHaveURLAsync(new Regex($"^.*students/{id}$"), new PageAssertionsToHaveURLOptions());
+            await Assertions.Expect(_page).ToHaveURLAsync(new Regex($"^.*students/{id}$"));
         }
     }
 }

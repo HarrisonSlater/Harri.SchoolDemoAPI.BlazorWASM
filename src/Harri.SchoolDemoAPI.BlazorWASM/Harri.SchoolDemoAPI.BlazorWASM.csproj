@@ -6,11 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Harri.SchoolDemoApi.Client" Version="1.0.16" />
-    <PackageReference Include="Harri.SchoolDemoAPI.Models" Version="1.0.16" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.3" />
+    <PackageReference Include="Harri.SchoolDemoApi.Client" Version="1.0.17" />
+    <PackageReference Include="Harri.SchoolDemoAPI.Models" Version="1.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.3"  />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.3" PrivateAssets="all" />
     <PackageReference Include="MudBlazor" Version="8.0.0-rc.2" />
   </ItemGroup>
