@@ -1,4 +1,4 @@
-# Copilot Instructions for Harri.SchoolDemoAPI.BlazorWASM
+# Harri.SchoolDemoAPI.BlazorWASM
 
 ## Project Overview
 
